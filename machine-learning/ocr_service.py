@@ -8,8 +8,6 @@ class OCRService:
         self.model = GotOcr2ForConditionalGeneration.from_pretrained("stepfun-ai/GOT-OCR-2.0-hf").to(self.device)
         self.processor = AutoProcessor.from_pretrained("stepfun-ai/GOT-OCR-2.0-hf")
 
-
-
     def detect_text (self, image: Image.Image) -> str:
 
         def filter_text(text: str) -> str:
