@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.adika.learnable" />
+                  <option name="mobileSdkAppId" value="1:854871060006:android:999a453a1bc3a86b1e00e7" />
+                  <option name="projectId" value="learnable-22a3b" />
+                  <option name="projectNumber" value="854871060006" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

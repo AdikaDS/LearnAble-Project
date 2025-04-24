@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "854871060006",
+    "project_id": "learnable-22a3b",
+    "storage_bucket": "learnable-22a3b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:854871060006:android:999a453a1bc3a86b1e00e7",
+        "android_client_info": {
+          "package_name": "com.adika.learnable"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCjR7BIr8gw1NpTnDlR1Sm2pA8-uf5IMBM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
