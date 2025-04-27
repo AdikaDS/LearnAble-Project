@@ -12,7 +12,20 @@
           "package_name": "com.adika.learnable"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "854871060006-i4itp9gshkgvk5anitcsjvmv8h9h7ofi.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.adika.learnable",
+            "certificate_hash": "9be020f7246728c7c662616af1b1c5c627b3650b"
+          }
+        },
+        {
+          "client_id": "854871060006-vripgl49aajbp30kmp69fjnoen3hsi25.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCjR7BIr8gw1NpTnDlR1Sm2pA8-uf5IMBM"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "854871060006-vripgl49aajbp30kmp69fjnoen3hsi25.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
