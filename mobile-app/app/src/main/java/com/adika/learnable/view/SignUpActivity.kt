@@ -1,4 +1,4 @@
-package com.adika.learnable
+package com.adika.learnable.view
 
 import android.content.Intent
 import android.os.Bundle
@@ -13,6 +13,7 @@ import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.lifecycle.lifecycleScope
+import com.adika.learnable.R
 import com.adika.learnable.databinding.ActivitySignupBinding
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
@@ -28,36 +29,39 @@ class SignUpActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var credentialManager: CredentialManager
 
+    // Pesan validasi
+    private val nameRequired by lazy { getString(R.string.name_required) }
+    private val emailRequired by lazy { getString(R.string.email_required) }
+    private val emailInvalid by lazy { getString(R.string.email_invalid) }
+    private val passwordRequired by lazy { getString(R.string.password_required) }
+    private val passwordMinLength by lazy { getString(R.string.password_min_length, MIN_PASSWORD_LENGTH) }
+    private val passwordHaveUppercase by lazy { getString(R.string.password_have_uppercase) }
+    private val passwordHaveLowercase by lazy { getString(R.string.password_have_lowercase) }
+    private val passwordHaveNumber by lazy { getString(R.string.password_have_number) }
+    private val passwordHaveSpecialChar by lazy { getString(R.string.password_have_special_char) }
+
+    // Pesan error Firebase
+    private val emailBadFormat by lazy { getString(R.string.email_bad_format) }
+    private val passwordInvalid by lazy { getString(R.string.password_invalid) }
+    private val emailExist by lazy { getString(R.string.email_exist) }
+    private val networkError by lazy { getString(R.string.network_error) }
+    private val invalidCredential by lazy { getString(R.string.invalid_credential) }
+    private val tooManyAttempts by lazy { getString(R.string.too_many_attempts) }
+    private val userDisabled by lazy { getString(R.string.user_disabled) }
+
+    // Pesan umum
+    private val verifyEmail by lazy { getString(R.string.verify_email) }
+    private val verifiyEmailSent by lazy { getString(R.string.verify_email_sent) }
+    private val verifyEmailFailed by lazy { getString(R.string.verify_email_failed) }
+    private val authFailed by lazy { getString(R.string.auth_failed) }
+    private val signupFailed by lazy { getString(R.string.signup_failed) }
+    private val signupSuccess by lazy { getString(R.string.signup_success) }
+    private val profileUpdateFailed by lazy { getString(R.string.profile_update_failed) }
+    private val credentialError by lazy { getString(R.string.credential_error) }
+
     private companion object {
         private const val TAG = "SignUpActivity"
-        private const val MIN_PASSWORD_LENGTH = 6
-
-        // Pesan validasi
-        const val NAME_REQUIRED = "Nama harus diisi"
-        const val EMAIL_REQUIRED = "Email harus diisi"
-        const val EMAIL_INVALID = "Masukkan email yang valid"
-        const val PASSWORD_REQUIRED = "Password harus diisi"
-        const val PASSWORD_MIN_LENGTH = "Password minimal $MIN_PASSWORD_LENGTH karakter"
-
-        // Pesan error Firebase
-        const val EMAIL_BAD_FORMAT = "Format email tidak valid"
-        const val PASSWORD_INVALID = "Password terlalu lemah"
-        const val EMAIL_EXISTS = "Email sudah terdaftar"
-        const val NETWORK_ERROR = "Terjadi kesalahan jaringan"
-        const val INVALID_CREDENTIAL = "Email atau password salah"
-        const val TOO_MANY_ATTEMPTS = "Terlalu banyak percobaan. Silakan coba lagi nanti"
-        const val USER_DISABLED = "Akun ini telah dinonaktifkan"
-
-        // Pesan umum
-        const val VERIFY_EMAIL = "Silakan verifikasi email Anda terlebih dahulu"
-        const val VERIFY_EMAIL_SENT = "Email verifikasi telah dikirim"
-        const val VERIFY_EMAIL_FAILED = "Gagal mengirim email verifikasi"
-        const val AUTH_FAILED = "Autentikasi gagal"
-        const val SIGNUP_FAILED = "Pendaftaran gagal"
-        const val SIGNUP_SUCCESS =
-            "Pendaftaran berhasil. Silakan verifikasi email Anda sebelum login"
-        const val PROFILE_UPDATE_FAILED = "Gagal memperbarui profil"
-        const val CREDENTIAL_ERROR = "Tidak dapat mengambil kredensial pengguna"
+        private const val MIN_PASSWORD_LENGTH = 8
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,7 +82,7 @@ class SignUpActivity : AppCompatActivity() {
             if (currentUser.isEmailVerified) {
                 navigateToMain()
             } else {
-                showToast(VERIFY_EMAIL)
+                showToast(verifyEmail)
                 auth.signOut()
             }
         }
@@ -113,34 +117,61 @@ class SignUpActivity : AppCompatActivity() {
         }
     }
 
+    private fun validatePassword(password: String): Boolean {
+        if (password.isEmpty()) {
+            binding.etPassword.error = passwordRequired
+            binding.etPassword.requestFocus()
+            return false
+        }
+        if (password.length < 8) {
+            binding.etPassword.error = passwordMinLength
+            binding.etPassword.requestFocus()
+            return false
+        }
+        if (!password.any { it.isUpperCase() }) {
+            binding.etPassword.error = passwordHaveUppercase
+            binding.etPassword.requestFocus()
+            return false
+        }
+        if (!password.any { it.isLowerCase() }) {
+            binding.etPassword.error = passwordHaveLowercase
+            binding.etPassword.requestFocus()
+            return false
+        }
+        if (!password.any { it.isDigit() }) {
+            binding.etPassword.error = passwordHaveNumber
+            binding.etPassword.requestFocus()
+            return false
+        }
+        if (!password.any { "!@#\$%^&*()-_=+[{]}|;:',<.>/?".contains(it) }) {
+            binding.etPassword.error = passwordHaveSpecialChar
+            binding.etPassword.requestFocus()
+            return false
+        }
+
+        return true
+    }
+
     private fun validateInputs(name: String, email: String, password: String): Boolean {
         if (name.isEmpty()) {
-            binding.etName.error = NAME_REQUIRED
+            binding.etName.error = nameRequired
             binding.etName.requestFocus()
             return false
         }
 
         if (email.isEmpty()) {
-            binding.etEmail.error = EMAIL_REQUIRED
+            binding.etEmail.error = emailRequired
             binding.etEmail.requestFocus()
             return false
         }
 
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            binding.etEmail.error = EMAIL_INVALID
+            binding.etEmail.error = emailInvalid
             binding.etEmail.requestFocus()
             return false
         }
 
-        if (password.isEmpty()) {
-            binding.etPassword.error = PASSWORD_REQUIRED
-            binding.etPassword.requestFocus()
-            return false
-        }
-
-        if (password.length < MIN_PASSWORD_LENGTH) {
-            binding.etPassword.error = PASSWORD_MIN_LENGTH
-            binding.etPassword.requestFocus()
+        if (!validatePassword(password)) {
             return false
         }
 
@@ -171,7 +202,7 @@ class SignUpActivity : AppCompatActivity() {
                 )
                 handleSignIn(result.credential)
             } catch (e: GetCredentialException) {
-                Log.e(TAG, CREDENTIAL_ERROR, e)
+                Log.e(TAG, credentialError, e)
                 showLoading(false)
             }
         }
@@ -216,7 +247,7 @@ class SignUpActivity : AppCompatActivity() {
                             }
                     }
                 } else {
-                    showToast("$AUTH_FAILED: ${getErrorMessage(task.exception?.message)}")
+                    showToast("$authFailed: ${getErrorMessage(task.exception?.message)}")
                 }
             }
     }
@@ -259,7 +290,7 @@ class SignUpActivity : AppCompatActivity() {
                         firestore.collection("users").document(user.uid)
                             .set(userData)
                             .addOnSuccessListener {
-                                showToast(SIGNUP_SUCCESS)
+                                showToast(signupSuccess)
                                 auth.signOut()
                                 navigateToLogin()
                             }
@@ -269,7 +300,7 @@ class SignUpActivity : AppCompatActivity() {
                             }
                     } else {
                         showLoading(false)
-                        showToast("$PROFILE_UPDATE_FAILED: ${profileTask.exception?.message}")
+                        showToast("$profileUpdateFailed: ${profileTask.exception?.message}")
                     }
                 }
         } else {
@@ -283,23 +314,23 @@ class SignUpActivity : AppCompatActivity() {
         user.sendEmailVerification()
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    showToast(VERIFY_EMAIL_SENT)
+                    showToast(verifiyEmailSent)
                 } else {
-                    showToast(VERIFY_EMAIL_FAILED)
+                    showToast(verifyEmailFailed)
                 }
             }
     }
 
     private fun getErrorMessage(errorMessage: String?): String {
         return when (errorMessage) {
-            "The email address is badly formatted." -> EMAIL_BAD_FORMAT
-            "The password is invalid or the user does not have a password." -> PASSWORD_INVALID
-            "The email address is already in use by another account." -> EMAIL_EXISTS
-            "A network error (such as timeout, interrupted connection or unreachable host) has occurred." -> NETWORK_ERROR
-            "The supplied auth credential is incorrect, malformed or has expired." -> INVALID_CREDENTIAL
-            "We have blocked all requests from this device due to unusual activity. Try again later." -> TOO_MANY_ATTEMPTS
-            "The user account has been disabled by an administrator." -> USER_DISABLED
-            else -> "$SIGNUP_FAILED: $errorMessage"
+            "The email address is badly formatted." -> emailBadFormat
+            "The password is invalid or the user does not have a password." -> passwordInvalid
+            "The email address is already in use by another account." -> emailExist
+            "A network error (such as timeout, interrupted connection or unreachable host) has occurred." -> networkError
+            "The supplied auth credential is incorrect, malformed or has expired." -> invalidCredential
+            "We have blocked all requests from this device due to unusual activity. Try again later." -> tooManyAttempts
+            "The user account has been disabled by an administrator." -> userDisabled
+            else -> "$signupFailed: $errorMessage"
         }
     }
 

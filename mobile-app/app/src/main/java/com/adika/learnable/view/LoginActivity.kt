@@ -1,4 +1,4 @@
-package com.adika.learnable
+package com.adika.learnable.view
 
 import android.content.Intent
 import android.os.Bundle
@@ -13,12 +13,14 @@ import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.lifecycle.lifecycleScope
+import com.adika.learnable.R
 import com.adika.learnable.databinding.ActivityLoginBinding
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.Companion.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {
@@ -26,29 +28,30 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var credentialManager: CredentialManager
 
+    // Pesan validasi
+    private val emailRequired by lazy { getString(R.string.email_required) }
+    private val emailInvalid by lazy { getString(R.string.email_invalid) }
+    private val passwordRequired by lazy { getString(R.string.password_required) }
+    private val passwordMinLength by lazy { getString(R.string.password_min_length, MIN_PASSWORD_LENGTH) }
+
+    // Pesan error Firebase
+    private val emailBadFormat by lazy { getString(R.string.email_bad_format) }
+    private val passwordInvalid by lazy { getString(R.string.password_invalid) }
+    private val emailDosentExist by lazy { getString(R.string.email_doesnt_exist) }
+    private val networkError by lazy { getString(R.string.network_error) }
+    private val invalidCredential by lazy { getString(R.string.invalid_credential) }
+    private val tooManyAttempts by lazy { getString(R.string.too_many_attempts) }
+    private val userDisabled by lazy { getString(R.string.user_disabled) }
+    private val loginFailed by lazy { getString(R.string.login_failed) }
+
+    // Pesan umum
+    private val verifyEmail by lazy { getString(R.string.verify_email) }
+    private val authFailed by lazy { getString(R.string.auth_failed) }
+    private val credentialError by lazy { getString(R.string.credential_error) }
+
     private companion object {
         private const val TAG = "LoginActivity"
-
-        // Pesan validasi
-        const val EMAIL_REQUIRED = "Email harus diisi"
-        const val EMAIL_INVALID = "Masukkan email yang valid"
-        const val PASSWORD_REQUIRED = "Password harus diisi"
-        const val PASSWORD_MIN_LENGTH = "Password minimal 6 karakter"
-
-        // Pesan error Firebase
-        const val EMAIL_BAD_FORMAT = "Format email tidak valid"
-        const val PASSWORD_INVALID = "Password salah"
-        const val USER_NOT_FOUND = "Email tidak terdaftar"
-        const val NETWORK_ERROR = "Terjadi kesalahan jaringan"
-        const val INVALID_CREDENTIAL = "Email atau password salah"
-        const val TOO_MANY_ATTEMPTS = "Terlalu banyak percobaan login. Silakan coba lagi nanti"
-        const val USER_DISABLED = "Akun ini telah dinonaktifkan"
-
-        // Pesan umum
-        const val VERIFY_EMAIL = "Silakan verifikasi email Anda terlebih dahulu"
-        const val AUTH_FAILED = "Autentikasi gagal"
-        const val LOGIN_FAILED = "Login gagal"
-        const val CREDENTIAL_ERROR = "Tidak dapat mengambil kredensial pengguna"
+        private const val MIN_PASSWORD_LENGTH = 8
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -98,28 +101,35 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    private fun validatePassword(password: String): Boolean {
+        if (password.isEmpty()) {
+            binding.etPassword.error = passwordRequired
+            binding.etPassword.requestFocus()
+            return false
+        }
+        if (password.length < 8) {
+            binding.etPassword.error = passwordMinLength
+            binding.etPassword.requestFocus()
+            return false
+        }
+
+        return true
+    }
+
     private fun validateInputs(email: String, password: String): Boolean {
         if (email.isEmpty()) {
-            binding.etEmail.error = EMAIL_REQUIRED
+            binding.etEmail.error = emailRequired
             binding.etEmail.requestFocus()
             return false
         }
 
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            binding.etEmail.error = EMAIL_INVALID
+            binding.etEmail.error = emailInvalid
             binding.etEmail.requestFocus()
             return false
         }
 
-        if (password.isEmpty()) {
-            binding.etPassword.error = PASSWORD_REQUIRED
-            binding.etPassword.requestFocus()
-            return false
-        }
-
-        if (password.length < 6) {
-            binding.etPassword.error = PASSWORD_MIN_LENGTH
-            binding.etPassword.requestFocus()
+        if (!validatePassword(password)) {
             return false
         }
 
@@ -150,7 +160,7 @@ class LoginActivity : AppCompatActivity() {
                 )
                 handleSignIn(result.credential)
             } catch (e: GetCredentialException) {
-                Log.e(TAG, CREDENTIAL_ERROR, e)
+                Log.e(TAG, credentialError, e)
                 showLoading(false)
             }
         }
@@ -173,16 +183,29 @@ class LoginActivity : AppCompatActivity() {
                 if (task.isSuccessful) {
                     val user = auth.currentUser
                     if (user != null) {
-                        if (user.isEmailVerified) {
-                            Log.d(TAG, "signInWithCredential:success")
-                            navigateToMain()
-                        } else {
-                            auth.signOut()
-                            showToast(VERIFY_EMAIL)
-                        }
+                        // Simpan data ke Firestore
+                        val userData = hashMapOf(
+                            "displayName" to user.displayName,
+                            "email" to user.email,
+                            "uid" to user.uid,
+                            "photoUrl" to (user.photoUrl?.toString() ?: ""),
+                            "createdAt" to System.currentTimeMillis()
+                        )
+
+                        val firestore = FirebaseFirestore.getInstance()
+                        firestore.collection("users").document(user.uid)
+                            .set(userData)
+                            .addOnSuccessListener {
+                                Log.d(TAG, "Data Google user berhasil disimpan ke Firestore")
+                                navigateToMain()
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e(TAG, "Gagal menyimpan data Google user: ${e.message}")
+                                showToast("Gagal menyimpan data profil")
+                            }
                     }
                 } else {
-                    showToast("$AUTH_FAILED: ${getErrorMessage(task.exception?.message)}")
+                    showToast("$authFailed: ${getErrorMessage(task.exception?.message)}")
                 }
             }
     }
@@ -199,7 +222,7 @@ class LoginActivity : AppCompatActivity() {
                             navigateToMain()
                         } else {
                             auth.signOut()
-                            showToast(VERIFY_EMAIL)
+                            showToast(verifyEmail)
                         }
                     }
                 } else {
@@ -210,14 +233,14 @@ class LoginActivity : AppCompatActivity() {
 
     private fun getErrorMessage(errorMessage: String?): String {
         return when (errorMessage) {
-            "The email address is badly formatted." -> EMAIL_BAD_FORMAT
-            "The password is invalid or the user does not have a password." -> PASSWORD_INVALID
-            "There is no user record corresponding to this identifier. The user may have been deleted." -> USER_NOT_FOUND
-            "A network error (such as timeout, interrupted connection or unreachable host) has occurred." -> NETWORK_ERROR
-            "The supplied auth credential is incorrect, malformed or has expired." -> INVALID_CREDENTIAL
-            "We have blocked all requests from this device due to unusual activity. Try again later." -> TOO_MANY_ATTEMPTS
-            "The user account has been disabled by an administrator." -> USER_DISABLED
-            else -> "$LOGIN_FAILED: $errorMessage"
+            "The email address is badly formatted." -> emailBadFormat
+            "The password is invalid or the user does not have a password." -> passwordInvalid
+            "There is no user record corresponding to this identifier. The user may have been deleted." -> emailDosentExist
+            "A network error (such as timeout, interrupted connection or unreachable host) has occurred." -> networkError
+            "The supplied auth credential is incorrect, malformed or has expired." -> invalidCredential
+            "We have blocked all requests from this device due to unusual activity. Try again later." -> tooManyAttempts
+            "The user account has been disabled by an administrator." -> userDisabled
+            else -> "$loginFailed: $errorMessage"
         }
     }
 

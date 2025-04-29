@@ -1,6 +1,38 @@
 <resources>
-    <string name="app_name">LearnAble</string>
-    <string name="app_logo">LearnAble Logo</string>
+    <string name="app_name" translatable="false">LearnAble</string>
+    <string name="app_logo" translatable="false">LearnAble Logo</string>
 
-    <string name="web_client_id">854871060006-vripgl49aajbp30kmp69fjnoen3hsi25.apps.googleusercontent.com</string>
+    <!-- Validasi Form -->
+    <string name="name_required">Nama harus diisi</string>
+    <string name="email_required">Email harus diisi</string>
+    <string name="email_invalid">Masukkan email yang valid</string>
+    <string name="password_required">Password harus diisi</string>
+    <string name="password_min_length">Password minimal %1$d karakter</string>
+    <string name="password_have_uppercase">Kata sandi harus mengandung setidaknya satu huruf besar.</string>
+    <string name="password_have_lowercase">Kata sandi harus mengandung setidaknya satu huruf kecil.</string>
+    <string name="password_have_number">Kata sandi harus mengandung setidaknya satu angka.</string>
+    <string name="password_have_special_char">Kata sandi harus mengandung setidaknya satu karakter spesial.</string>
+
+    <!-- Pesan Error Firebase -->
+    <string name="email_bad_format">Format email tidak valid</string>
+    <string name="password_invalid">Password terlalu lemah</string>
+    <string name="email_doesnt_exist">Email tidak terdaftar</string>
+    <string name="email_exist">Email sudah terdaftar</string>
+    <string name="network_error">Terjadi kesalahan jaringan</string>
+    <string name="invalid_credential">Email atau password salah</string>
+    <string name="too_many_attempts">Terlalu banyak percobaan. Silakan coba lagi nanti</string>
+    <string name="user_disabled">Akun ini telah dinonaktifkan</string>
+    <string name="login_failed">Login gagal</string>
+
+    <!-- Pesan Umum -->
+    <string name="verify_email">Silakan verifikasi email Anda terlebih dahulu</string>
+    <string name="verify_email_sent">Email verifikasi telah dikirim</string>
+    <string name="verify_email_failed">Gagal mengirim email verifikasi</string>
+    <string name="auth_failed">Autentikasi gagal</string>
+    <string name="signup_failed">Pendaftaran gagal</string>
+    <string name="signup_success">Pendaftaran berhasil. Silakan verifikasi email Anda sebelum login</string>
+    <string name="profile_update_failed">Gagal memperbarui profil</string>
+    <string name="credential_error">Tidak dapat mengambil kredensial pengguna</string>
+
+    <string name="web_client_id" translatable="false">854871060006-vripgl49aajbp30kmp69fjnoen3hsi25.apps.googleusercontent.com</string>
 </resources>

@@ -1,4 +1,4 @@
-package com.adika.learnable
+package com.adika.learnable.view
 
 import android.content.Intent
 import android.net.Uri
@@ -11,7 +11,10 @@ import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
 import androidx.credentials.exceptions.ClearCredentialException
 import androidx.lifecycle.lifecycleScope
+import com.adika.learnable.R
+import com.adika.learnable.api.ApiConfig
 import com.adika.learnable.databinding.ActivityMainBinding
+import com.adika.learnable.model.ImgurResponse
 import com.bumptech.glide.Glide
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.google.firebase.auth.FirebaseAuth
@@ -20,7 +23,10 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.launch
-import java.util.UUID
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
 
 class MainActivity : AppCompatActivity() {
 
@@ -87,7 +93,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Navigate to LoginActivity
         val intent = Intent(this, LoginActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
@@ -96,20 +101,97 @@ class MainActivity : AppCompatActivity() {
 
     private fun openImagePicker() {
         ImagePicker.with(this)
-            .crop()                    // Crop image
-            .compress(1024)           // Final image size will be less than 1 MB
-            .maxResultSize(1080, 1080) // Final image resolution will be less than 1080 x 1080
+            .crop()
+            .compress(1024)
+            .maxResultSize(1080, 1080)
             .start()
     }
 
-    @Deprecated("This method has been deprecated in favor of using the Activity Result API\n      which brings increased type safety via an {@link ActivityResultContract} and the prebuilt\n      contracts for common intents available in\n      {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for\n      testing, and allow receiving results in separate, testable classes independent from your\n      activity. Use\n      {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}\n      with the appropriate {@link ActivityResultContract} and handling the result in the\n      {@link ActivityResultCallback#onActivityResult(Object) callback}.")
+    @Deprecated("This method has been deprecated in favor of using the Activity Result API")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == RESULT_OK) {
             val uri: Uri = data?.data!!
-            uploadProfilePhoto(uri)
+            uploadImageToImgur(uri)
         } else if (resultCode == ImagePicker.RESULT_ERROR) {
             Toast.makeText(this, ImagePicker.getError(data), Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun uploadImageToImgur(uri: Uri) {
+        showLoading(true)
+        
+        try {
+            val file = File(uri.path!!)
+            val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
+            val body = MultipartBody.Part.createFormData("image", file.name, requestFile)
+
+            ApiConfig.imgurApi.uploadImage("Client-ID ${ApiConfig.IMGUR_CLIENT_ID}", body)
+                .enqueue(object : retrofit2.Callback<ImgurResponse> {
+                    override fun onResponse(
+                        call: retrofit2.Call<ImgurResponse>,
+                        response: retrofit2.Response<ImgurResponse>
+                    ) {
+                        showLoading(false)
+                        if (response.isSuccessful) {
+                            val imageUrl = response.body()?.data?.link
+                            if (imageUrl != null) {
+                                updateProfilePhoto(imageUrl)
+                            } else {
+                                showToast("Gagal mendapatkan URL gambar")
+                            }
+                        } else {
+                            showToast("Gagal mengupload gambar: ${response.message()}")
+                        }
+                    }
+
+                    override fun onFailure(
+                        call: retrofit2.Call<ImgurResponse>,
+                        t: Throwable
+                    ) {
+                        showLoading(false)
+                        showToast("Error: ${t.message}")
+                        Log.e(TAG, "Upload failed", t)
+                    }
+                })
+        } catch (e: Exception) {
+            showLoading(false)
+            showToast("Error: ${e.message}")
+            Log.e(TAG, "Upload failed", e)
+        }
+    }
+
+    private fun updateProfilePhoto(imageUrl: String) {
+        val user = auth.currentUser
+        if (user != null) {
+            // Update Firestore
+            firestore.collection("users").document(user.uid)
+                .update("photoUrl", imageUrl)
+                .addOnSuccessListener {
+                    // Update Firebase Auth profile
+                    val profileUpdates = UserProfileChangeRequest.Builder()
+                        .setPhotoUri(Uri.parse(imageUrl))
+                        .build()
+
+                    user.updateProfile(profileUpdates)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                // Update UI
+                                Glide.with(this)
+                                    .load(imageUrl)
+                                    .placeholder(R.drawable.ic_launcher_background)
+                                    .error(R.drawable.ic_launcher_background)
+                                    .into(binding.ivProfile)
+                                
+                                showToast("Foto profil berhasil diperbarui")
+                            } else {
+                                showToast("Gagal memperbarui foto profil")
+                            }
+                        }
+                }
+                .addOnFailureListener { e ->
+                    showToast("Gagal menyimpan URL foto: ${e.message}")
+                }
         }
     }
 
@@ -178,60 +260,13 @@ class MainActivity : AppCompatActivity() {
                             if (task.isSuccessful) {
                                 showToast("Profil berhasil diperbarui")
                             } else {
-                                showToast("Gagal memperbarui profil: ${task.exception?.message}")
+                                showToast("Gagal memperbarui profil")
                             }
                         }
                 }
                 .addOnFailureListener { e ->
                     showLoading(false)
                     showToast("Gagal memperbarui profil: ${e.message}")
-                }
-        }
-    }
-
-    private fun uploadProfilePhoto(imageUri: Uri) {
-        showLoading(true)
-        val user = auth.currentUser
-        if (user != null) {
-            val imageRef = storageRef.child("profile_images/${user.uid}/${UUID.randomUUID()}")
-
-            imageRef.putFile(imageUri)
-                .addOnSuccessListener { taskSnapshot ->
-                    imageRef.downloadUrl.addOnSuccessListener { uri ->
-                        // Update Firestore with new photo URL
-                        firestore.collection("users").document(user.uid)
-                            .update("photoUrl", uri.toString())
-                            .addOnSuccessListener {
-                                // Update Firebase Auth profile
-                                val profileUpdates = UserProfileChangeRequest.Builder()
-                                    .setPhotoUri(uri)
-                                    .build()
-
-                                user.updateProfile(profileUpdates)
-                                    .addOnCompleteListener { task ->
-                                        showLoading(false)
-                                        if (task.isSuccessful) {
-                                            showToast("Foto profil berhasil diperbarui")
-                                            // Update image view with new photo
-                                            Glide.with(this)
-                                                .load(uri)
-                                                .placeholder(R.drawable.ic_launcher_background)
-                                                .error(R.drawable.ic_launcher_background)
-                                                .into(binding.ivProfile)
-                                        } else {
-                                            showToast("Gagal memperbarui foto profil: ${task.exception?.message}")
-                                        }
-                                    }
-                            }
-                            .addOnFailureListener { e ->
-                                showLoading(false)
-                                showToast("Gagal menyimpan URL foto: ${e.message}")
-                            }
-                    }
-                }
-                .addOnFailureListener { e ->
-                    showLoading(false)
-                    showToast("Gagal mengunggah foto: ${e.message}")
                 }
         }
     }

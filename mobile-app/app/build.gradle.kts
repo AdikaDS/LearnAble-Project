@@ -15,7 +15,8 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        buildConfigField("String", "BASE_URL", "\"ISI API KITA\"")
+        buildConfigField("String", "BASE_URL_IMGUR_API", "\"https://api.imgur.com/3/\"")
+        buildConfigField("String", "IMGUR_CLIENT_ID", "\"0084c0adcd8d6f2\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -62,6 +63,7 @@ dependencies {
     implementation(libs.image.picker)
     implementation(libs.retrofit2)
     implementation(libs.retrofit2.gson)
+    implementation(libs.okhttp3)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
