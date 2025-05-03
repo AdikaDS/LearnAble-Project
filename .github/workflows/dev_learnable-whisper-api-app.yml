@@ -31,21 +31,22 @@ jobs:
       
       - name: Install dependencies
         working-directory: machine-learning/whisper-ml
-        run: 
-          python -m pip install --upgrade pip && pip install -r requirements.txt
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
         
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
       - name: Zip artifact for deployment
-        working-directory: machine-learning/whisper-ml
-        run: 
+        run: |
+          cd machine-learning/whisper-ml
           zip -r whisper-api.zip . -x "venv/*"
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
         with:
           name: python-app
-          path: machine-learning/whisper-ml/whisper-api.zip
+          path: whisper-api.zip
 
   deploy:
     runs-on: ubuntu-latest
