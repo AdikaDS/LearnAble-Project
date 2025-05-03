@@ -64,7 +64,7 @@ jobs:
           name: python-app
 
       - name: Unzip artifact for deployment
-        run: whisper-api.zip
+        run: unzip whisper-api.zip
 
       
       - name: Login to Azure
