@@ -24,6 +24,10 @@ jobs:
         with:
           python-version: '3.10'
       
+      - name: Clone OpenAI Whisper
+        working-directory: machine-learning/whisper-ml
+        run: git clone https://github.com/openai/whisper.git
+
       - name: Install dependencies
         working-directory: machine-learning/whisper-ml
         run: |
