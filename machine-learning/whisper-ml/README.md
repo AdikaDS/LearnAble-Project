@@ -8,7 +8,7 @@ This project implements OpenAI's Whisper model for automatic speech recognition 
 - Support for various audio formats
 - Optimized for Indonesian language transcription
 - Simple and easy to use
-- Azure App Service deployment ready (with or without Docker)
+- Azure App Service deployment ready (with GitHub integration)
 
 ## Requirements
 
@@ -19,6 +19,7 @@ This project implements OpenAI's Whisper model for automatic speech recognition 
 - Uvicorn
 - Gunicorn
 - Azure subscription
+- GitHub account
 
 ## Installation
 
@@ -64,68 +65,56 @@ Response:
 }
 ```
 
-## Azure App Service Deployment
+## Azure App Service Deployment with GitHub
 
-### Option 1: Deploy Without Docker (Recommended for Development)
+### Prerequisites
+
+1. Azure subscription
+2. GitHub account
+3. Repository containing this project
+
+### Deployment Steps
 
 1. **Create Resource Group and App Service**:
-   - Follow steps in Azure Portal as described in previous section
-   - Make sure to select "Code" instead of "Docker" when creating Web App
+   - Login to [Azure Portal](https://portal.azure.com)
+   - Click "Create a resource"
+   - Search for "Web App"
+   - Click "Create"
+   - Fill in:
+     - Subscription: Your subscription
+     - Resource Group: Create new (e.g., "whisper-api-rg")
+     - Name: e.g., "whisper-api-app"
+     - Publish: Code
+     - Runtime stack: Python 3.9
+     - Operating System: Linux
+     - Region: Choose "Southeast Asia" or your preferred region
+     - App Service Plan: Create new (P1v2 recommended)
+   - Click "Review + create" then "Create"
 
-2. **Deploy Using Git**:
-   ```bash
-   # Install Azure CLI if not already installed
-   az login
+2. **Configure GitHub Deployment**:
+   - Go to your Web App in Azure Portal
+   - Under "Deployment" > "Deployment Center"
+   - Select "GitHub" as source
+   - Click "Authorize" to connect your GitHub account
+   - Select:
+     - Organization: Your GitHub organization
+     - Repository: Your repository
+     - Branch: main (or your preferred branch)
+   - Click "Save"
 
-   # Configure local git
-   az webapp deployment source config-local-git --name your-app-name --resource-group your-resource-group
+3. **Configure App Settings**:
+   - Go to "Configuration" > "Application settings"
+   - Add these settings:
+     ```
+     PYTHON_VERSION=3.9
+     SCM_DO_BUILD_DURING_DEPLOYMENT=true
+     ```
+   - Click "Save"
 
-   # Deploy
-   git remote add azure <your-git-url>
-   git push azure main
-   ```
-
-### Option 2: Deploy With Docker (Recommended for Production)
-
-1. **Create Container Registry**:
-   - In Azure Portal, create an Azure Container Registry (ACR)
-   - Note down the login server, username, and password
-
-2. **Build and Push Docker Image**:
-   ```bash
-   # Login to ACR
-   az acr login --name your-registry-name
-
-   # Build image
-   docker build -t your-registry-name.azurecr.io/whisper-api:latest .
-
-   # Push image
-   docker push your-registry-name.azurecr.io/whisper-api:latest
-   ```
-
-3. **Create Web App with Docker**:
-   - In Azure Portal, create a new Web App
-   - Select "Docker" instead of "Code"
-   - Choose your ACR and image
-   - Configure the following settings:
-     - WEBSITES_PORT: 8000
-     - WEBSITES_CONTAINER_START_TIME_LIMIT: 600
-
-4. **Deploy**:
-   - The app will automatically deploy when you push to ACR
-   - You can also set up continuous deployment
-
-### Configuration for Both Options
-
-1. **App Settings**:
-   - Add these settings in Azure Portal:
-     - PYTHON_VERSION: 3.9
-     - SCM_DO_BUILD_DURING_DEPLOYMENT: true (for non-Docker deployment)
-
-2. **Scaling**:
-   - For development: B1 plan (1.75GB RAM)
-   - For production: P1v2 plan (3.5GB RAM) or higher
-   - Set up auto-scaling rules if needed
+4. **Enable Continuous Deployment**:
+   - In Deployment Center, go to "Continuous Deployment"
+   - Enable "Continuous Deployment"
+   - Every push to your selected branch will trigger a deployment
 
 ### Using the Deployed API
 
