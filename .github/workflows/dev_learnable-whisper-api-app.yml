@@ -37,16 +37,15 @@ jobs:
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
       - name: Zip artifact for deployment
+        working-directory: machine-learning/whisper-ml
         run: 
-          cd machine-learning/whisper-ml && zip release.zip ./* -r
+          zip -r whisper-api.zip . -x "venv/*"
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
         with:
           name: python-app
-          path: |
-            release.zip
-            !venv/
+          path: machine-learning/whisper-ml/whisper-api.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -65,7 +64,7 @@ jobs:
           name: python-app
 
       - name: Unzip artifact for deployment
-        run: unzip release.zip
+        run: whisper-api.zip
 
       
       - name: Login to Azure
