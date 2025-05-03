@@ -2,8 +2,7 @@ git+https://github.com/openai/whisper.git
 torch
 numpy
 fastapi
-uvicorn
+uvicorn[standard]
 python-multipart
 pydantic
 gunicorn
-torch==2.0.1
