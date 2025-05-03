@@ -10,11 +10,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
 import androidx.credentials.exceptions.ClearCredentialException
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.adika.learnable.R
-import com.adika.learnable.api.ApiConfig
 import com.adika.learnable.databinding.ActivityMainBinding
-import com.adika.learnable.model.ImgurResponse
+import com.adika.learnable.viewmodel.ImgurViewModel
 import com.bumptech.glide.Glide
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.google.firebase.auth.FirebaseAuth
@@ -23,9 +23,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.launch
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 
 class MainActivity : AppCompatActivity() {
@@ -36,6 +33,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var firestore: FirebaseFirestore
     private lateinit var storage: FirebaseStorage
     private lateinit var storageRef: StorageReference
+    private lateinit var viewModel: ImgurViewModel
 
     private companion object {
         private const val TAG = "MainActivity"
@@ -52,10 +50,36 @@ class MainActivity : AppCompatActivity() {
         firestore = FirebaseFirestore.getInstance()
         storage = FirebaseStorage.getInstance()
         storageRef = storage.reference
+        viewModel = ViewModelProvider(this)[ImgurViewModel::class.java]
 
         setupToolbar()
         setupClickListeners()
+        setupObservers()
         loadUserData()
+    }
+
+    private fun setupObservers() {
+        viewModel.loading.observe(this) { isLoading ->
+            showLoading(isLoading)
+        }
+
+        viewModel.uploadResult.observe(this) { result ->
+            result?.let {
+                val imageUrl = it.data?.link
+                if (imageUrl != null) {
+                    updateProfilePhoto(imageUrl)
+                } else {
+                    showToast("Gagal mendapatkan URL gambar")
+                }
+            }
+        }
+
+        viewModel.error.observe(this) { error ->
+            error?.let {
+                showToast(it)
+                Log.e(TAG, "Upload failed: $it")
+            }
+        }
     }
 
     private fun setupToolbar() {
@@ -67,6 +91,11 @@ class MainActivity : AppCompatActivity() {
     private fun setupClickListeners() {
         binding.btnLogout.setOnClickListener {
             logout()
+        }
+
+        binding.btnSpeech.setOnClickListener {
+            val intent = Intent(this, RecordingActivity::class.java)
+            startActivity(intent)
         }
 
         binding.btnChangePhoto.setOnClickListener {
@@ -119,43 +148,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun uploadImageToImgur(uri: Uri) {
-        showLoading(true)
-        
         try {
             val file = File(uri.path!!)
-            val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
-            val body = MultipartBody.Part.createFormData("image", file.name, requestFile)
-
-            ApiConfig.imgurApi.uploadImage("Client-ID ${ApiConfig.IMGUR_CLIENT_ID}", body)
-                .enqueue(object : retrofit2.Callback<ImgurResponse> {
-                    override fun onResponse(
-                        call: retrofit2.Call<ImgurResponse>,
-                        response: retrofit2.Response<ImgurResponse>
-                    ) {
-                        showLoading(false)
-                        if (response.isSuccessful) {
-                            val imageUrl = response.body()?.data?.link
-                            if (imageUrl != null) {
-                                updateProfilePhoto(imageUrl)
-                            } else {
-                                showToast("Gagal mendapatkan URL gambar")
-                            }
-                        } else {
-                            showToast("Gagal mengupload gambar: ${response.message()}")
-                        }
-                    }
-
-                    override fun onFailure(
-                        call: retrofit2.Call<ImgurResponse>,
-                        t: Throwable
-                    ) {
-                        showLoading(false)
-                        showToast("Error: ${t.message}")
-                        Log.e(TAG, "Upload failed", t)
-                    }
-                })
+            viewModel.uploadImage(file)
         } catch (e: Exception) {
-            showLoading(false)
             showToast("Error: ${e.message}")
             Log.e(TAG, "Upload failed", e)
         }
@@ -182,7 +178,7 @@ class MainActivity : AppCompatActivity() {
                                     .placeholder(R.drawable.ic_launcher_background)
                                     .error(R.drawable.ic_launcher_background)
                                     .into(binding.ivProfile)
-                                
+
                                 showToast("Foto profil berhasil diperbarui")
                             } else {
                                 showToast("Gagal memperbarui foto profil")
@@ -266,15 +262,13 @@ class MainActivity : AppCompatActivity() {
                 }
                 .addOnFailureListener { e ->
                     showLoading(false)
-                    showToast("Gagal memperbarui profil: ${e.message}")
+                    showToast("Gagal menyimpan data: ${e.message}")
                 }
         }
     }
 
     private fun showLoading(isLoading: Boolean) {
         binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-        binding.btnSave.isEnabled = !isLoading
-        binding.btnChangePhoto.isEnabled = !isLoading
     }
 
     private fun showToast(message: String) {

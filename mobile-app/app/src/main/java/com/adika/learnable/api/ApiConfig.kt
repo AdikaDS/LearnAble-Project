@@ -9,8 +9,9 @@ import java.util.concurrent.TimeUnit
 object ApiConfig {
 
     private const val IMGUR_BASE_URL = BuildConfig.BASE_URL_IMGUR_API
+    private const val TRANSCRIPTION_BASE_URL = BuildConfig.BASE_URL_TRANSCRIPTION_API
 
-    const val IMGUR_CLIENT_ID = BuildConfig.IMGUR_CLIENT_ID // Ganti dengan Client ID Imgur Anda
+    const val IMGUR_CLIENT_ID = BuildConfig.IMGUR_CLIENT_ID
 
     private const val CONNECT_TIMEOUT = 30L
     private const val READ_TIMEOUT = 30L
@@ -36,7 +37,12 @@ object ApiConfig {
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
-    val imgurApi: ImgurApi = imgurRetrofit.create(ImgurApi::class.java)
+    val imgurService: ImgurService = imgurRetrofit.create(ImgurService::class.java)
 
-    // Add more API configurations here as needed
+    private val transcribeRetrofit = Retrofit.Builder()
+       .baseUrl(TRANSCRIPTION_BASE_URL)
+       .addConverterFactory(GsonConverterFactory.create())
+       .build()
+
+    val transcribeService: TrancribeService = transcribeRetrofit.create(TrancribeService::class.java)
 }
