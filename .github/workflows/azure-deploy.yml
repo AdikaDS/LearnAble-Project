@@ -73,6 +73,6 @@ jobs:
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
-          app-name: 'learnable-whisper-api-app'
+          app-name: 'learnabel-whisper-api-app'
           slot-name: 'Production'
           
