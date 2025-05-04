@@ -31,7 +31,7 @@ jobs:
       with:
         push: true
         context: machine-learning/whisper-ml
-        tags: index.docker.io/${{ secrets.AzureAppService_ContainerUsername_dabf404e79a74584903a76e9771b293e }}/adikads/whisper-api:${{ github.sha }}
+        tags: index.docker.io/${{ secrets.AzureAppService_ContainerUsername_dabf404e79a74584903a76e9771b293e }}/whisper-api:${{ github.sha }}
         file: machine-learning/whisper-ml/Dockerfile
 
   deploy:
