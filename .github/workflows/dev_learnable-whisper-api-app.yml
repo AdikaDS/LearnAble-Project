@@ -30,8 +30,9 @@ jobs:
       uses: docker/build-push-action@v3
       with:
         push: true
+        context: ./whisper-ml
         tags: index.docker.io/${{ secrets.AzureAppService_ContainerUsername_dabf404e79a74584903a76e9771b293e }}/adikads/whisper-api:${{ github.sha }}
-        file: ./Dockerfile
+        file: ./whisper-ml/Dockerfile
 
   deploy:
     runs-on: ubuntu-latest
