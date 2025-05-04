@@ -49,4 +49,4 @@ jobs:
         app-name: 'learnable-whisper-api-app'
         slot-name: 'production'
         publish-profile: ${{ secrets.AzureAppService_PublishProfile_2aabdc35e1e24a0aa4483673e0fbf65b }}
-        images: 'index.docker.io/${{ secrets.AzureAppService_ContainerUsername_dabf404e79a74584903a76e9771b293e }}/adikads/whisper-api:${{ github.sha }}'
+        images: 'index.docker.io/${{ secrets.AzureAppService_ContainerUsername_dabf404e79a74584903a76e9771b293e }}/whisper-api:${{ github.sha }}'
