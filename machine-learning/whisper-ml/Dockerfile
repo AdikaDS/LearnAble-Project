@@ -1,25 +1,20 @@
-FROM python:3.9-slim
+FROM python:3.10-slim
 
+# Install git dan ffmpeg (dibutuhkan whisper)
+RUN apt-get update && apt-get install -y git ffmpeg && apt-get clean
+
+# Set direktori kerja
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    ffmpeg \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy requirements first to leverage Docker cache
+# Salin file requirements dan install dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Copy the rest of the application
+# Salin semua file ke dalam container
 COPY . .
 
-# Create a non-root user
-RUN useradd -m appuser && chown -R appuser:appuser /app
-USER appuser
-
-# Expose the port the app runs on
+# Ekspose port untuk aplikasi
 EXPOSE 8000
 
-# Command to run the application
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "4", "--timeout", "120", "server:app"] 
+# Jalankan aplikasi dengan gunicorn + uvicorn worker
+CMD ["gunicorn", "app:app", "-w", "1", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000"]

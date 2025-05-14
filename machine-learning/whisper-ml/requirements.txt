@@ -1,6 +1,6 @@
 torch
 numpy
--e ./whisper
+git+https://github.com/openai/whisper.git
 fastapi
 uvicorn[standard]
 python-multipart
