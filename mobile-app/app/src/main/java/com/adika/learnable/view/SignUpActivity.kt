@@ -230,8 +230,7 @@ class SignUpActivity : AppCompatActivity() {
                             "displayName" to user.displayName,
                             "email" to user.email,
                             "uid" to user.uid,
-                            "photoUrl" to (user.photoUrl?.toString() ?: ""),
-                            "createdAt" to System.currentTimeMillis()
+                            "photoUrl" to (user.photoUrl?.toString() ?: "")
                         )
 
                         val firestore = FirebaseFirestore.getInstance()
@@ -283,8 +282,7 @@ class SignUpActivity : AppCompatActivity() {
                         val userData = hashMapOf(
                             "displayName" to fullName,
                             "email" to email,
-                            "uid" to user.uid,
-                            "createdAt" to System.currentTimeMillis()
+                            "uid" to user.uid
                         )
 
                         firestore.collection("users").document(user.uid)
@@ -339,7 +337,7 @@ class SignUpActivity : AppCompatActivity() {
     }
 
     private fun navigateToMain() {
-        startActivity(Intent(this, MainActivity::class.java))
+        startActivity(Intent(this, EditProfileActivity::class.java))
         finishAffinity() // Close all activities in the stack
     }
 
