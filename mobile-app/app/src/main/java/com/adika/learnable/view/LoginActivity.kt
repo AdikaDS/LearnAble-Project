@@ -27,6 +27,7 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var credentialManager: CredentialManager
+    private lateinit var db: FirebaseFirestore
 
     // Pesan validasi
     private val emailRequired by lazy { getString(R.string.email_required) }
@@ -188,12 +189,10 @@ class LoginActivity : AppCompatActivity() {
                             "displayName" to user.displayName,
                             "email" to user.email,
                             "uid" to user.uid,
-                            "photoUrl" to (user.photoUrl?.toString() ?: ""),
-                            "createdAt" to System.currentTimeMillis()
+                            "photoUrl" to (user.photoUrl?.toString() ?: "")
                         )
 
-                        val firestore = FirebaseFirestore.getInstance()
-                        firestore.collection("users").document(user.uid)
+                        db.collection("users").document(user.uid)
                             .set(userData)
                             .addOnSuccessListener {
                                 Log.d(TAG, "Data Google user berhasil disimpan ke Firestore")
@@ -249,7 +248,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun navigateToMain() {
-        startActivity(Intent(this, MainActivity::class.java))
+        startActivity(Intent(this, EditProfileActivity::class.java))
         finish()
     }
 } 

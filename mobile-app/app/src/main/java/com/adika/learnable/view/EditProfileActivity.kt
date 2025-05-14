@@ -25,7 +25,7 @@ import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.launch
 import java.io.File
 
-class MainActivity : AppCompatActivity() {
+class EditProfileActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var auth: FirebaseAuth
@@ -194,8 +194,17 @@ class MainActivity : AppCompatActivity() {
     private fun loadUserData() {
         showLoading(true)
         val user = auth.currentUser
+        val phoneNumberFirebase = user?.phoneNumber
+        val displayNameFirebase = user?.displayName
         if (user != null) {
-            // Load data from Firestore
+            if (phoneNumberFirebase != null) {
+                binding.etPhone.setText(phoneNumberFirebase)
+            }
+
+            if (displayNameFirebase != null) {
+                binding.etName.setText(displayNameFirebase)
+            }
+
             firestore.collection("users").document(user.uid)
                 .get()
                 .addOnSuccessListener { document ->

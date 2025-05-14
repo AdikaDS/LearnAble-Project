@@ -40,7 +40,7 @@
             android:name=".view.SignUpActivity"
             android:exported="false" />
         <activity
-            android:name=".view.MainActivity"
+            android:name=".view.EditProfileActivity"
             android:exported="false" />
         <activity
             android:name=".view.RecordingActivity"
