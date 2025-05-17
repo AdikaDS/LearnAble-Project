@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="forget_password">Forget Password?</string>
+    <string name="login_with_google">Login with Google</string>
+    <string name="dont_have_account">Don\'t have account?</string>
     <string name="name_required">Name is required</string>
     <string name="email_required">Email is required</string>
     <string name="email_invalid">Please enter a valid email</string>
@@ -9,6 +13,9 @@
     <string name="password_have_lowercase">Password must contain at least one lowercase letter</string>
     <string name="password_have_number">Password must contain at least one number</string>
     <string name="password_have_special_char">Password must contain at least one special character</string>
+    <string name="password_match">Password Doesn\'t Match</string>
+    <string name="phone_invalid">Please enter a valid phone number</string>
+    <string name="phone_required">Phone number is required</string>
     <string name="email_bad_format">Invalid email format</string>
     <string name="password_invalid">Password is too weak</string>
     <string name="email_doesnt_exist">Email is not registered</string>
@@ -26,4 +33,16 @@
     <string name="signup_success">Signup successful. Please verify your email before logging in</string>
     <string name="profile_update_failed">Failed to update profile</string>
     <string name="credential_error">Unable to retrieve user credentials</string>
+    <string name="full_name">Full Name</string>
+    <string name="password">Password</string>
+    <string name="role">Pick Role</string>
+    <string name="sign_up">Signup</string>
+    <string name="or">OR</string>
+    <string name="sign_up_with_google">Signup with Google</string>
+    <string name="already_have_account">Already have account?</string>
+    <string name="create_new_account">Create New Account</string>
+    <string name="login">Login</string>
+    <string name="unknown_error">Unknown Error</string>
+    <string name="password_update_success">Password update successfully</string>
+    <string name="password_update_failed">Password update failed</string>
 </resources>
