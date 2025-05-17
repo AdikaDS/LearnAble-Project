@@ -2,37 +2,62 @@
     <string name="app_name" translatable="false">LearnAble</string>
     <string name="app_logo" translatable="false">LearnAble Logo</string>
 
-    <!-- Validasi Form -->
-    <string name="name_required">Nama harus diisi</string>
-    <string name="email_required">Email harus diisi</string>
-    <string name="email_invalid">Masukkan email yang valid</string>
-    <string name="password_required">Password harus diisi</string>
-    <string name="password_min_length">Password minimal %1$d karakter</string>
-    <string name="password_have_uppercase">Kata sandi harus mengandung setidaknya satu huruf besar.</string>
-    <string name="password_have_lowercase">Kata sandi harus mengandung setidaknya satu huruf kecil.</string>
-    <string name="password_have_number">Kata sandi harus mengandung setidaknya satu angka.</string>
-    <string name="password_have_special_char">Kata sandi harus mengandung setidaknya satu karakter spesial.</string>
+    <string name="web_client_id" translatable="false">854871060006-vripgl49aajbp30kmp69fjnoen3hsi25.apps.googleusercontent.com</string>
 
-    <!-- Pesan Error Firebase -->
+    <!-- Sign Up Screen -->
+    <string name="full_name">Nama Lengkap</string>
+    <string name="email" translatable="false">Email</string>
+    <string name="password">Kata Sandi</string>
+    <string name="role">Pilih Role</string>
+    <string name="sign_up">Daftar</string>
+    <string name="or">ATAU</string>
+    <string name="sign_up_with_google">Daftar dengan Google</string>
+    <string name="already_have_account">Sudah punya akun?</string>
+    <string name="login">Masuk</string>
+    <string name="create_new_account">Buat Akun</string>
+    <string name="confirm_password">Konfirmasi Kata Sandi</string>
+
+    <string name="forget_password">Lupa Kata Sandi?</string>
+    <string name="login_with_google">Masuk dengan Google</string>
+    <string name="dont_have_account">Tidak memiliki akun?</string>
+
+    <!-- Validation Messages -->
+    <string name="name_required">Nama tidak boleh kosong</string>
+    <string name="email_required">Email tidak boleh kosong</string>
+    <string name="email_invalid">Format email tidak valid</string>
+    <string name="password_required">Password tidak boleh kosong</string>
+    <string name="password_min_length">Password minimal %d karakter</string>
+    <string name="password_have_uppercase">Password harus mengandung huruf besar</string>
+    <string name="password_have_lowercase">Password harus mengandung huruf kecil</string>
+    <string name="password_have_number">Password harus mengandung angka</string>
+    <string name="password_have_special_char">Password harus mengandung karakter khusus</string>
+    <string name="password_match">Password Tidak Cocok</string>
+    <string name="phone_invalid">Nomor telepon tidak valid</string>
+    <string name="phone_required">Nomor telepon tidak boleh kosong</string>
+
+
+    <!-- Firebase Error Messages -->
     <string name="email_bad_format">Format email tidak valid</string>
-    <string name="password_invalid">Password terlalu lemah</string>
-    <string name="email_doesnt_exist">Email tidak terdaftar</string>
+    <string name="password_invalid">Password tidak valid</string>
     <string name="email_exist">Email sudah terdaftar</string>
     <string name="network_error">Terjadi kesalahan jaringan</string>
-    <string name="invalid_credential">Email atau password salah</string>
-    <string name="too_many_attempts">Terlalu banyak percobaan. Silakan coba lagi nanti</string>
-    <string name="user_disabled">Akun ini telah dinonaktifkan</string>
-    <string name="login_failed">Login gagal</string>
-
-    <!-- Pesan Umum -->
-    <string name="verify_email">Silakan verifikasi email Anda terlebih dahulu</string>
+    <string name="invalid_credential">Kredensial tidak valid</string>
+    <string name="too_many_attempts">Terlalu banyak percobaan, silakan coba lagi nanti</string>
+    <string name="user_disabled">Akun telah dinonaktifkan</string>
+    
+    <!-- General Messages -->
+    <string name="verify_email">Silakan verifikasi email Anda</string>
     <string name="verify_email_sent">Email verifikasi telah dikirim</string>
     <string name="verify_email_failed">Gagal mengirim email verifikasi</string>
     <string name="auth_failed">Autentikasi gagal</string>
     <string name="signup_failed">Pendaftaran gagal</string>
-    <string name="signup_success">Pendaftaran berhasil. Silakan verifikasi email Anda sebelum login</string>
+    <string name="signup_success">Pendaftaran berhasil</string>
     <string name="profile_update_failed">Gagal memperbarui profil</string>
-    <string name="credential_error">Tidak dapat mengambil kredensial pengguna</string>
+    <string name="credential_error">Terjadi kesalahan pada kredensial</string>
+    <string name="login_failed">Login gagal</string>
+    <string name="email_doesnt_exist">Email tidak terdaftar</string>
+    <string name="unknown_error">Terjadi permasalahan yang tidak diketahui</string>
+    <string name="password_update_success">Kata sandi berhasil diperbarui</string>
+    <string name="password_update_failed">Kata sandi gagal diperbarui</string>
 
-    <string name="web_client_id" translatable="false">854871060006-vripgl49aajbp30kmp69fjnoen3hsi25.apps.googleusercontent.com</string>
 </resources>

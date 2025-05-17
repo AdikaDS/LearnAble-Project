@@ -76,7 +76,7 @@ class RecordingViewModel(application: Application) : AndroidViewModel(applicatio
 }
 
 sealed class RecordingState {
-    object Idle : RecordingState()
-    object Recording : RecordingState()
-    object Transcribing : RecordingState()
+    data object Idle : RecordingState()
+    data object Recording : RecordingState()
+    data object Transcribing : RecordingState()
 }
