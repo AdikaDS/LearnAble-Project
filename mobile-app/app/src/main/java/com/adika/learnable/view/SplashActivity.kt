@@ -6,19 +6,15 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
-import com.adika.learnable.repository.AuthRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import javax.inject.Inject
 
 @SuppressLint("CustomSplashScreen")
 @AndroidEntryPoint
 class SplashActivity : AppCompatActivity() {
-    @Inject
-    lateinit var authRepository: AuthRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
@@ -35,40 +31,45 @@ class SplashActivity : AppCompatActivity() {
             try {
                 val currentUser = FirebaseAuth.getInstance().currentUser
                 if (currentUser != null) {
-                    // User is logged in, check if they have selected disability type
-                    val userDoc = FirebaseFirestore.getInstance()
-                        .collection("users")
-                        .document(currentUser.uid)
-                        .get()
-                        .await()
+                    // Verify that the user data is still valid
+                    try {
+                        val userDoc = FirebaseFirestore.getInstance()
+                            .collection("users")
+                            .document(currentUser.uid)
+                            .get()
+                            .await()
 
-                    val user = userDoc.toObject(com.adika.learnable.model.User::class.java)
-                    if (user != null) {
+                        if (!userDoc.exists()) {
+                            // User document doesn't exist, clear auth state
+                            FirebaseAuth.getInstance().signOut()
+                            navigateToMainWithDestination("login")
+                            return@launch
+                        }
+
+                        val user = userDoc.toObject(com.adika.learnable.model.User::class.java)
+                        if (user == null) {
+                            // Invalid user data, clear auth state
+                            FirebaseAuth.getInstance().signOut()
+                            navigateToMainWithDestination("login")
+                            return@launch
+                        }
+
+                        // User data is valid, proceed with navigation
                         when (user.role) {
                             "student" -> {
                                 if (user.disabilityType == null) {
-                                    // Student hasn't selected disability type
                                     navigateToMainWithDestination("disability_selection")
                                 } else {
-                                    // Student has selected disability type
                                     navigateToMainWithDestination("student_dashboard")
                                 }
                             }
-                            "teacher" -> {
-                                // Teacher goes directly to their dashboard
-                                navigateToMainWithDestination("teacher_dashboard")
-                            }
-                            "parent" -> {
-                                // Parent goes directly to their dashboard
-                                navigateToMainWithDestination("parent_dashboard")
-                            }
-                            else -> {
-                                // Invalid role, go to login
-                                navigateToMainWithDestination("login")
-                            }
+                            "teacher" -> navigateToMainWithDestination("teacher_dashboard")
+                            "parent" -> navigateToMainWithDestination("parent_dashboard")
+                            else -> navigateToMainWithDestination("login")
                         }
-                    } else {
-                        // User document not found, go to login
+                    } catch (e: Exception) {
+                        // Error occurred, clear auth state
+                        FirebaseAuth.getInstance().signOut()
                         navigateToMainWithDestination("login")
                     }
                 } else {

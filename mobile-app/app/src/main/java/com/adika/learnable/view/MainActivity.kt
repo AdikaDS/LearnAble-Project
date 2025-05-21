@@ -31,10 +31,8 @@ class MainActivity : AppCompatActivity() {
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
 
-        // Tambahkan listener untuk error navigasi
         navController.addOnDestinationChangedListener { _, destination, _ ->
             try {
-                // Update toolbar title jika diperlukan
                 supportActionBar?.title = destination.label
             } catch (e: Exception) {
                 Log.e("MainActivity", "Error in navigation: ${e.message}")
@@ -59,17 +57,12 @@ class MainActivity : AppCompatActivity() {
                     "parent_dashboard" -> {
                         navController.navigate(R.id.parentDashboardFragment)
                     }
-
                     else -> {
                         Log.w("MainActivity", "Invalid destination: $destination")
-                        // Fallback ke login
-                        navController.navigate(R.id.loginFragment)
                     }
                 }
             } catch (e: Exception) {
                 Log.e("MainActivity", "Navigation error: ${e.message}")
-                // Fallback ke login jika terjadi error
-                navController.navigate(R.id.loginFragment)
             }
         }
     }

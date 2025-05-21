@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.adika.learnable.R
 import com.adika.learnable.databinding.ItemStudentBinding
 import com.adika.learnable.model.User
 import com.bumptech.glide.Glide
@@ -46,10 +47,12 @@ class StudentAdapter(
                 tvDisabilityType.text = student.disabilityType ?: "Not selected"
 
                 // Load profile picture if available
-                student.profilePicture?.let { url ->
+                student.profilePicture.let { url ->
                     Glide.with(root.context)
                         .load(url)
                         .circleCrop()
+                        .placeholder(R.drawable.ic_user)
+                        .placeholder(R.drawable.ic_user)
                         .into(ivStudentProfile)
                 }
             }

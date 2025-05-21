@@ -10,7 +10,7 @@ data class User(
     val profilePicture: String = "",
     val phone: String = "",
     val createdAt: Timestamp = Timestamp.now(),
-    val parentId: String = "", // Untuk student
-    val studentIds: List<String> = listOf(), // Untuk parent
-    val disabilityType: String? = null // "tunarungu" atau "tunanetra", kosong jika tidak ada
+    val parentId: String = "",
+    val studentIds: List<String> = listOf(),
+    val disabilityType: String? = null
 )

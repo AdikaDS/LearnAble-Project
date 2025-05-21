@@ -1,6 +1,9 @@
 package com.adika.learnable.repository
 
 import android.content.Context
+import android.util.Log
+import androidx.credentials.ClearCredentialStateRequest
+import androidx.credentials.CredentialManager
 import com.adika.learnable.model.User
 import com.adika.learnable.util.ErrorMessages
 import com.google.firebase.Timestamp
@@ -12,6 +15,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
+import androidx.core.content.edit
 
 @Singleton
 class AuthRepository @Inject constructor(
@@ -23,12 +27,8 @@ class AuthRepository @Inject constructor(
 
     suspend fun sendEmailVerification() {
         try {
-            if (!isEmailVerified()) {
-                auth.currentUser?.sendEmailVerification()?.await()
-                throw Exception(ErrorMessages.getVerifyEmailSent(context))
-            } else {
-                throw Exception(ErrorMessages.getVerifyEmail(context))
-            }
+            auth.currentUser?.sendEmailVerification()?.await()
+            return
         } catch (e: Exception) {
             throw Exception(ErrorMessages.getVerifyEmailFailed(context))
         }
@@ -39,7 +39,9 @@ class AuthRepository @Inject constructor(
     }
 
     fun getCurrentUserId(): String {
-        return auth.currentUser?.uid ?: throw Exception(ErrorMessages.getAuthFailed(context))
+        val userId = auth.currentUser?.uid
+        Log.d("AuthRepository", "Current user ID: $userId")
+        return userId ?: throw Exception(ErrorMessages.getAuthFailed(context))
     }
 
     suspend fun resetPassword(email: String) {
@@ -51,32 +53,42 @@ class AuthRepository @Inject constructor(
     }
 
     suspend fun signUpWithEmailAndPassword(name: String, email: String, password: String): User {
-        val result = auth.createUserWithEmailAndPassword(email, password).await()
-        val user = result.user ?: throw Exception(ErrorMessages.getSignupFailed(context))
+        try {
+            val result = auth.createUserWithEmailAndPassword(email, password).await()
+            val user = result.user ?: throw Exception(ErrorMessages.getSignupFailed(context))
 
-        val profileUpdates = UserProfileChangeRequest.Builder()
-            .setDisplayName(name)
-            .build()
-        user.updateProfile(profileUpdates).await()
+            val profileUpdates = UserProfileChangeRequest.Builder()
+                .setDisplayName(name)
+                .build()
+            user.updateProfile(profileUpdates).await()
 
-        val newUser = User(
-            id = user.uid,
-            email = email,
-            name = name,
-            role = "student",
-            disabilityType = null,
-            createdAt = Timestamp.now()
-        )
+            val newUser = User(
+                id = user.uid,
+                email = email,
+                name = name,
+                role = "student",
+                disabilityType = null,
+                createdAt = Timestamp.now()
+            )
 
-        usersCollection.document(user.uid).set(newUser).await()
-        sendEmailVerification()
-        return newUser
+            usersCollection.document(user.uid).set(newUser).await()
+            sendEmailVerification()
+            return newUser
+        } catch (e: Exception) {
+            throw Exception(ErrorMessages.getFirebaseErrorMessage(context, e.message))
+        }
     }
 
     suspend fun loginUser(email: String, password: String): User {
         try {
             val result = auth.signInWithEmailAndPassword(email, password).await()
-            return getUserData(result.user?.uid ?: throw Exception(ErrorMessages.getAuthFailed(context)))
+            return getUserData(
+                result.user?.uid ?: throw Exception(
+                    ErrorMessages.getAuthFailed(
+                        context
+                    )
+                )
+            )
         } catch (e: Exception) {
             throw Exception(e.message)
         }
@@ -106,14 +118,58 @@ class AuthRepository @Inject constructor(
 
     suspend fun getUserData(userId: String): User {
         try {
+            Log.d("AuthRepository", "Fetching user data for ID: $userId")
             val userDoc = usersCollection.document(userId).get().await()
-            return userDoc.toObject(User::class.java) ?: throw Exception(ErrorMessages.getAuthFailed(context))
+
+            if (!userDoc.exists()) {
+                Log.e("AuthRepository", "User document does not exist for ID: $userId")
+                throw Exception(ErrorMessages.getAuthFailed(context))
+            }
+
+            val user = userDoc.toObject(User::class.java)
+            Log.d("AuthRepository", "User data retrieved: $user")
+
+            if (user == null) {
+                Log.e("AuthRepository", "Failed to convert document to User object")
+                throw Exception(ErrorMessages.getAuthFailed(context))
+            }
+
+            return user
         } catch (e: Exception) {
+            Log.e("AuthRepository", "Error getting user data", e)
             throw Exception(ErrorMessages.getFirebaseErrorMessage(context, e.message))
         }
     }
 
-    fun signOut() {
-        auth.signOut()
+    suspend fun signOut() {
+        try {
+            if (auth.currentUser != null) {
+                auth.signOut()
+                clearAllUserData()
+            }
+        } catch (e: Exception) {
+            Log.e("AuthRepository", "Error during sign out", e)
+            throw e
+        }
+    }
+
+    private suspend fun clearAllUserData() {
+        try {
+            // Clear any stored credentials
+            val clearRequest = ClearCredentialStateRequest()
+            val credentialManager = CredentialManager.create(context)
+            credentialManager.clearCredentialState(clearRequest)
+
+            // Clear all shared preferences
+            context.getSharedPreferences("student_dashboard", Context.MODE_PRIVATE).edit { clear() }
+            context.getSharedPreferences("teacher_dashboard", Context.MODE_PRIVATE).edit { clear() }
+            context.getSharedPreferences("parent_dashboard", Context.MODE_PRIVATE).edit { clear() }
+//            context.getSharedPreferences("user_preferences", Context.MODE_PRIVATE).edit { clear() }
+//            context.getSharedPreferences("auth_preferences", Context.MODE_PRIVATE).edit { clear() }
+
+        } catch (e: Exception) {
+            Log.e("AuthRepository", "Error clearing user data", e)
+            throw e
+        }
     }
 }

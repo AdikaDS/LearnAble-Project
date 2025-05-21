@@ -5,12 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import com.adika.learnable.R
 import com.adika.learnable.databinding.FragmentDisabilitySelectionBinding
 import com.adika.learnable.viewmodel.DisabilitySelectionViewModel
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -18,6 +19,17 @@ class DisabilitySelectionFragment : Fragment() {
     private var _binding: FragmentDisabilitySelectionBinding? = null
     private val binding get() = _binding!!
     private val viewModel: DisabilitySelectionViewModel by viewModels()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // Handle back button press
+        requireActivity().onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // Prevent going back to login
+                requireActivity().finish()
+            }
+        })
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,16 +48,16 @@ class DisabilitySelectionFragment : Fragment() {
 
     private fun setupClickListeners() {
         binding.tunarunguCard.setOnClickListener {
-            viewModel.saveDisabilityType("tunarungu")
+            viewModel.saveDisabilityType("Tunarungu")
         }
 
         binding.tunanetraCard.setOnClickListener {
-            viewModel.saveDisabilityType("tunanetra")
+            viewModel.saveDisabilityType("Tunanetra")
         }
     }
 
     private fun observeViewModel() {
-        viewModel.uiState.observe(requireActivity()) { state ->
+        viewModel.uiState.observe(viewLifecycleOwner) { state ->
             when (state) {
                 is DisabilitySelectionViewModel.DisabilitySelectionState.Loading -> {
                     showLoading(true)
@@ -54,7 +66,7 @@ class DisabilitySelectionFragment : Fragment() {
                 is DisabilitySelectionViewModel.DisabilitySelectionState.Success -> {
                     showLoading(false)
                     showToast("Berhasil menyimpan tipe disabilitas")
-                    // Navigate to next screen with state.user data
+                    findNavController().navigate(R.id.action_disability_selection_to_student_dashboard)
                 }
 
                 is DisabilitySelectionViewModel.DisabilitySelectionState.Error -> {
@@ -63,7 +75,6 @@ class DisabilitySelectionFragment : Fragment() {
                 }
             }
         }
-
     }
 
 //    private fun navigateToDashboard(role: String) {

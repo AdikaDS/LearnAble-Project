@@ -102,27 +102,30 @@ class ParentDashboardFragment : Fragment() {
             }
 
             is ParentDashboardViewModel.StudentState.Success -> {
+                showLoading(false)
                 studentAdapter.submitList(state.students)
             }
 
-            is ParentDashboardViewModel.StudentState.Error -> {
+            is ParentDashboardViewModel.StudentState.SuccessMessage -> {
                 showLoading(false)
                 showToast(state.message)
             }
 
-            is ParentDashboardViewModel.ParentState.Error -> {
-                showLoading(false)
-                showToast(state.message)
-            }
-
+            is ParentDashboardViewModel.StudentState.Error,
+            is ParentDashboardViewModel.ParentState.Error,
             is ParentDashboardViewModel.StudentProgressState.Error -> {
                 showLoading(false)
-                showToast(state.message)
+                showToast(
+                    (state as? ParentDashboardViewModel.StudentState.Error)?.message
+                        ?: (state as? ParentDashboardViewModel.ParentState.Error)?.message
+                        ?: (state as? ParentDashboardViewModel.StudentProgressState.Error)?.message
+                        ?: "Unknown error"
+                )
             }
         }
     }
 
-    private fun validateEmail (email: String) : Boolean {
+    private fun validateEmail(email: String): Boolean {
         val validationResult = ValidationUtils.validateEmail(
             context = requireContext(),
             email = email
@@ -133,6 +136,7 @@ class ParentDashboardFragment : Fragment() {
                 showToast(validationResult.message)
                 return false
             }
+
             is ValidationResult.Valid -> return true
         }
     }
@@ -152,10 +156,12 @@ class ParentDashboardFragment : Fragment() {
             tvName.text = parent.name
             tvEmail.text = parent.email
 
-            parent.profilePicture?.let { url ->
+            parent.profilePicture.let { url ->
                 Glide.with(requireContext())
                     .load(url)
                     .circleCrop()
+                    .placeholder(R.drawable.ic_user)
+                    .placeholder(R.drawable.ic_user)
                     .into(ivProfilePicture)
             }
         }

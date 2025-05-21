@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.adika.learnable.model.Progress
+import com.adika.learnable.model.LearningProgress
 import com.adika.learnable.model.User
 import com.adika.learnable.repository.AuthRepository
 import com.adika.learnable.repository.UserParentRepository
@@ -31,8 +31,8 @@ class ParentDashboardViewModel @Inject constructor(
         viewModelScope.launch {
             _parentState.value = ParentState.Loading
             try {
-                val userParent = authRepository.getUserData(authRepository.getCurrentUserId())
-                _parentState.value = ParentState.Success(userParent)
+                val userParentId = authRepository.getUserData(authRepository.getCurrentUserId())
+                _parentState.value = ParentState.Success(userParentId)
             } catch (e: Exception) {
                 _parentState.value =
                     ParentState.Error(e.message ?: "Terjadi kesalahan saat memuat profil")
@@ -74,26 +74,22 @@ class ParentDashboardViewModel @Inject constructor(
 
     fun connectStudent(studentEmail: String) {
         viewModelScope.launch {
+            _studentState.value = StudentState.Loading
             try {
-                _studentState.value = StudentState.Loading
-                
                 val parentId = authRepository.getCurrentUserId()
                 
                 val student = userParentRepository.findStudentEmail(studentEmail)
                     ?: throw Exception("Siswa dengan email tersebut tidak ditemukan")
 
-                // Check if student already has a parent
                 if (isStudentConnectedToOtherParent(student.id)) {
                     _studentState.value =
                         StudentState.Error("Siswa ini sudah terhubung dengan orang tua lain")
                     return@launch
                 }
 
-                // Connect student with parent
                 userParentRepository.connectStudentWithParent(student.id, parentId)
-                
-                // Reload students list
                 loadStudents()
+                _studentState.value = StudentState.SuccessMessage("Berhasil terhubung dengan siswa")
                 
             } catch (e: Exception) {
                 _studentState.value =
@@ -112,11 +108,12 @@ class ParentDashboardViewModel @Inject constructor(
         data object Loading : StudentState()
         data class Success(val students: List<User>) : StudentState()
         data class Error(val message: String) : StudentState()
+        data class SuccessMessage(val message: String) : StudentState()
     }
 
     sealed class StudentProgressState {
         data object Loading : StudentProgressState()
-        data class Success(val progressList: List<Progress>) : StudentProgressState()
+        data class Success(val learningProgressList: List<LearningProgress>) : StudentProgressState()
         data class Error(val message: String) : StudentProgressState()
     }
 } 
