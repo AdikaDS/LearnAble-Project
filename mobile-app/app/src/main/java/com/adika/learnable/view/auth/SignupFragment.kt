@@ -66,16 +66,14 @@ class SignupFragment : Fragment() {
             }
 
             showLoading(true)
-            binding.btnSignUp.isEnabled = false
-            binding.btnGoogleSignIn.isEnabled = false
+            disableButtons()
 
             viewModel.signUpWithEmail(name, email, password)
         }
 
         binding.btnGoogleSignIn.setOnClickListener {
             showLoading(true)
-            binding.btnSignUp.isEnabled = false
-            binding.btnGoogleSignIn.isEnabled = false
+            disableButtons()
             launchCredentialManager()
         }
 
@@ -84,7 +82,12 @@ class SignupFragment : Fragment() {
         }
     }
 
-    private fun validateInputs(name: String, email: String, password: String, confirmPassword: String): Boolean {
+    private fun validateInputs(
+        name: String,
+        email: String,
+        password: String,
+        confirmPassword: String
+    ): Boolean {
         val validationResult = ValidationUtils.validateSignupData(
             context = requireContext(),
             name = name,
@@ -99,41 +102,49 @@ class SignupFragment : Fragment() {
                 showToast(validationResult.message)
                 return false
             }
+
             is ValidationResult.Valid -> return true
         }
     }
 
     private fun observeViewModel() {
         viewModel.signupState.observe(viewLifecycleOwner) { state ->
-            when (state) {
-                is SignupViewModel.SignupState.Loading -> showLoading(true)
-                is SignupViewModel.SignupState.Success -> {
-                    showLoading(false)
-                    showToast(getString(R.string.signup_success))
-                    findNavController().navigate(R.id.action_signup_to_login)
-                }
-                is SignupViewModel.SignupState.Error -> {
-                    showLoading(false)
-                    showToast(state.message)
-                }
-            }
+            handleState(state)
         }
 
         viewModel.googleSignUpState.observe(viewLifecycleOwner) { state ->
-            when (state) {
-                is SignupViewModel.GoogleSignUpState.Loading -> showLoading(true)
-                is SignupViewModel.GoogleSignUpState.Success -> {
-                    showLoading(false)
-                    showToast(getString(R.string.signup_success))
-                    findNavController().navigate(R.id.action_signup_to_disability_selection)
-                }
-                is SignupViewModel.GoogleSignUpState.Error -> {
-                    showLoading(false)
-                    showToast(state.message)
-                    binding.btnSignUp.isEnabled = true
-                    binding.btnGoogleSignIn.isEnabled = true
-                }
+            handleState(state)
+        }
+    }
+
+    private fun handleState(state: Any) {
+        when (state) {
+            is SignupViewModel.SignupState.Loading,
+            is SignupViewModel.GoogleSignUpState.Loading -> showLoading(true)
+
+            is SignupViewModel.SignupState.Success -> {
+                showLoading(false)
+                showToast(getString(R.string.signup_success))
+                findNavController().navigate(R.id.action_signup_to_login)
             }
+
+            is SignupViewModel.GoogleSignUpState.Success -> {
+                showLoading(false)
+                showToast(getString(R.string.signup_success))
+                findNavController().navigate(R.id.action_signup_to_disability_selection)
+            }
+
+            is SignupViewModel.SignupState.Error,
+            is SignupViewModel.GoogleSignUpState.Error -> {
+                showLoading(false)
+                showToast(
+                    (state as? SignupViewModel.SignupState.Error)?.message
+                        ?: (state as? SignupViewModel.GoogleSignUpState.Error)?.message
+                        ?: "Unknown error"
+                )
+                enableButtons()
+            }
+
         }
     }
 
@@ -168,6 +179,16 @@ class SignupFragment : Fragment() {
         } else {
             Log.w(TAG, "Kredensial bukan tipe Google ID!")
         }
+    }
+
+    private fun enableButtons() {
+        binding.btnSignUp.isEnabled = true
+        binding.btnGoogleSignIn.isEnabled = true
+    }
+
+    private fun disableButtons() {
+        binding.btnSignUp.isEnabled = false
+        binding.btnGoogleSignIn.isEnabled = false
     }
 
     private fun showLoading(isLoading: Boolean) {

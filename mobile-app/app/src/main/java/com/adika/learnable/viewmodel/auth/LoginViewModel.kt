@@ -25,6 +25,9 @@ class LoginViewModel @Inject constructor(
     private val _googleSignInState = MutableLiveData<GoogleSignInState>()
     val googleSignInState: LiveData<GoogleSignInState> = _googleSignInState
 
+    private val _navigationState = MutableLiveData<NavigationState>()
+    val navigationState: LiveData<NavigationState> = _navigationState
+
     fun loginUser(email: String, password: String) {
         viewModelScope.launch {
             _loginState.value = LoginState.Loading
@@ -32,8 +35,12 @@ class LoginViewModel @Inject constructor(
                 val user = authRepository.loginUser(email, password)
                 
                 if (!authRepository.isEmailVerified()) {
-                    _loginState.value = LoginState.Error(ErrorMessages.getVerifyEmail(context))
-                    authRepository.sendEmailVerification()
+                    try {
+                        authRepository.sendEmailVerification()
+                        _loginState.value = LoginState.Error(ErrorMessages.getVerifyEmailSent(context))
+                    } catch (e: Exception) {
+                        _loginState.value = LoginState.Error(ErrorMessages.getVerifyEmail(context))
+                    }
                     return@launch
                 }
                 _loginState.value = LoginState.Success(user)
@@ -51,7 +58,6 @@ class LoginViewModel @Inject constructor(
             try {
                 val user = authRepository.signInWithGoogle(idToken)
                 _googleSignInState.value = GoogleSignInState.Success(user)
-
                 checkUserRole()
             } catch (e: Exception) {
                 _googleSignInState.value = GoogleSignInState.Error(
@@ -64,32 +70,24 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    private fun checkUserRole() {
+    fun checkUserRole() {
         viewModelScope.launch {
             try {
                 val user = authRepository.getUserData(authRepository.getCurrentUserId())
                 when (user.role) {
                     "student" -> {
                         if (user.disabilityType == null) {
-                            _loginState.value = LoginState.NavigateToDisabilitySelection
-                            _googleSignInState.value =
-                                GoogleSignInState.NavigateToDisabilitySelection
+                            _navigationState.value = NavigationState.NavigateToDisabilitySelection
                         } else {
-                            _loginState.value = LoginState.NavigateToStudentDashboard
-                            _googleSignInState.value = GoogleSignInState.NavigateToStudentDashboard
+                            _navigationState.value = NavigationState.NavigateToStudentDashboard
                         }
                     }
-
                     "teacher" -> {
-                        _loginState.value = LoginState.NavigateToTeacherDashboard
-                        _googleSignInState.value = GoogleSignInState.NavigateToTeacherDashboard
+                        _navigationState.value = NavigationState.NavigateToTeacherDashboard
                     }
-
                     "parent" -> {
-                        _loginState.value = LoginState.NavigateToParentDashboard
-                        _googleSignInState.value = GoogleSignInState.NavigateToParentDashboard
+                        _navigationState.value = NavigationState.NavigateToParentDashboard
                     }
-
                     else -> {
                         _loginState.value = LoginState.Error("Role tidak valid")
                         _googleSignInState.value = GoogleSignInState.Error("Role tidak valid")
@@ -107,20 +105,19 @@ class LoginViewModel @Inject constructor(
         data object Loading : LoginState()
         data class Success(val user: User) : LoginState()
         data class Error(val message: String) : LoginState()
-        data object NavigateToDisabilitySelection : LoginState()
-        data object NavigateToStudentDashboard : LoginState()
-        data object NavigateToTeacherDashboard : LoginState()
-        data object NavigateToParentDashboard : LoginState()
     }
 
     sealed class GoogleSignInState {
         data object Loading : GoogleSignInState()
         data class Success(val user: User) : GoogleSignInState()
         data class Error(val message: String) : GoogleSignInState()
-        data object NavigateToDisabilitySelection : GoogleSignInState()
-        data object NavigateToStudentDashboard : GoogleSignInState()
-        data object NavigateToTeacherDashboard : GoogleSignInState()
-        data object NavigateToParentDashboard : GoogleSignInState()
+    }
+
+    sealed class NavigationState {
+        data object NavigateToDisabilitySelection : NavigationState()
+        data object NavigateToStudentDashboard : NavigationState()
+        data object NavigateToTeacherDashboard : NavigationState()
+        data object NavigateToParentDashboard : NavigationState()
     }
 
 } 

@@ -10,6 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.adika.learnable.R
 import com.adika.learnable.adapter.ProgressAdapter
 import com.adika.learnable.databinding.FragmentStudentProfileBinding
 import com.adika.learnable.model.User
@@ -58,40 +59,43 @@ class StudentProfileFragment : Fragment() {
 
     private fun observeViewModel() {
         viewModel.studentState.observe(viewLifecycleOwner) { state ->
-            when (state) {
-                is ParentDashboardViewModel.StudentState.Loading -> {
-                    showLoading(true)
-                }
-                is ParentDashboardViewModel.StudentState.Success -> {
-                    showLoading(false)
-                    // Cari siswa yang sesuai dengan studentId
-                    val student = state.students.find { it.id == args.studentId }
-                    student?.let {
-                        updateStudentUI(it)
-                        viewModel.loadStudentProgress(it.id)
-                    }
-
-                }
-                is ParentDashboardViewModel.StudentState.Error -> {
-                    showLoading(false)
-                    showToast(state.message)
-                }
-            }
+            handleState(state)
         }
 
         viewModel.studentProgressState.observe(viewLifecycleOwner) { state ->
-            when (state) {
-                is ParentDashboardViewModel.StudentProgressState.Loading -> {
-                    showLoading(true)
+            handleState(state)
+        }
+    }
+
+    private fun handleState(state: Any) {
+        when (state) {
+            is ParentDashboardViewModel.StudentState.Loading,
+            is ParentDashboardViewModel.StudentProgressState.Loading -> {
+                showLoading(true)
+            }
+
+            is ParentDashboardViewModel.StudentState.Success -> {
+                showLoading(false)
+                val student = state.students.find { it.id == args.studentId }
+                student?.let {
+                    updateStudentUI(it)
+                    viewModel.loadStudentProgress(it.id)
                 }
-                is ParentDashboardViewModel.StudentProgressState.Success -> {
-                    showLoading(false)
-                    progressAdapter.submitList(state.progressList)
-                }
-                is ParentDashboardViewModel.StudentProgressState.Error -> {
-                    showLoading(false)
-                    showToast(state.message)
-                }
+            }
+
+            is ParentDashboardViewModel.StudentProgressState.Success -> {
+                showLoading(false)
+                progressAdapter.submitList(state.learningProgressList)
+            }
+
+            is ParentDashboardViewModel.StudentState.Error,
+            is ParentDashboardViewModel.StudentProgressState.Error -> {
+                showLoading(false)
+                showToast(
+                    (state as? ParentDashboardViewModel.StudentState.Error)?.message
+                        ?: (state as? ParentDashboardViewModel.StudentProgressState.Error)?.message
+                        ?: "Unknown Error"
+                )
             }
         }
     }
@@ -106,11 +110,12 @@ class StudentProfileFragment : Fragment() {
             tvStudentEmail.text = student.email
             tvDisabilityType.text = student.disabilityType
 
-            // Load profile picture
             student.profilePicture.let { url ->
                 Glide.with(requireContext())
                     .load(url)
                     .circleCrop()
+                    .placeholder(R.drawable.ic_user)
+                    .placeholder(R.drawable.ic_user)
                     .into(ivStudentProfile)
             }
         }

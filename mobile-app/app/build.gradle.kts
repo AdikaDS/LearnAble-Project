@@ -77,6 +77,7 @@ dependencies {
     implementation(libs.navigation.ui)
     implementation(libs.navigation.fragment)
     implementation(libs.hilt.android)
+    implementation(libs.androidx.swiperefreshlayout)
     kapt(libs.hilt.compiler)
     implementation(libs.hilt.navigation)
     implementation(libs.splash.screen)

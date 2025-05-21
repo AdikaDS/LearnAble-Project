@@ -30,7 +30,7 @@
     <string name="verify_email_failed">Failed to send verification email</string>
     <string name="auth_failed">Authentication failed</string>
     <string name="signup_failed">Signup failed</string>
-    <string name="signup_success">Signup successful. Please verify your email before logging in</string>
+    <string name="signup_success">Signup successful. Please verify your email before logging in!</string>
     <string name="profile_update_failed">Failed to update profile</string>
     <string name="credential_error">Unable to retrieve user credentials</string>
     <string name="full_name">Full Name</string>

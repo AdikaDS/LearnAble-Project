@@ -8,8 +8,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.credentials.Credential
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialException
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.adika.learnable.R
 import com.adika.learnable.databinding.FragmentLoginBinding
@@ -19,12 +25,6 @@ import com.adika.learnable.viewmodel.auth.LoginViewModel
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.Companion.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
-import androidx.credentials.Credential
-import androidx.credentials.CredentialManager
-import androidx.credentials.CustomCredential
-import androidx.credentials.GetCredentialRequest
-import androidx.credentials.exceptions.GetCredentialException
-import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -86,25 +86,27 @@ class LoginFragment : Fragment() {
 
     private fun observeViewModel() {
         viewModel.loginState.observe(viewLifecycleOwner) { state ->
-            handleAuthState(state)
+            handleState(state)
         }
 
         viewModel.googleSignInState.observe(viewLifecycleOwner) { state ->
-            handleAuthState(state)
+            handleState(state)
+        }
+
+        viewModel.navigationState.observe(viewLifecycleOwner) { state ->
+            handleState(state)
         }
     }
 
-    private fun handleAuthState(state: Any) {
+    private fun handleState (state: Any) {
         when (state) {
             is LoginViewModel.LoginState.Loading,
-            is LoginViewModel.GoogleSignInState.Loading -> {
+            is LoginViewModel.GoogleSignInState.Loading ->
                 showLoading(true)
-            }
 
             is LoginViewModel.LoginState.Success,
-            is LoginViewModel.GoogleSignInState.Success -> {
+            is LoginViewModel.GoogleSignInState.Success ->
                 showLoading(false)
-            }
 
             is LoginViewModel.LoginState.Error,
             is LoginViewModel.GoogleSignInState.Error -> {
@@ -112,35 +114,27 @@ class LoginFragment : Fragment() {
                 showToast(
                     (state as? LoginViewModel.LoginState.Error)?.message
                         ?: (state as? LoginViewModel.GoogleSignInState.Error)?.message
-                        ?: "Unknown error"
+                        ?: "Unknown Error"
                 )
                 enableButtons()
             }
 
-            is LoginViewModel.LoginState.NavigateToDisabilitySelection,
-            is LoginViewModel.GoogleSignInState.NavigateToDisabilitySelection -> {
+            is LoginViewModel.NavigationState.NavigateToDisabilitySelection -> {
                 showLoading(false)
                 findNavController().navigate(R.id.action_login_to_disability_selection)
             }
-
-            is LoginViewModel.LoginState.NavigateToStudentDashboard,
-            is LoginViewModel.GoogleSignInState.NavigateToStudentDashboard -> {
+            is LoginViewModel.NavigationState.NavigateToStudentDashboard -> {
                 showLoading(false)
                 findNavController().navigate(R.id.action_login_to_student_dashboard)
             }
-
-            is LoginViewModel.LoginState.NavigateToTeacherDashboard,
-            is LoginViewModel.GoogleSignInState.NavigateToTeacherDashboard -> {
+            is LoginViewModel.NavigationState.NavigateToTeacherDashboard -> {
                 showLoading(false)
                 findNavController().navigate(R.id.action_login_to_teacher_dashboard)
             }
-
-            is LoginViewModel.LoginState.NavigateToParentDashboard,
-            is LoginViewModel.GoogleSignInState.NavigateToParentDashboard -> {
+            is LoginViewModel.NavigationState.NavigateToParentDashboard -> {
                 showLoading(false)
                 findNavController().navigate(R.id.action_login_to_parent_dashboard)
             }
-
         }
     }
 

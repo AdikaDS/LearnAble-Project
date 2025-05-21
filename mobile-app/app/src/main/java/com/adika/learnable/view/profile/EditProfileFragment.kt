@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.adika.learnable.R
 import com.adika.learnable.databinding.FragmentEditProfileBinding
 import com.adika.learnable.model.User
@@ -48,7 +49,7 @@ class EditProfileFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupObservers()
-        setupListeners()
+        setupClickListeners()
         viewModel.loadUserProfile()
     }
 
@@ -62,7 +63,7 @@ class EditProfileFragment : Fragment() {
                 is EditProfileViewModel.UserState.Success -> {
                     binding.progressBar.visibility = View.GONE
                     binding.contentLayout.visibility = View.VISIBLE
-                    updateUI(state.user)
+                    state.user?.let { updateUI(it) }
                 }
                 is EditProfileViewModel.UserState.Error -> {
                     binding.progressBar.visibility = View.GONE
@@ -73,10 +74,6 @@ class EditProfileFragment : Fragment() {
                     showToast(getString(R.string.password_update_success))
                     clearPasswordFields()
                 }
-//                is EditProfileViewModel.UserState.LoggedOut -> {
-//                    // Navigate to login screen
-//                    findNavController().navigate(R.id.action_editProfile_to_login)
-//                }
             }
         }
 
@@ -102,7 +99,7 @@ class EditProfileFragment : Fragment() {
         }
     }
 
-    private fun setupListeners() {
+    private fun setupClickListeners() {
         binding.btnUpdateProfile.setOnClickListener {
             val user = collectUserData()
             if (validateUserData(user)) {
@@ -120,6 +117,11 @@ class EditProfileFragment : Fragment() {
 
         binding.btnChangePhoto.setOnClickListener {
             openImagePicker()
+        }
+
+        binding.btnLogout.setOnClickListener {
+            viewModel.logout()
+            findNavController().navigate(R.id.action_editProfile_to_loginFrament)
         }
 
     }
@@ -177,10 +179,12 @@ class EditProfileFragment : Fragment() {
             etPhone.setText(user.phone)
 
             // Load profile picture
-            user.profilePicture?.let { url ->
+            user.profilePicture.let { url ->
                 Glide.with(requireContext())
                     .load(url)
                     .circleCrop()
+                    .placeholder(R.drawable.ic_user)
+                    .placeholder(R.drawable.ic_user)
                     .into(ivProfilePicture)
             }
         }

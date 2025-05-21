@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.adika.learnable.model.User
+import com.adika.learnable.repository.AuthRepository
 import com.adika.learnable.repository.EditProfileRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -13,7 +14,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class EditProfileViewModel @Inject constructor(
-    private val repository: EditProfileRepository
+    private val editProfileRepository: EditProfileRepository,
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     private val _userState = MutableLiveData<UserState>()
@@ -26,7 +28,7 @@ class EditProfileViewModel @Inject constructor(
         viewModelScope.launch {
             _userState.value = UserState.Loading
             try {
-                val user = repository.getUserData(repository.getCurrentUserId())
+                val user = editProfileRepository.getUserData(editProfileRepository.getCurrentUserId())
                 _userState.value = UserState.Success(user)
             } catch (e: Exception) {
                 _userState.value = UserState.Error(e.message ?: "Terjadi kesalahan saat memuat profil")
@@ -38,7 +40,7 @@ class EditProfileViewModel @Inject constructor(
         viewModelScope.launch {
             _userState.value = UserState.Loading
             try {
-                repository.updateUserData(user)
+                editProfileRepository.updateUserData(user)
                 _userState.value = UserState.Success(user)
             } catch (e: Exception) {
                 _userState.value = UserState.Error(e.message ?: "Terjadi kesalahan saat memperbarui profil")
@@ -48,15 +50,15 @@ class EditProfileViewModel @Inject constructor(
 
     fun uploadProfilePicture(uri: Uri) {
         _uploadState.value = UploadState.Loading
-        repository.uploadToImgur(uri) { result ->
+        editProfileRepository.uploadToImgur(uri) { result ->
             result.fold(
                 onSuccess = { imageUrl ->
                     // Update profil user dengan URL gambar baru
                     viewModelScope.launch {
                         try {
-                            val currentUser = repository.getUserData(repository.getCurrentUserId())
+                            val currentUser = editProfileRepository.getUserData(editProfileRepository.getCurrentUserId())
                             val updatedUser = currentUser.copy(profilePicture = imageUrl)
-                            repository.updateUserData(updatedUser)
+                            editProfileRepository.updateUserData(updatedUser)
                             _uploadState.value = UploadState.Success(imageUrl)
                             _userState.value = UserState.Success(updatedUser)
                         } catch (e: Exception) {
@@ -75,7 +77,7 @@ class EditProfileViewModel @Inject constructor(
         viewModelScope.launch {
             _userState.value = UserState.Loading
             try {
-                repository.updatePassword(currentPassword, newPassword)
+                editProfileRepository.updatePassword(currentPassword, newPassword)
                 _userState.value = UserState.PasswordUpdated
             } catch (e: Exception) {
                 _userState.value = UserState.Error(e.message ?: "Terjadi kesalahan saat memperbarui password")
@@ -83,19 +85,21 @@ class EditProfileViewModel @Inject constructor(
         }
     }
 
-//    fun logout() {
-//        viewModelScope.launch {
-//            try {
-//                repository.logout()
-//            } catch (e: Exception) {
-//                _userState.value = UserState.Error(e.message ?: "Terjadi kesalahan saat logout")
-//            }
-//        }
-//    }
+    fun logout() {
+        viewModelScope.launch {
+            try {
+                _userState.value = UserState.Loading
+                authRepository.signOut()
+                _userState.value = UserState.Success(null)
+            } catch (e: Exception) {
+                _userState.value = UserState.Error(e.message ?: "Terjadi kesalahan saat logout")
+            }
+        }
+    }
 
     sealed class UserState {
         data object Loading : UserState()
-        data class Success(val user: User) : UserState()
+        data class Success(val user: User?) : UserState()
         data class Error(val message: String) : UserState()
         data object PasswordUpdated : UserState()
     }

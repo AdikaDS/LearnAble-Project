@@ -1,6 +1,6 @@
 package com.adika.learnable.repository
 
-import com.adika.learnable.model.Progress
+import com.adika.learnable.model.LearningProgress
 import com.adika.learnable.model.User
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
@@ -9,7 +9,6 @@ import javax.inject.Singleton
 
 @Singleton
 class UserParentRepository @Inject constructor(
-    /*private val auth: FirebaseAuth,*/
     private val firestore: FirebaseFirestore
 ) {
     private val usersCollection = firestore.collection("users")
@@ -70,12 +69,12 @@ class UserParentRepository @Inject constructor(
         }
     }
 
-    suspend fun getStudentProgress(studentId: String): List<Progress> {
+    suspend fun getStudentProgress(studentId: String): List<LearningProgress> {
         return firestore
-            .collection("progress")
+            .collection("learning_progress")
             .whereEqualTo("studentId", studentId)
             .get()
             .await()
-            .toObjects(Progress::class.java)
+            .toObjects(LearningProgress::class.java)
     }
 }

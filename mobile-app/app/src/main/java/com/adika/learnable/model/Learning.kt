@@ -55,7 +55,7 @@ data class StudentAnswer(
     val timeSpent: Int = 0 // Waktu yang digunakan untuk menjawab dalam detik
 )
 
-data class Progress(
+data class LearningProgress(
     val id: String = "",
     val studentId: String = "",
     val subjectId: String = "",
@@ -75,25 +75,29 @@ data class Lesson(
     val id: String = "",
     val title: String = "",
     val content: String = "",
-    val subjectId: String = "",
-    val teacherId: String = "",
+    val idSubject: String = "",
+    val schoolLevel: String = "", // "sd", "smp", "sma"
     val createdAt: Timestamp = Timestamp.now(),
     val updatedAt: Timestamp = Timestamp.now(),
     val duration: Int = 0, // Durasi dalam menit
     val difficulty: String = "", // "easy", "medium", "hard"
     val prerequisites: List<String> = listOf(), // ID materi yang harus diselesaikan sebelumnya
-    val attachments: List<String> = listOf() // URL file lampiran
+    val disabilityTypes: List<String> = listOf(), // Tipe disabilitas yang didukung ("tunarungu", "tunanetra")
+    val mediaUrls: Map<String, String> = mapOf( // URL media untuk setiap tipe disabilitas
+        "video" to "", // URL video bahasa isyarat
+        "audio" to "", // URL deskripsi audio
+        "pdfLesson" to "" // Url Materi berbentuk PDF
+    )
 )
 
 // Model untuk mata pelajaran
 data class Subject(
-    val id: String = "",
+    val idSubject: String = "",
     val name: String = "",
     val description: String = "",
-    val teacherId: String = "",
     val createdAt: Timestamp = Timestamp.now(),
     val isActive: Boolean = true,
-    val grade: String = "", // Kelas yang dituju
+    val schoolLevel: String = "", // Kelas yang dituju
     val totalLessons: Int = 0,
     val totalQuizzes: Int = 0
 )
