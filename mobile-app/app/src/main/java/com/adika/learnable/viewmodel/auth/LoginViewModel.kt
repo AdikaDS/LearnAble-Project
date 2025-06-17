@@ -3,11 +3,13 @@ package com.adika.learnable.viewmodel.auth
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.adika.learnable.model.User
 import com.adika.learnable.repository.AuthRepository
 import com.adika.learnable.util.ErrorMessages
+import com.adika.learnable.viewmodel.auth.SignupViewModel.Companion
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
@@ -16,8 +18,13 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository,
+    private val savedStateHandle: SavedStateHandle,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
+
+    companion object {
+        private const val KEY_ROLE = "user_role"
+    }
 
     private val _loginState = MutableLiveData<LoginState>()
     val loginState: LiveData<LoginState> = _loginState
@@ -28,16 +35,24 @@ class LoginViewModel @Inject constructor(
     private val _navigationState = MutableLiveData<NavigationState>()
     val navigationState: LiveData<NavigationState> = _navigationState
 
+    val role: String?
+        get() = savedStateHandle[KEY_ROLE]
+
+    fun setRole(role: String) {
+        savedStateHandle[KEY_ROLE] = role
+    }
+
     fun loginUser(email: String, password: String) {
         viewModelScope.launch {
             _loginState.value = LoginState.Loading
             try {
                 val user = authRepository.loginUser(email, password)
-                
+
                 if (!authRepository.isEmailVerified()) {
                     try {
                         authRepository.sendEmailVerification()
-                        _loginState.value = LoginState.Error(ErrorMessages.getVerifyEmailSent(context))
+                        _loginState.value =
+                            LoginState.Error(ErrorMessages.getVerifyEmailSent(context))
                     } catch (e: Exception) {
                         _loginState.value = LoginState.Error(ErrorMessages.getVerifyEmail(context))
                     }
@@ -70,7 +85,7 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun checkUserRole() {
+    private fun checkUserRole() {
         viewModelScope.launch {
             try {
                 val user = authRepository.getUserData(authRepository.getCurrentUserId())
@@ -82,12 +97,23 @@ class LoginViewModel @Inject constructor(
                             _navigationState.value = NavigationState.NavigateToStudentDashboard
                         }
                     }
+
                     "teacher" -> {
-                        _navigationState.value = NavigationState.NavigateToTeacherDashboard
+                        if (user.isApproved) {
+                            _navigationState.value = NavigationState.NavigateToTeacherDashboard
+                        } else {
+                            _navigationState.value = NavigationState.NavigateToAdminConfirmation
+                        }
                     }
+
                     "parent" -> {
-                        _navigationState.value = NavigationState.NavigateToParentDashboard
+                        if (user.isApproved) {
+                            _navigationState.value = NavigationState.NavigateToParentDashboard
+                        } else {
+                            _navigationState.value = NavigationState.NavigateToAdminConfirmation
+                        }
                     }
+
                     else -> {
                         _loginState.value = LoginState.Error("Role tidak valid")
                         _googleSignInState.value = GoogleSignInState.Error("Role tidak valid")
@@ -118,6 +144,7 @@ class LoginViewModel @Inject constructor(
         data object NavigateToStudentDashboard : NavigationState()
         data object NavigateToTeacherDashboard : NavigationState()
         data object NavigateToParentDashboard : NavigationState()
+        data object NavigateToAdminConfirmation : NavigationState()
     }
 
 } 
