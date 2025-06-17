@@ -14,12 +14,14 @@ import androidx.navigation.fragment.findNavController
 import com.adika.learnable.R
 import com.adika.learnable.databinding.FragmentEditProfileBinding
 import com.adika.learnable.model.User
+import com.adika.learnable.util.LanguageUtils
 import com.adika.learnable.util.ValidationResult
 import com.adika.learnable.util.ValidationUtils
 import com.adika.learnable.viewmodel.EditProfileViewModel
 import com.bumptech.glide.Glide
 import com.github.dhaval2404.imagepicker.ImagePicker
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.Locale
 
 @AndroidEntryPoint
 class EditProfileFragment : Fragment() {
@@ -48,9 +50,18 @@ class EditProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Apply saved language
+        val languageCode = LanguageUtils.getLanguagePreference(requireContext())
+        val config = resources.configuration
+        val locale = Locale(languageCode)
+        Locale.setDefault(locale)
+        config.setLocale(locale)
+        resources.updateConfiguration(config, resources.displayMetrics)
+
         setupObservers()
         setupClickListeners()
         viewModel.loadUserProfile()
+        updateLanguageIcon()
     }
 
     private fun setupObservers() {
@@ -124,6 +135,9 @@ class EditProfileFragment : Fragment() {
             findNavController().navigate(R.id.action_editProfile_to_loginFrament)
         }
 
+        binding.btnLanguage.setOnClickListener {
+            toggleLanguage()
+        }
     }
 
     private fun openImagePicker() {
@@ -172,6 +186,31 @@ class EditProfileFragment : Fragment() {
         }
     }
 
+    private fun toggleLanguage() {
+        val currentLanguage = LanguageUtils.getLanguagePreference(requireContext())
+        val newLanguage = if (currentLanguage == "id") "en" else "id"
+        
+        // Update language
+        LanguageUtils.changeLanguage(requireContext(), newLanguage)
+        
+        // Update UI
+        updateLanguageIcon()
+        
+        // Recreate activity to apply changes
+        activity?.recreate()
+    }
+
+    private fun updateLanguageIcon() {
+        val currentLanguage = LanguageUtils.getLanguagePreference(requireContext())
+        val config = resources.configuration
+        val locale = Locale(currentLanguage)
+        Locale.setDefault(locale)
+        config.setLocale(locale)
+        resources.updateConfiguration(config, resources.displayMetrics)
+        val resId = if (currentLanguage == "id") R.drawable.ic_flag_id else R.drawable.ic_flag_usa
+        binding.btnLanguage.setImageResource(resId)
+    }
+
     private fun updateUI(user: User) {
         binding.apply {
             etName.setText(user.name)
@@ -208,6 +247,8 @@ class EditProfileFragment : Fragment() {
     private fun showToast(message: String) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
+
+
 
     override fun onDestroyView() {
         super.onDestroyView()

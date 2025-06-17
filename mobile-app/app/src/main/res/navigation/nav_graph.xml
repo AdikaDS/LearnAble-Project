@@ -11,6 +11,15 @@
         android:label="LoginFragment"
         tools:layout="@layout/fragment_login">
         <action
+            android:id="@+id/action_login_to_admin_confirmation"
+            app:destination="@id/adminConfirmationFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true"/>
+        <action
             android:id="@+id/action_login_to_signup"
             app:destination="@id/signupFragment"
             app:enterAnim="@anim/slide_in_right"
@@ -30,28 +39,28 @@
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popUpTo="@id/nav_graph"
-            app:popUpToInclusive="true"/>
+            app:popUpToInclusive="true" />
         <action
             android:id="@+id/action_login_to_teacher_dashboard"
             app:destination="@id/teacherDashboardFragment"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popUpTo="@id/nav_graph"
-            app:popUpToInclusive="true"/>
+            app:popUpToInclusive="true" />
         <action
             android:id="@+id/action_login_to_parent_dashboard"
             app:destination="@id/parentDashboardFragment"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popUpTo="@id/nav_graph"
-            app:popUpToInclusive="true"/>
+            app:popUpToInclusive="true" />
         <action
             android:id="@+id/action_login_to_disability_selection"
             app:destination="@id/disabilitySelectionFragment"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popUpTo="@id/nav_graph"
-            app:popUpToInclusive="true"/>
+            app:popUpToInclusive="true" />
     </fragment>
 
     <fragment
@@ -100,7 +109,7 @@
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popUpTo="@id/nav_graph"
-            app:popUpToInclusive="true"/>
+            app:popUpToInclusive="true" />
     </fragment>
 
     <fragment
@@ -148,12 +157,12 @@
             android:id="@+id/action_studentDashboard_to_editProfile"
             app:destination="@id/editProfileFragment"
             app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"/>
+            app:exitAnim="@anim/slide_out_right" />
         <action
             android:id="@+id/action_studentDashboard_to_lessonList"
             app:destination="@id/lessonListFragment"
             app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"/>
+            app:exitAnim="@anim/slide_out_right" />
     </fragment>
 
     <fragment
@@ -166,7 +175,23 @@
             app:destination="@id/editProfileFragment"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left" />
+        <action
+            android:id="@+id/action_teacherDashboardFragment_to_studentProfileFragment"
+            app:destination="@id/studentProfileFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left" />
+        <action
+            android:id="@+id/action_teacherDashboardFragment_to_teacherLessonListFragment"
+            app:destination="@id/teacherLessonListFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left" />
     </fragment>
+
+    <fragment
+        android:id="@+id/teacherLessonListFragment"
+        android:name="com.adika.learnable.view.dashboard.teacher.TeacherLessonListFragment"
+        android:label="TeacherLessonListFragment"
+        tools:layout="@layout/fragment_teacher_lesson_list" />
 
     <fragment
         android:id="@+id/parentDashboardFragment"
@@ -197,7 +222,7 @@
 
     <fragment
         android:id="@+id/lessonListFragment"
-        android:name="com.adika.learnable.view.dashboard.student.LessonListFragment"
+        android:name="com.adika.learnable.view.dashboard.student.StudentLessonListFragment"
         android:label="LessonListFragment"
         tools:layout="@layout/fragment_lesson_list">
         <argument
@@ -209,21 +234,60 @@
             app:argType="string"
             app:nullable="true" />
         <action
-            android:id="@+id/action_lessonList_to_lessonDetail"
-            app:destination="@id/lessonDetailFragment">
-            <argument
-                android:name="lessonId"
-                app:argType="string" />
-        </action>
+            android:id="@+id/action_studentLessonListFragment_to_studentSubBabDetailFragment"
+            app:destination="@id/studentSubBabDetailFragment" />
+
     </fragment>
 
     <fragment
-        android:id="@+id/lessonDetailFragment"
-        android:name="com.adika.learnable.view.lesson.LessonDetailFragment"
-        android:label="LessonDetailFragment">
+        android:id="@+id/studentSubBabDetailFragment"
+        android:name="com.adika.learnable.view.dashboard.student.StudentSubBabDetailFragment"
+        android:label="Detail Sub Bab"
+        tools:layout="@layout/fragment_student_sub_bab_detail">
         <argument
-            android:name="lessonId"
+            android:name="subBab"
+            app:argType="com.adika.learnable.model.SubBab" />
+        <action
+            android:id="@+id/action_studentSubBabDetailFragment_to_quizFragment"
+            app:destination="@id/quizFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/quizFragment"
+        android:name="com.adika.learnable.view.dashboard.student.quiz.QuizFragment"
+        android:label="Quiz"
+        tools:layout="@layout/fragment_quiz">
+        <argument
+            android:name="subBabId"
             app:argType="string" />
     </fragment>
 
+    <fragment
+        android:id="@+id/adminConfirmationFragment"
+        android:name="com.adika.learnable.view.auth.AdminConfirmationFragment"
+        android:label="AdminConfirmationFragment"
+        tools:layout="@layout/fragment_admin_confirmation">
+        <action
+            android:id="@+id/action_adminConfirmation_to_teacher_dashboard"
+            app:destination="@id/teacherDashboardFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popUpTo="@id/adminConfirmationFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_adminConfirmation_to_parent_dashboard"
+            app:destination="@id/parentDashboardFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popUpTo="@id/adminConfirmationFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_adminConfirmation_to_login"
+            app:destination="@id/loginFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
+    </fragment>
 </navigation> 

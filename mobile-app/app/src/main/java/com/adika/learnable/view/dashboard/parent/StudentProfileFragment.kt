@@ -11,10 +11,11 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.adika.learnable.R
-import com.adika.learnable.adapter.ProgressAdapter
+import com.adika.learnable.adapter.StudentProgressAdapter
 import com.adika.learnable.databinding.FragmentStudentProfileBinding
+import com.adika.learnable.model.StudentOverallProgress
 import com.adika.learnable.model.User
-import com.adika.learnable.viewmodel.dashboard.ParentDashboardViewModel
+import com.adika.learnable.viewmodel.dashboard.StudentProfileViewModel
 import com.bumptech.glide.Glide
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -22,8 +23,8 @@ import dagger.hilt.android.AndroidEntryPoint
 class StudentProfileFragment : Fragment() {
     private var _binding: FragmentStudentProfileBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: ParentDashboardViewModel by viewModels()
-    private lateinit var progressAdapter: ProgressAdapter
+    private val studentProfileViewModel: StudentProfileViewModel by viewModels()
+    private lateinit var studentProgressAdapter: StudentProgressAdapter
     private val args: StudentProfileFragmentArgs by navArgs()
 
     override fun onCreateView(
@@ -40,14 +41,14 @@ class StudentProfileFragment : Fragment() {
         setupRecyclerView()
         setupClickListeners()
         observeViewModel()
-        loadStudents()
+        loadStudentData()
     }
 
     private fun setupRecyclerView() {
-        progressAdapter = ProgressAdapter()
-        binding.rvProgress.apply {
+        studentProgressAdapter = StudentProgressAdapter()
+        binding.rvSubjectProgress.apply {
             layoutManager = LinearLayoutManager(context)
-            adapter = progressAdapter
+            adapter = studentProgressAdapter
         }
     }
 
@@ -58,50 +59,59 @@ class StudentProfileFragment : Fragment() {
     }
 
     private fun observeViewModel() {
-        viewModel.studentState.observe(viewLifecycleOwner) { state ->
+        studentProfileViewModel.studentState.observe(viewLifecycleOwner) { state ->
             handleState(state)
         }
 
-        viewModel.studentProgressState.observe(viewLifecycleOwner) { state ->
+        studentProfileViewModel.overallProgressState.observe(viewLifecycleOwner) { state ->
+            handleState(state)
+        }
+
+        studentProfileViewModel.subjectProgressState.observe(viewLifecycleOwner) { state ->
             handleState(state)
         }
     }
 
     private fun handleState(state: Any) {
         when (state) {
-            is ParentDashboardViewModel.StudentState.Loading,
-            is ParentDashboardViewModel.StudentProgressState.Loading -> {
+            is StudentProfileViewModel.StudentState.Loading,
+            is StudentProfileViewModel.SubjectProgressState.Loading,
+            is StudentProfileViewModel.OverallProgressState.Loading -> {
                 showLoading(true)
             }
 
-            is ParentDashboardViewModel.StudentState.Success -> {
+            is StudentProfileViewModel.StudentState.Success -> {
                 showLoading(false)
-                val student = state.students.find { it.id == args.studentId }
-                student?.let {
-                    updateStudentUI(it)
-                    viewModel.loadStudentProgress(it.id)
+                updateStudentUI(state.student)
+            }
+
+            is StudentProfileViewModel.SubjectProgressState.Success -> {
+                showLoading(false)
+                studentProgressAdapter.submitList(state.progress)
+            }
+
+            is StudentProfileViewModel.OverallProgressState.Success -> {
+                state.progress?.let { progress ->
+                    updateOverallProgressUI(progress)
                 }
             }
 
-            is ParentDashboardViewModel.StudentProgressState.Success -> {
-                showLoading(false)
-                progressAdapter.submitList(state.learningProgressList)
-            }
-
-            is ParentDashboardViewModel.StudentState.Error,
-            is ParentDashboardViewModel.StudentProgressState.Error -> {
+            is StudentProfileViewModel.StudentState.Error,
+            is StudentProfileViewModel.SubjectProgressState.Error,
+            is StudentProfileViewModel.OverallProgressState.Error -> {
                 showLoading(false)
                 showToast(
-                    (state as? ParentDashboardViewModel.StudentState.Error)?.message
-                        ?: (state as? ParentDashboardViewModel.StudentProgressState.Error)?.message
-                        ?: "Unknown Error"
+                    (state as? StudentProfileViewModel.StudentState.Error)?.message
+                        ?: (state as? StudentProfileViewModel.SubjectProgressState.Error)?.message
+                        ?: (state as? StudentProfileViewModel.OverallProgressState.Error)?.message
+                        ?: getString(R.string.unknown_error)
                 )
             }
         }
     }
 
-    private fun loadStudents() {
-        viewModel.loadStudents()
+    private fun loadStudentData() {
+        studentProfileViewModel.loadStudentData(args.studentId)
     }
 
     private fun updateStudentUI(student: User) {
@@ -115,9 +125,17 @@ class StudentProfileFragment : Fragment() {
                     .load(url)
                     .circleCrop()
                     .placeholder(R.drawable.ic_user)
-                    .placeholder(R.drawable.ic_user)
                     .into(ivStudentProfile)
             }
+        }
+    }
+
+    private fun updateOverallProgressUI(progress: StudentOverallProgress) {
+        binding.apply {
+            overallProgressBar.progress = progress.overallProgressPercentage
+            tvOverallProgress.text = getString(R.string.progress_percentage, progress.overallProgressPercentage)
+            tvCompletedSubjects.text = getString(R.string.completed_lessons, progress.completedSubjects, progress.totalSubjects)
+            tvTotalTimeSpent.text = getString(R.string.total_time_spent, progress.totalTimeSpent)
         }
     }
 

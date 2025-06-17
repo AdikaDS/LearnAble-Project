@@ -21,6 +21,7 @@ import com.adika.learnable.R
 import com.adika.learnable.databinding.FragmentLoginBinding
 import com.adika.learnable.util.ValidationResult
 import com.adika.learnable.util.ValidationUtils
+import com.adika.learnable.view.SelectRoleBottomSheet
 import com.adika.learnable.viewmodel.auth.LoginViewModel
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
@@ -84,6 +85,11 @@ class LoginFragment : Fragment() {
         }
     }
 
+    private fun showRoleBottomSheet(onRoleSelected: (String) -> Unit) {
+        val sheet = SelectRoleBottomSheet(onRoleSelected)
+        sheet.show(parentFragmentManager, "SelectRoleBottomSheet")
+    }
+
     private fun observeViewModel() {
         viewModel.loginState.observe(viewLifecycleOwner) { state ->
             handleState(state)
@@ -98,7 +104,7 @@ class LoginFragment : Fragment() {
         }
     }
 
-    private fun handleState (state: Any) {
+    private fun handleState(state: Any) {
         when (state) {
             is LoginViewModel.LoginState.Loading,
             is LoginViewModel.GoogleSignInState.Loading ->
@@ -114,7 +120,7 @@ class LoginFragment : Fragment() {
                 showToast(
                     (state as? LoginViewModel.LoginState.Error)?.message
                         ?: (state as? LoginViewModel.GoogleSignInState.Error)?.message
-                        ?: "Unknown Error"
+                        ?: getString(R.string.unknown_error)
                 )
                 enableButtons()
             }
@@ -135,6 +141,10 @@ class LoginFragment : Fragment() {
                 showLoading(false)
                 findNavController().navigate(R.id.action_login_to_parent_dashboard)
             }
+            is LoginViewModel.NavigationState.NavigateToAdminConfirmation -> {
+                showLoading(false)
+                findNavController().navigate(R.id.action_login_to_admin_confirmation)
+            }
         }
     }
 
@@ -147,7 +157,7 @@ class LoginFragment : Fragment() {
 
         when (validationResult) {
             is ValidationResult.Invalid -> {
-                showError(validationResult.message)
+                showToast(validationResult.message)
                 return false
             }
 
@@ -232,10 +242,6 @@ class LoginFragment : Fragment() {
     private fun disableButtons() {
         binding.btnLogin.isEnabled = false
         binding.btnGoogleSignIn.isEnabled = false
-    }
-
-    private fun showError(message: String) {
-        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
     }
 
     private fun showToast(message: String) {

@@ -1,6 +1,5 @@
 package com.adika.learnable.repository
 
-import com.adika.learnable.model.LearningProgress
 import com.adika.learnable.model.User
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
@@ -9,7 +8,7 @@ import javax.inject.Singleton
 
 @Singleton
 class UserParentRepository @Inject constructor(
-    private val firestore: FirebaseFirestore
+    firestore: FirebaseFirestore
 ) {
     private val usersCollection = firestore.collection("users")
 
@@ -25,12 +24,14 @@ class UserParentRepository @Inject constructor(
             ?: throw Exception("Parent not found")
 
         // Add student ID to parent's studentIds list
-        val updatedStudentIds = parent.studentIds.toMutableList()
-        if (!updatedStudentIds.contains(studentId)) {
-            updatedStudentIds.add(studentId)
-            usersCollection.document(parentId)
-                .update("studentIds", updatedStudentIds)
-                .await()
+        val updatedStudentIds = parent.studentIds?.toMutableList()
+        if (updatedStudentIds != null) {
+            if (!updatedStudentIds.contains(studentId)) {
+                updatedStudentIds.add(studentId)
+                usersCollection.document(parentId)
+                    .update("studentIds", updatedStudentIds)
+                    .await()
+            }
         }
     }
 
@@ -47,12 +48,12 @@ class UserParentRepository @Inject constructor(
         val student = studentDoc.toObject(User::class.java)
             ?: throw Exception("Student not found")
 
-        if (student.parentId.isBlank()) {
+        if (student.parentId?.isBlank() == true) {
             return null
         }
 
-        val parentDoc = usersCollection.document(student.parentId).get().await()
-        return parentDoc.toObject(User::class.java)
+        val parentDoc = student.parentId?.let { usersCollection.document(it).get().await() }
+        return parentDoc?.toObject(User::class.java)
     }
 
     suspend fun findStudentEmail(email: String): User? {
@@ -67,14 +68,5 @@ class UserParentRepository @Inject constructor(
         } else {
             null
         }
-    }
-
-    suspend fun getStudentProgress(studentId: String): List<LearningProgress> {
-        return firestore
-            .collection("learning_progress")
-            .whereEqualTo("studentId", studentId)
-            .get()
-            .await()
-            .toObjects(LearningProgress::class.java)
     }
 }

@@ -1,15 +1,43 @@
 package com.adika.learnable.repository
 
-import com.google.firebase.auth.FirebaseAuth
+import android.util.Log
+import com.adika.learnable.model.User
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class UserTeacherRepository @Inject constructor(
-    private val auth: FirebaseAuth,
-    private val firestore: FirebaseFirestore
-){
+    firestore: FirebaseFirestore
+) {
     private val usersCollection = firestore.collection("users")
+
+    suspend fun getAllStudent(): List<User> {
+        val student = usersCollection
+            .whereEqualTo("role", "student")
+            .get()
+            .await()
+        return student.toObjects(User::class.java)
+    }
+
+    suspend fun searchStudent(
+        query: String
+    ): List<User> {
+        try {
+            val studentQuery = usersCollection.whereEqualTo("role", "student")
+
+            val studentSnapshot = studentQuery.get().await()
+            val student = studentSnapshot.toObjects(User::class.java)
+
+            return student.filter { students ->
+                students.name.contains(query, ignoreCase = true) ||
+                        (students.disabilityType?.contains(query, ignoreCase = true) ?: false)
+            }
+        } catch (e: Exception) {
+            Log.e("LessonRepository", "Error searching lessons", e)
+            throw e
+        }
+    }
 
 }

@@ -2,11 +2,13 @@ package com.adika.learnable.repository
 
 import android.content.Context
 import android.util.Log
+import androidx.core.content.edit
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
+import com.adika.learnable.R
 import com.adika.learnable.model.User
+import com.adika.learnable.util.EmailService
 import com.adika.learnable.util.ErrorMessages
-import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.UserProfileChangeRequest
@@ -15,12 +17,12 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
-import androidx.core.content.edit
 
 @Singleton
 class AuthRepository @Inject constructor(
     private val auth: FirebaseAuth,
-    private val firestore: FirebaseFirestore,
+    firestore: FirebaseFirestore,
+    private val emailService: EmailService,
     @ApplicationContext private val context: Context
 ) {
     private val usersCollection = firestore.collection("users")
@@ -52,7 +54,13 @@ class AuthRepository @Inject constructor(
         }
     }
 
-    suspend fun signUpWithEmailAndPassword(name: String, email: String, password: String): User {
+    suspend fun signUpWithEmailAndPassword(
+        name: String,
+        email: String,
+        password: String,
+        ttl: String,
+        role: String
+    ): User {
         try {
             val result = auth.createUserWithEmailAndPassword(email, password).await()
             val user = result.user ?: throw Exception(ErrorMessages.getSignupFailed(context))
@@ -64,14 +72,17 @@ class AuthRepository @Inject constructor(
 
             val newUser = User(
                 id = user.uid,
+                ttl = ttl,
                 email = email,
                 name = name,
-                role = "student",
-                disabilityType = null,
-                createdAt = Timestamp.now()
+                role = role
             )
 
             usersCollection.document(user.uid).set(newUser).await()
+            if (role == "parent" || role == "teacher") {
+                emailService.sendAdminNotification(name, email, role)
+            }
+
             sendEmailVerification()
             return newUser
         } catch (e: Exception) {
@@ -94,7 +105,7 @@ class AuthRepository @Inject constructor(
         }
     }
 
-    suspend fun signInWithGoogle(idToken: String): User {
+    suspend fun signInWithGoogle(idToken: String, role: String): User {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         val result = auth.signInWithCredential(credential).await()
         val user = result.user ?: throw Exception(ErrorMessages.getAuthFailed(context))
@@ -105,15 +116,19 @@ class AuthRepository @Inject constructor(
                 id = user.uid,
                 email = user.email ?: "",
                 name = user.displayName ?: "",
-                role = "student", // Default role
-                profilePicture = user.photoUrl.toString(),
-                disabilityType = null
+                role = role,
+                profilePicture = user.photoUrl.toString()
             )
             usersCollection.document(user.uid).set(newUser).await()
             return newUser
         }
 
-        return userDoc.toObject(User::class.java) ?: throw Exception("Gagal mendapatkan data user")
+        if (role == "parent" || role == "teacher") {
+            user.email?.let { user.displayName?.let { it1 -> emailService.sendAdminNotification(it1, it, role) } }
+        }
+
+        return userDoc.toObject(User::class.java)
+            ?: throw Exception(context.getString(R.string.fail_load_user_data))
     }
 
     suspend fun getUserData(userId: String): User {

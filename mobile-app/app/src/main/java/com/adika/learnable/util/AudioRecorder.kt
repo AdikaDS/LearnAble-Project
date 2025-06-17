@@ -2,55 +2,75 @@ package com.adika.learnable.util
 
 import android.media.MediaRecorder
 import java.io.File
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class AudioRecorder {
-    private var recorder: MediaRecorder? = null
-    private var outputFile: File? = null
-    var isRecording = false
-        private set
+@Singleton
+class AudioRecorder @Inject constructor() {
+    private var mediaRecorder: MediaRecorder? = null
+    private var currentFile: File? = null
 
     fun start(outputFile: File) {
-        this.outputFile = outputFile
-        recorder = MediaRecorder().apply {
-            setAudioSource(MediaRecorder.AudioSource.MIC)
-            setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-            setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-            setOutputFile(outputFile.absolutePath)
-            prepare()
-            start()
+        try {
+            // Clean up any existing recorder
+            stop()
+            
+            currentFile = outputFile
+            mediaRecorder = MediaRecorder().apply {
+                setAudioSource(MediaRecorder.AudioSource.MIC)
+                setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+                setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+                setOutputFile(outputFile.absolutePath)
+                try {
+                    prepare()
+                    start()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    release()
+                    throw e
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw e
         }
-        isRecording = true
     }
 
     fun stop(): File? {
-        try {
-            recorder?.apply {
-                stop()
-                release()
+        return try {
+            mediaRecorder?.apply {
+                try {
+                    stop()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                } finally {
+                    release()
+                }
             }
-        } catch (e: RuntimeException) {
-            outputFile?.delete()
-            return null
-        } finally {
-            recorder = null
-            isRecording = false
+            mediaRecorder = null
+            currentFile
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
-        return outputFile
     }
 
     fun cancel() {
         try {
-            recorder?.apply {
-                stop()
-                release()
+            mediaRecorder?.apply {
+                try {
+                    stop()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                } finally {
+                    release()
+                }
             }
+            mediaRecorder = null
+            currentFile?.delete()
+            currentFile = null
         } catch (e: Exception) {
-            // Ignore
-        } finally {
-            recorder = null
-            outputFile?.delete()
-            outputFile = null
-            isRecording = false
+            e.printStackTrace()
         }
     }
 }

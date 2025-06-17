@@ -63,10 +63,8 @@ class StudentDashboardFragment : Fragment() {
             if (state is StudentDashboardViewModel.StudentState.Success) {
                 showLoading(false)
                 val user = state.student
-                Log.d("StudentDashboard", "User data: $user")
-                Log.d("StudentDashboard", "Disability type: ${user?.disabilityType}")
 
-                if (user?.disabilityType != null) {
+                if (user.disabilityType != null) {
                     val action = StudentDashboardFragmentDirections
                         .actionStudentDashboardToLessonList(
                             idSubject = subject.idSubject,
@@ -74,10 +72,10 @@ class StudentDashboardFragment : Fragment() {
                         )
                     findNavController().navigate(action)
                 } else {
-                    showToast("Silakan pilih tipe disabilitas terlebih dahulu")
+                    showToast(getString(R.string.pick_disability))
                 }
             } else {
-                showToast("Data user belum dimuat")
+                showToast(getString(R.string.fail_load_user_data))
             }
         }
 
@@ -140,13 +138,12 @@ class StudentDashboardFragment : Fragment() {
                 showLoading(true)
             }
             is StudentDashboardViewModel.SubjectState.Loading -> {
-                // Only show progress bar for subject loading, not swipe refresh
-                binding.progressBar.visibility = View.VISIBLE
+                showLoading(true)
             }
 
             is StudentDashboardViewModel.StudentState.Success -> {
                 showLoading(false)
-                state.student?.let { student ->
+                state.student.let { student ->
                     binding.tvName.text = student.name
                     Log.d("StudentDashboard", "User loaded: $student")
                     Log.d("StudentDashboard", "Disability type: ${student.disabilityType}")
@@ -177,7 +174,7 @@ class StudentDashboardFragment : Fragment() {
                 showToast(
                     (state as? StudentDashboardViewModel.StudentState.Error)?.message
                         ?: (state as? StudentDashboardViewModel.SubjectState.Error)?.message
-                        ?: "Unknown error"
+                        ?: getString(R.string.unknown_error)
                 )
             }
         }

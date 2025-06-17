@@ -65,7 +65,7 @@ class DisabilitySelectionFragment : Fragment() {
 
                 is DisabilitySelectionViewModel.DisabilitySelectionState.Success -> {
                     showLoading(false)
-                    showToast("Berhasil menyimpan tipe disabilitas")
+                    showToast(getString(R.string.succes_save_disability))
                     findNavController().navigate(R.id.action_disability_selection_to_student_dashboard)
                 }
 
@@ -76,16 +76,6 @@ class DisabilitySelectionFragment : Fragment() {
             }
         }
     }
-
-//    private fun navigateToDashboard(role: String) {
-//        val intent = when (role) {
-//            "teacher" -> Intent(this, TeacherDashboardActivity::class.java)
-//            "parent" -> Intent(this, ParentDashboardActivity::class.java)
-//            else -> Intent(this, StudentDashboardActivity::class.java)
-//        }
-//        startActivity(intent)
-//        finish()
-//    }
 
     private fun showLoading(isLoading: Boolean) {
         binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE

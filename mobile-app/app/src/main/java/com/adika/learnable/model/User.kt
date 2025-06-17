@@ -7,10 +7,13 @@ data class User(
     val name: String = "",
     val email: String = "",
     val role: String = "",
-    val profilePicture: String = "",
+    val ttl: String = "",
+    val kelas: String? = null,
     val phone: String = "",
+    val disabilityType: String? = null,
+    val profilePicture: String? = null,
     val createdAt: Timestamp = Timestamp.now(),
-    val parentId: String = "",
-    val studentIds: List<String> = listOf(),
-    val disabilityType: String? = null
+    val parentId: String? = null,
+    val studentIds: List<String>? = null,
+    val isApproved: Boolean = false
 )

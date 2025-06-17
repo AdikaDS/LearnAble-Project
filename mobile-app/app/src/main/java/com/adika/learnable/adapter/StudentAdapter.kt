@@ -44,7 +44,7 @@ class StudentAdapter(
             binding.apply {
                 tvStudentName.text = student.name
                 tvStudentEmail.text = student.email
-                tvDisabilityType.text = student.disabilityType ?: "Not selected"
+                tvDisabilityType.text = student.disabilityType
 
                 // Load profile picture if available
                 student.profilePicture.let { url ->

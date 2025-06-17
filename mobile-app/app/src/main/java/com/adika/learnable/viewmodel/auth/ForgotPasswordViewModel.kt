@@ -10,16 +10,17 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ForgotPasswordViewModel @Inject constructor(private val authRepository: AuthRepository) :
-    ViewModel() {
+class ForgotPasswordViewModel @Inject constructor(
+    private val authRepository: AuthRepository
+) : ViewModel() {
 
     private val _resetState = MutableLiveData<ResetState>()
     val resetState: LiveData<ResetState> = _resetState
 
     fun resetPassword(email: String) {
         viewModelScope.launch {
+            _resetState.value = ResetState.Loading
             try {
-                _resetState.value = ResetState.Loading
                 authRepository.resetPassword(email)
                 _resetState.value = ResetState.Success
             } catch (e: Exception) {

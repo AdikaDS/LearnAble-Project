@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/roleSheetLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@android:color/white">
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Pilih Peran Anda"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:paddingBottom="16dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnStudent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Saya Siswa"
+        android:layout_marginBottom="12dp"
+        app:cornerRadius="8dp"
+        style="@style/Widget.MaterialComponents.Button" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnTeacher"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Saya Guru"
+        android:layout_marginBottom="12dp"
+        app:cornerRadius="8dp"
+        style="@style/Widget.MaterialComponents.Button" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnParent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Saya Orang Tua"
+        app:cornerRadius="8dp"
+        style="@style/Widget.MaterialComponents.Button" />
+</LinearLayout>

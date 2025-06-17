@@ -1,11 +1,11 @@
 package com.adika.learnable.adapter
 
-import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.adika.learnable.R
 import com.adika.learnable.databinding.ItemSubjectBinding
 import com.adika.learnable.model.Subject
 
@@ -39,13 +39,12 @@ class SubjectAdapter(
             }
         }
 
-        @SuppressLint("SetTextI18n")
         fun bind(subject: Subject) {
             binding.apply {
                 tvSubjectName.text = subject.name
                 tvSubjectDescription.text = subject.description
-                tvTotalLessons.text = "${subject.totalLessons} Materi"
-                tvTotalQuizzes.text = "${subject.totalQuizzes} Quiz"
+                tvTotalLessons.text = itemView.context.getString(R.string.total_lessons, subject.totalLessons)
+                tvTotalQuizzes.text = itemView.context.getString(R.string.total_quizzez, subject.totalQuizzes)
             }
         }
     }

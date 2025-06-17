@@ -10,7 +10,7 @@ import javax.inject.Singleton
 @Singleton
 class UserStudentRepository @Inject constructor(
     private val auth: FirebaseAuth,
-    private val firestore: FirebaseFirestore
+    firestore: FirebaseFirestore
 ) {
     private val usersCollection = firestore.collection("users")
 

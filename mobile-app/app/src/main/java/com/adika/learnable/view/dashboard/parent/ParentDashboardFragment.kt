@@ -10,8 +10,8 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.adika.learnable.R
-import com.adika.learnable.adapter.ProgressAdapter
 import com.adika.learnable.adapter.StudentAdapter
+import com.adika.learnable.adapter.StudentProgressAdapter
 import com.adika.learnable.databinding.FragmentParentDashboardBinding
 import com.adika.learnable.model.User
 import com.adika.learnable.util.ValidationResult
@@ -26,7 +26,7 @@ class ParentDashboardFragment : Fragment() {
     private val binding get() = _binding!!
     private val viewModel: ParentDashboardViewModel by viewModels()
     private lateinit var studentAdapter: StudentAdapter
-    private lateinit var progressAdapter: ProgressAdapter
+    private lateinit var studentProgressAdapter: StudentProgressAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,8 +42,7 @@ class ParentDashboardFragment : Fragment() {
         setupRecyclerViews()
         setupClickListeners()
         observeViewModel()
-        viewModel.loadUserData()
-        viewModel.loadStudents()
+        loadData()
     }
 
     private fun setupRecyclerViews() {
@@ -52,7 +51,7 @@ class ParentDashboardFragment : Fragment() {
                 .actionParentDashboardFragmentToStudentProfileFragment(student.id)
             findNavController().navigate(action)
         }
-        progressAdapter = ProgressAdapter()
+        studentProgressAdapter = StudentProgressAdapter()
 
         binding.rvStudents.apply {
             layoutManager = LinearLayoutManager(context)
@@ -82,17 +81,12 @@ class ParentDashboardFragment : Fragment() {
         viewModel.studentState.observe(viewLifecycleOwner) { state ->
             handleState(state)
         }
-
-        viewModel.studentProgressState.observe(viewLifecycleOwner) { state ->
-            handleState(state)
-        }
     }
 
     private fun handleState(state: Any) {
         when (state) {
             is ParentDashboardViewModel.StudentState.Loading,
-            is ParentDashboardViewModel.ParentState.Loading,
-            is ParentDashboardViewModel.StudentProgressState.Loading -> {
+            is ParentDashboardViewModel.ParentState.Loading -> {
                 showLoading(true)
             }
 
@@ -112,17 +106,20 @@ class ParentDashboardFragment : Fragment() {
             }
 
             is ParentDashboardViewModel.StudentState.Error,
-            is ParentDashboardViewModel.ParentState.Error,
-            is ParentDashboardViewModel.StudentProgressState.Error -> {
+            is ParentDashboardViewModel.ParentState.Error -> {
                 showLoading(false)
                 showToast(
                     (state as? ParentDashboardViewModel.StudentState.Error)?.message
                         ?: (state as? ParentDashboardViewModel.ParentState.Error)?.message
-                        ?: (state as? ParentDashboardViewModel.StudentProgressState.Error)?.message
-                        ?: "Unknown error"
+                        ?: getString(R.string.unknown_error)
                 )
             }
         }
+    }
+
+    private fun loadData() {
+        viewModel.loadUserData()
+        viewModel.loadStudents()
     }
 
     private fun validateEmail(email: String): Boolean {

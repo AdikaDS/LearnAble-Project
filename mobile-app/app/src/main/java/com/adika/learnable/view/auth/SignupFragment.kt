@@ -1,5 +1,6 @@
 package com.adika.learnable.view.auth
 
+import android.app.DatePickerDialog
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -19,12 +20,14 @@ import com.adika.learnable.R
 import com.adika.learnable.databinding.FragmentSignupBinding
 import com.adika.learnable.util.ValidationResult
 import com.adika.learnable.util.ValidationUtils
+import com.adika.learnable.view.SelectRoleBottomSheet
 import com.adika.learnable.viewmodel.auth.SignupViewModel
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.Companion.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 @AndroidEntryPoint
 class SignupFragment : Fragment() {
@@ -50,14 +53,27 @@ class SignupFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         credentialManager = CredentialManager.create(requireContext())
+
+        if (savedInstanceState == null && viewModel.role == null) {
+            showToast("Silakan pilih peran terlebih dahulu")
+            showRoleBottomSheet { selectedRole ->
+                viewModel.setRole(selectedRole)
+            }
+        }
+
         setupClickListeners()
         observeViewModel()
     }
 
     private fun setupClickListeners() {
+        binding.etTtl.setOnClickListener {
+            showDatePicker()
+        }
+
         binding.btnSignUp.setOnClickListener {
             val name = binding.etName.text.toString().trim()
             val email = binding.etEmail.text.toString().trim()
+            val ttl = binding.etTtl.text.toString().trim()
             val password = binding.etPassword.text.toString().trim()
             val confirmPassword = binding.etConfirmPassword.text.toString().trim()
 
@@ -67,8 +83,15 @@ class SignupFragment : Fragment() {
 
             showLoading(true)
             disableButtons()
+            if (viewModel.role != null) {
+                viewModel.signUpWithEmail(name, email, password, ttl, viewModel.role!!)
+            } else {
+                showToast("Silakan pilih peran terlebih dahulu")
+                showRoleBottomSheet { selectedRole ->
+                    viewModel.setRole(selectedRole)
+                }
+            }
 
-            viewModel.signUpWithEmail(name, email, password)
         }
 
         binding.btnGoogleSignIn.setOnClickListener {
@@ -80,6 +103,30 @@ class SignupFragment : Fragment() {
         binding.tvLogin.setOnClickListener {
             findNavController().navigate(R.id.action_signup_to_login)
         }
+    }
+
+    private fun showDatePicker() {
+        val calendar = Calendar.getInstance()
+
+        val datePicker = DatePickerDialog(
+            requireContext(),
+            { _, year, month, dayOfMonth ->
+                val selectedDate = "$dayOfMonth/${month + 1}/$year"
+                binding.etTtl.setText(selectedDate)
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
+
+        datePicker.datePicker.maxDate =
+            System.currentTimeMillis() // tidak bisa pilih tanggal di masa depan
+        datePicker.show()
+    }
+
+    private fun showRoleBottomSheet(onRoleSelected: (String) -> Unit) {
+        val sheet = SelectRoleBottomSheet(onRoleSelected)
+        sheet.show(parentFragmentManager, "SelectRoleBottomSheet")
     }
 
     private fun validateInputs(
@@ -131,7 +178,11 @@ class SignupFragment : Fragment() {
             is SignupViewModel.GoogleSignUpState.Success -> {
                 showLoading(false)
                 showToast(getString(R.string.signup_success))
-                findNavController().navigate(R.id.action_signup_to_disability_selection)
+                when (viewModel.role) {
+                    "student" -> findNavController().navigate(R.id.action_signup_to_disability_selection)
+                    "teacher", "parent" -> findNavController().navigate(R.id.action_signup_to_login)
+                    else -> findNavController().navigate(R.id.action_signup_to_login)
+                }
             }
 
             is SignupViewModel.SignupState.Error,
@@ -140,11 +191,10 @@ class SignupFragment : Fragment() {
                 showToast(
                     (state as? SignupViewModel.SignupState.Error)?.message
                         ?: (state as? SignupViewModel.GoogleSignUpState.Error)?.message
-                        ?: "Unknown error"
+                        ?: getString(R.string.unknown_error)
                 )
                 enableButtons()
             }
-
         }
     }
 
@@ -175,7 +225,16 @@ class SignupFragment : Fragment() {
     private fun handleSignIn(credential: Credential) {
         if (credential is CustomCredential && credential.type == TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
             val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-            viewModel.signUpWithGoogle(googleIdTokenCredential.idToken)
+            if (viewModel.role != null) {
+                viewModel.signUpWithGoogle(googleIdTokenCredential.idToken, viewModel.role!!)
+            } else {
+                showToast("Silakan pilih peran terlebih dahulu")
+                showRoleBottomSheet { selectedRole ->
+                    viewModel.setRole(selectedRole)
+                }
+            }
+
+
         } else {
             Log.w(TAG, "Kredensial bukan tipe Google ID!")
         }
