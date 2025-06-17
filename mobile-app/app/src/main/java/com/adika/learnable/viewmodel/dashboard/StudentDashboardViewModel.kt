@@ -14,11 +14,14 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import androidx.core.content.edit
+import com.adika.learnable.R
+import com.adika.learnable.util.ResourceProvider
 
 @HiltViewModel
 class StudentDashboardViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val subjectRepository: SubjectRepository,
+    private val resourceProvider: ResourceProvider,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -40,14 +43,14 @@ class StudentDashboardViewModel @Inject constructor(
                 val user = authRepository.getUserData(authRepository.getCurrentUserId())
                 _studentState.value = StudentState.Success(user)
             } catch (e: Exception) {
-                _studentState.value = StudentState.Error(e.message ?: "Gagal memuat data user")
+                _studentState.value = StudentState.Error(e.message ?: resourceProvider.getString(R.string.fail_get_user_data))
             }
         }
     }
 
     fun loadSubjectsBySchoolLevel(schoolLevel: String) {
         _selectedSchoolLevel.value = schoolLevel
-        // Save selected school level
+
         sharedPreferences.edit() { putString("selected_school_level", schoolLevel) }
         
         viewModelScope.launch {
@@ -56,20 +59,20 @@ class StudentDashboardViewModel @Inject constructor(
                 val currentState = _studentState.value
                 if (currentState is StudentState.Success) {
                     val user = currentState.student
-                    if (user?.disabilityType != null) {
+                    if (user.disabilityType != null) {
                         val subjects = subjectRepository.getSubjectsBySchoolLevel(
                             schoolLevel = schoolLevel,
                             disabilityType = user.disabilityType
                         )
                         _subjectsState.value = SubjectState.Success(subjects)
                     } else {
-                        _subjectsState.value = SubjectState.Error("Tipe disabilitas belum dipilih")
+                        _subjectsState.value = SubjectState.Error(resourceProvider.getString(R.string.type_disability_not_yet_pick))
                     }
                 } else {
-                    _subjectsState.value = SubjectState.Error("Data user belum dimuat")
+                    _subjectsState.value = SubjectState.Error(resourceProvider.getString(R.string.load_user_data_not_completed))
                 }
             } catch (e: Exception) {
-                _subjectsState.value = SubjectState.Error(e.message ?: "Gagal memuat mata pelajaran")
+                _subjectsState.value = SubjectState.Error(e.message ?: resourceProvider.getString(R.string.fail_load_subjects))
             }
         }
     }
@@ -83,7 +86,7 @@ class StudentDashboardViewModel @Inject constructor(
 
     sealed class StudentState {
         data object Loading : StudentState()
-        data class Success(val student: User?) : StudentState()
+        data class Success(val student: User) : StudentState()
         data class Error(val message: String) : StudentState()
     }
 

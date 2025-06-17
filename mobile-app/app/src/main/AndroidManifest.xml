@@ -14,6 +14,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -24,9 +25,9 @@
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_learnable"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/ic_learnable_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.LearnAble"
         android:usesCleartextTraffic="true"
@@ -42,10 +43,10 @@
         </activity>
         <activity
             android:name=".view.MainActivity"
-            android:exported="false" />
-        <activity
-            android:name=".view.RecordingActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:configChanges="locale|layoutDirection"
+            android:theme="@style/Theme.LearnAble">
+        </activity>
 
         <provider
             android:name="androidx.core.content.FileProvider"

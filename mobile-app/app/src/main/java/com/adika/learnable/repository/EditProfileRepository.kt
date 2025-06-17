@@ -2,21 +2,20 @@ package com.adika.learnable.repository
 
 import android.content.Context
 import android.net.Uri
-import com.adika.learnable.api.ApiConfig
-import com.adika.learnable.model.ImgurResponse
+import com.adika.learnable.BuildConfig
+import com.adika.learnable.api.ImgurService
 import com.adika.learnable.model.User
 import com.adika.learnable.util.ErrorMessages
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -24,7 +23,8 @@ import javax.inject.Singleton
 @Singleton
 class EditProfileRepository @Inject constructor(
     private val auth: FirebaseAuth,
-    private val firestore: FirebaseFirestore,
+    firestore: FirebaseFirestore,
+    private val imgurService: ImgurService,
     @ApplicationContext private val context: Context
 ) {
     private val usersCollection = firestore.collection("users")
@@ -67,11 +67,13 @@ class EditProfileRepository @Inject constructor(
         }
     }
 
-    fun uploadToImgur(uri: Uri, callback: (Result<String>) -> Unit) {
-        try {
+    suspend fun uploadToImgur(uri: Uri) : Result<String> {
+        return try {
             // Convert Uri to File
             val inputStream = context.contentResolver.openInputStream(uri)
-            val file = File.createTempFile("upload_", ".jpg", context.cacheDir)
+            val file = withContext(Dispatchers.IO) {
+                File.createTempFile("upload_", ".jpg", context.cacheDir)
+            }
             inputStream?.use { input ->
                 file.outputStream().use { output ->
                     input.copyTo(output)
@@ -82,32 +84,23 @@ class EditProfileRepository @Inject constructor(
             val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
             val imagePart = MultipartBody.Part.createFormData("image", file.name, requestFile)
 
-            // Upload to Imgur
-            ApiConfig.imgurService.uploadImage("Client-ID ${ApiConfig.IMGUR_CLIENT_ID}", imagePart)
-                .enqueue(object : Callback<ImgurResponse> {
-                    override fun onResponse(
-                        call: Call<ImgurResponse>,
-                        response: Response<ImgurResponse>
-                    ) {
-                        if (response.isSuccessful) {
-                            val imageUrl = response.body()?.data?.link
-                            if (imageUrl != null) {
-                                callback(Result.success(imageUrl))
-                            } else {
-                                callback(Result.failure(Exception("Gagal mendapatkan URL gambar")))
-                            }
-                        } else {
-                            callback(Result.failure(Exception("Gagal upload gambar: ${response.code()}")))
-                        }
-                    }
+            // Call API (suspend)
+            val response = imgurService.uploadImage("Client-ID ${BuildConfig.IMGUR_CLIENT_ID}", imagePart)
 
-                    override fun onFailure(call: Call<ImgurResponse>, t: Throwable) {
-                        callback(Result.failure(Exception("Gagal upload gambar: ${t.message}")))
-                    }
-                })
+            // Upload to Imgur
+            if (response.isSuccessful) {
+                val imageUrl = response.body()?.data?.link
+                if (imageUrl != null) {
+                    Result.success(imageUrl)
+                } else {
+                    Result.failure(Exception("Gagal mendapatkan URL gambar"))
+                }
+            } else {
+                Result.failure(Exception("Gagal upload gambar: ${response.code()}"))
+            }
         } catch (e: Exception) {
-            callback(Result.failure(e))
+            Result.failure(e)
         }
     }
 
-} 
+}

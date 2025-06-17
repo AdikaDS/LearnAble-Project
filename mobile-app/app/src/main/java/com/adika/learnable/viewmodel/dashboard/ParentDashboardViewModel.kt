@@ -4,10 +4,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.adika.learnable.model.LearningProgress
+import com.adika.learnable.R
 import com.adika.learnable.model.User
 import com.adika.learnable.repository.AuthRepository
 import com.adika.learnable.repository.UserParentRepository
+import com.adika.learnable.util.ResourceProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -15,7 +16,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ParentDashboardViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-    private val userParentRepository: UserParentRepository
+    private val userParentRepository: UserParentRepository,
+    private val resourceProvider: ResourceProvider
 ) : ViewModel() {
 
     private val _parentState = MutableLiveData<ParentState>()
@@ -23,9 +25,6 @@ class ParentDashboardViewModel @Inject constructor(
 
     private val _studentState = MutableLiveData<StudentState>()
     val studentState: LiveData<StudentState> = _studentState
-
-    private val _studentProgressState = MutableLiveData<StudentProgressState>()
-    val studentProgressState: LiveData<StudentProgressState> = _studentProgressState
 
     fun loadUserData() {
         viewModelScope.launch {
@@ -35,7 +34,7 @@ class ParentDashboardViewModel @Inject constructor(
                 _parentState.value = ParentState.Success(userParentId)
             } catch (e: Exception) {
                 _parentState.value =
-                    ParentState.Error(e.message ?: "Terjadi kesalahan saat memuat profil")
+                    ParentState.Error(e.message ?: resourceProvider.getString(R.string.fail_get_user_data))
             }
         }
     }
@@ -48,21 +47,7 @@ class ParentDashboardViewModel @Inject constructor(
                 _studentState.value = StudentState.Success(students)
             } catch (e: Exception) {
                 _studentState.value =
-                    StudentState.Error(e.message ?: "Terjadi kesalahan saat memuat data siswa")
-            }
-        }
-    }
-
-    fun loadStudentProgress(studentId: String) {
-        viewModelScope.launch {
-            _studentProgressState.value = StudentProgressState.Loading
-            try {
-                val progressList = userParentRepository.getStudentProgress(studentId)
-                _studentProgressState.value = StudentProgressState.Success(progressList)
-            } catch (e: Exception) {
-                _studentProgressState.value = StudentProgressState.Error(
-                    e.message ?: "Terjadi kesalahan saat memuat progress belajar"
-                )
+                    StudentState.Error(e.message ?: resourceProvider.getString(R.string.fail_get_user_data))
             }
         }
     }
@@ -79,21 +64,21 @@ class ParentDashboardViewModel @Inject constructor(
                 val parentId = authRepository.getCurrentUserId()
                 
                 val student = userParentRepository.findStudentEmail(studentEmail)
-                    ?: throw Exception("Siswa dengan email tersebut tidak ditemukan")
+                    ?: throw Exception(resourceProvider.getString(R.string.fail_find_student))
 
                 if (isStudentConnectedToOtherParent(student.id)) {
                     _studentState.value =
-                        StudentState.Error("Siswa ini sudah terhubung dengan orang tua lain")
+                        StudentState.Error(resourceProvider.getString(R.string.student_have_been_conected))
                     return@launch
                 }
 
                 userParentRepository.connectStudentWithParent(student.id, parentId)
                 loadStudents()
-                _studentState.value = StudentState.SuccessMessage("Berhasil terhubung dengan siswa")
+                _studentState.value = StudentState.SuccessMessage(resourceProvider.getString(R.string.sucess_connect_student))
                 
             } catch (e: Exception) {
                 _studentState.value =
-                    StudentState.Error(e.message ?: "Terjadi kesalahan saat menghubungkan siswa")
+                    StudentState.Error(e.message ?: resourceProvider.getString(R.string.fail_connect_student))
             }
         }
     }
@@ -109,11 +94,5 @@ class ParentDashboardViewModel @Inject constructor(
         data class Success(val students: List<User>) : StudentState()
         data class Error(val message: String) : StudentState()
         data class SuccessMessage(val message: String) : StudentState()
-    }
-
-    sealed class StudentProgressState {
-        data object Loading : StudentProgressState()
-        data class Success(val learningProgressList: List<LearningProgress>) : StudentProgressState()
-        data class Error(val message: String) : StudentProgressState()
     }
 } 

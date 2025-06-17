@@ -55,7 +55,9 @@ class ForgotPasswordFragment : Fragment() {
                 is ForgotPasswordViewModel.ResetState.Loading -> showLoading(true)
                 is ForgotPasswordViewModel.ResetState.Success -> {
                     showLoading(false)
-                    showToast("Link reset password telah dikirim ke email Anda")
+                    showToast(
+                        getString(R.string.reset_password)
+                    )
                     findNavController().navigate(R.id.action_forgot_password_to_login)
                 }
                 is ForgotPasswordViewModel.ResetState.Error -> {

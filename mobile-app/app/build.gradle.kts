@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.safe.args)
     kotlin("kapt")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -19,8 +20,13 @@ android {
         versionName = "1.0"
 
         buildConfigField("String", "BASE_URL_IMGUR_API", "\"https://api.imgur.com/3/\"")
-        buildConfigField("String", "BASE_URL_TRANSCRIPTION_API", "\"https://learnable-whisper-api-app.azurewebsites.net/\"")
+        buildConfigField("String", "BASE_URL_TRANSCRIPTION_API", "\"http://192.168.0.108:8000/\"")
+        buildConfigField("String", "BASE_URL_EMAILJS_API", "\"https://api.emailjs.com/\"")
+//        https://learnable-whisper-api-app.azurewebsites.net/
         buildConfigField("String", "IMGUR_CLIENT_ID", "\"0084c0adcd8d6f2\"")
+        buildConfigField("String", "AWS_ACCESS_KEY", "\"AKIAXFKVXH4LEZAU6VP7\"")
+        buildConfigField("String", "AWS_SECRET_KEY", "\"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\"")
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -46,7 +52,7 @@ android {
         jvmTarget = "17"
     }
 
-    packagingOptions {
+    packaging {
         resources {
             excludes += "META-INF/gradle/incremental.annotation.processors"
         }
@@ -81,8 +87,20 @@ dependencies {
     kapt(libs.hilt.compiler)
     implementation(libs.hilt.navigation)
     implementation(libs.splash.screen)
+    implementation(libs.lottie)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    // ExoPlayer untuk video dan audio
+    implementation(libs.exoplayer.core)
+    implementation(libs.exoplayer.ui)
+
+    // AWS
+    implementation(libs.aws.sdk)
+    implementation(libs.aws.sdk.mobile.client)
+    
+    // PDF Viewer
+    implementation(libs.pdf.viewer)
 }

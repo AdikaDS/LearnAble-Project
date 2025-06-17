@@ -28,12 +28,13 @@
         android:id="@+id/lessonsRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:clipToPadding="false"
         android:layout_marginTop="8dp"
+        android:clipToPadding="false"
         android:paddingBottom="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/searchLayout"
-        tools:layout_editor_absoluteX="16dp"
         tools:listitem="@layout/item_lesson" />
 
     <ProgressBar
@@ -53,9 +54,9 @@
         android:text="Tidak ada materi yang tersedia"
         android:textSize="16sp"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintBottom_toBottomOf="@+id/lessonsRecyclerView"
+        app:layout_constraintEnd_toEndOf="@+id/lessonsRecyclerView"
+        app:layout_constraintStart_toStartOf="@+id/lessonsRecyclerView"
+        app:layout_constraintTop_toTopOf="@+id/lessonsRecyclerView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout> 

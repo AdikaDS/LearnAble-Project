@@ -4,6 +4,8 @@
     <string name="forget_password">Forget Password?</string>
     <string name="login_with_google">Login with Google</string>
     <string name="dont_have_account">Don\'t have account?</string>
+    <string name="reset_password">A password reset link has been sent to your email address.</string>
+    <string name="logout">Logout</string>
     <string name="name_required">Name is required</string>
     <string name="email_required">Email is required</string>
     <string name="email_invalid">Please enter a valid email</string>
@@ -42,7 +44,120 @@
     <string name="already_have_account">Already have account?</string>
     <string name="create_new_account">Create New Account</string>
     <string name="login">Login</string>
+    <string name="fail_load_user_data">User data has not been loaded</string>
     <string name="unknown_error">Unknown Error</string>
     <string name="password_update_success">Password update successfully</string>
     <string name="password_update_failed">Password update failed</string>
+
+    <string-array name="type_disabilty">
+        <item>Deaf</item>
+        <item>Blind</item>
+    </string-array>
+
+    <string-array name="school_levels">
+        <item>Elementary School</item>
+        <item>Junior High School</item>
+        <item>Senior High School</item>
+    </string-array>
+
+    <string-array name="elementarySchoolSubjects">
+        <item>Math</item>
+        <item>Indonesian Language</item>
+        <item>Natural and Social Science</item>
+    </string-array>
+
+    <string-array name="juniorHighSchoolSubjects">
+        <item>Math</item>
+        <item>Indonesian Language</item>
+        <item>Natural Science</item>
+    </string-array>
+
+    <string-array name="difficulties">
+        <item>Easy</item>
+        <item>Medium</item>
+        <item>Hard</item>
+    </string-array>
+    <string name="pick_disability">Please select the type of disability first.</string>
+    <string name="duration_learning">%1$d minutes</string>
+    <string name="progress_text">Progress: %1$d/%2$d</string>
+    <string name="default_progress_text">Progress: 0/0</string>
+    <string name="completed_lessons">%1$d/%2$d lessons</string>
+    <string name="quiz_average">Average Quiz: %.1f</string>
+    <string name="streak">%1$d days</string>
+    <string name="total_time_spent">Total time: %1$d minutes</string>
+    <string name="last_Activity">Last activities: %1$s</string>
+    <string name="total_lessons">%1$d Lessons</string>
+    <string name="total_quizzez">%1$d Quiz</string>
+    <string name="data_not_completed">Incomplete data</string>
+    <string name="add_lesson">Add Lesson</string>
+    <string name="edit_lesson">Edit Lesson</string>
+    <string name="succes_add_lesson">Lesson successfully added</string>
+    <string name="fail_add_lesson">Failed to add lesson: %1$s</string>
+    <string name="succes_update_lesson">Lesson has been successfully updated.</string>
+    <string name="fail_update_lesson">Failed to update lesson: %1$s</string>
+    <string name="succes_add_subbab">Sub-chapter successfully added</string>
+    <string name="fail_add_subbab">Failed to add Sub-chapter: %1$s</string>
+    <string name="succes_update_subbab">Sub-chapter successfully updated</string>
+    <string name="fail_update_subbab">Failed to update Sub-section: %1$s</string>
+    <string name="succes_delete_lesson">Lesson has been successfully deleted.</string>
+    <string name="fail_delete_lesson">Failed to delete lesson: %1$s</string>
+    <string name="delete_lesson">Delete Lesson</string>
+    <string name="confirm_delete_lesson">Are you sure you want to delete this lesson?</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete_subbab">Delete Sub-Chapter</string>
+    <string name="confirm_delete_subbab">Are you sure you want to delete this subchapter?</string>
+    <string name="succes_delete_subbab">Sub-chapter successfully deleted</string>
+    <string name="fail_delete_subbab">Failed to delete Sub-chapter: %1$s</string>
+    <string name="succes_save_disability">Successfully saved disability type</string>
+    <string name="exit_app">Exit Application</string>
+    <string name="confirm_exit_app">Are you sure you want to exit?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="fail_load_subbab">Failed to retrieve sub-chapter</string>
+    <string name="fail_load_audio">Fail to load audio</string>
+    <string name="title_required">Title must be filled in</string>
+    <string name="content_required">Content must be filled in</string>
+    <string name="duration_required">Duration must be filled in</string>
+    <string name="type_disability_required">The type of disability must be selected</string>
+    <string name="subject_required">Subjects must be selected</string>
+    <string name="school_level_required">The school level must be selected</string>
+    <string name="difficulty_required">Difficulties must be selected</string>
+    <string name="fail_send_email_reset">Failed to send password reset email</string>
+    <string name="invalid_role">Invalid role</string>
+    <string name="fail_get_user_data">Failed to obtain user data</string>
+    <string name="fail_update_lesson_progress">Failed to update lesson progress</string>
+    <string name="fail_find_student">Failed to find students</string>
+    <string name="fail_find_student_by_email">No student with that email address was found.</string>
+    <string name="student_have_been_conected">This student is already connected with other parents.</string>
+    <string name="sucess_connect_student">Successfully connected with students</string>
+    <string name="fail_connect_student">An error occurred while connecting the student</string>
+    <string name="load_user_data_not_completed">User data has not been loaded</string>
+    <string name="type_disability_not_yet_pick">Disability type not selected</string>
+    <string name="fail_load_subjects">Failed to load subject</string>
+    <string name="fail_load_overall_progress">Failed to load overall progress</string>
+    <string name="fail_load_subject_progress">Failed to load subject progress</string>
+    <string name="fail_load_lesson_progress">Failed to load progress lessons</string>
+    <string name="fail_save_disability_type">Failed to save disability type</string>
+    <string name="fail_load_profil">An error occurred while loading the profile.</string>
+    <string name="fail_update_profil">An error occurred while updating your profile.</string>
+    <string name="fail_up_picture">An error occurred while uploading the image.</string>
+    <string name="fail_update_password">An error occurred while updating your password.</string>
+    <string name="fail_logout">An error occurred while logging out</string>
+    <string name="fail_load_lessons">Failed to retrieve lesson</string>
+    <string name="fail_find_lessons">Failed to find lesson</string>
+    <string name="fail_update_progress">Failed to updater progress</string>
+    <string name="fail_load_video">Fail to load video</string>
+    <string name="fail_load_pdf">Fail to load PDF document</string>
+    <string name="quiz_not_found">Quiz not found</string>
+    <string name="error_loading_quiz">Failed to load quiz</string>
+    <string name="error_submitting_quiz">Failed to send quiz answers</string>
+    <string name="error_loading_results">Failed to load quiz result</string>
+    <string name="answer_all_questions">Please answer all questions</string>
+    <string name="time_remaining">Time remaining: %1$s</string>
+    <string name="time_up">Time\'s up!</string>
+    <string name="quiz_passed">Congratulations! You passed with a score of %1$.1f</string>
+    <string name="quiz_failed">Sorry, you have not passed with a grade of %1$.1f</string>
+    <string name="admin_confirmation_title">Waiting for Admin Approval</string>
+    <string name="waiting_admin_approval">Your account is awaiting approval from the admin. Please wait for some time.</string>
 </resources>

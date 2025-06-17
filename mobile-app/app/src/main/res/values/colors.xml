@@ -7,4 +7,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="grey_300">#E0E0E0</color>
+    <color name="blue">#3674B5</color>
+    <color name="success">#22bb33</color>
+    <color name="error">#bb2124</color>
 </resources>

@@ -48,9 +48,12 @@
         android:id="@+id/subjectsRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:clipToPadding="false"
         android:layout_marginTop="16dp"
+        android:clipToPadding="false"
         android:paddingBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/profileCard"
         tools:listitem="@layout/item_subject" />
 
@@ -61,10 +64,10 @@
         android:text="Pilih jenjang sekolah untuk melihat mata pelajaran"
         android:textSize="16sp"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintBottom_toBottomOf="@+id/subjectsRecyclerView"
+        app:layout_constraintEnd_toEndOf="@+id/subjectsRecyclerView"
+        app:layout_constraintStart_toStartOf="@+id/subjectsRecyclerView"
+        app:layout_constraintTop_toTopOf="@+id/subjectsRecyclerView" />
 
     <ProgressBar
         android:id="@+id/progressBar"

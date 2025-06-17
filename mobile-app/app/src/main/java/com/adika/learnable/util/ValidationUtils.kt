@@ -2,10 +2,52 @@ package com.adika.learnable.util
 
 import android.content.Context
 import android.util.Patterns
+import android.widget.EditText
 import com.adika.learnable.R
 import com.adika.learnable.model.User
+import com.google.android.material.textfield.TextInputLayout
 
 object ValidationUtils {
+
+    fun validateInputsData(
+        context: Context,
+        inputLayout: TextInputLayout,
+        editText: EditText,
+        fieldType: FieldType
+    ): Boolean {
+        return if (editText.text.isNullOrBlank()) {
+            inputLayout.error = context.getString(fieldType.errorResId)
+            false
+        } else {
+            inputLayout.error = null
+            true
+        }
+    }
+
+    fun validateDisabilitySelection(
+        context: Context,
+        inputLayout: TextInputLayout,
+        selectedTag: Any?,
+        fieldType: FieldType
+    ): Boolean {
+        return if ((selectedTag as? List<*>)?.isEmpty() != false) {
+            inputLayout.error = context.getString(fieldType.errorResId)
+            false
+        } else {
+            inputLayout.error = null
+            true
+        }
+    }
+
+    enum class FieldType(val errorResId: Int) {
+        TITLE(R.string.title_required),
+        CONTENT(R.string.content_required),
+        DURATION(R.string.duration_required),
+        DISABILITY(R.string.type_disability_required),
+        SUBJECT(R.string.subject_required),
+        SCHOOL_LEVEL(R.string.school_level_required),
+        DIFFICULTY(R.string.difficulty_required)
+    }
 
     private fun validateName(context: Context, name: String): ValidationResult {
         return when {
@@ -44,14 +86,19 @@ object ValidationUtils {
             password.length < minLength -> ValidationResult.Invalid(
                 context.getString(R.string.password_min_length, minLength)
             )
+
             requireUppercase && !password.any { it.isUpperCase() } ->
                 ValidationResult.Invalid(context.getString(R.string.password_have_uppercase))
+
             requireLowercase && !password.any { it.isLowerCase() } ->
                 ValidationResult.Invalid(context.getString(R.string.password_have_lowercase))
+
             requireNumber && !password.any { it.isDigit() } ->
                 ValidationResult.Invalid(context.getString(R.string.password_have_number))
+
             requireSpecialChar && !password.any { "!@#\$%^&*()-_=+[{]}|;:',<.>/?".contains(it) } ->
                 ValidationResult.Invalid(context.getString(R.string.password_have_special_char))
+
             else -> ValidationResult.Valid
         }
     }
