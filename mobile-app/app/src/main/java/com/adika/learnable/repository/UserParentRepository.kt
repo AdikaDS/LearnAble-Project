@@ -24,15 +24,14 @@ class UserParentRepository @Inject constructor(
             ?: throw Exception("Parent not found")
 
         // Add student ID to parent's studentIds list
-        val updatedStudentIds = parent.studentIds?.toMutableList()
-        if (updatedStudentIds != null) {
-            if (!updatedStudentIds.contains(studentId)) {
-                updatedStudentIds.add(studentId)
-                usersCollection.document(parentId)
-                    .update("studentIds", updatedStudentIds)
-                    .await()
-            }
+        val updatedStudentIds = parent.studentIds?.toMutableList() ?: mutableListOf()
+        if (!updatedStudentIds.contains(studentId)) {
+            updatedStudentIds.add(studentId)
+            usersCollection.document(parentId)
+                .update("studentIds", updatedStudentIds)
+                .await()
         }
+
     }
 
     suspend fun getStudentsByParentId(parentId: String): List<User> {

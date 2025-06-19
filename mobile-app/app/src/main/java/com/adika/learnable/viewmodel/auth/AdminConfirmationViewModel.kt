@@ -8,6 +8,8 @@ import com.adika.learnable.R
 import com.adika.learnable.repository.AuthRepository
 import com.adika.learnable.util.ResourceProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -22,35 +24,39 @@ class AdminConfirmationViewModel @Inject constructor(
 
     private var userRole: String = ""
 
-    fun checkApprovalStatus() {
-        viewModelScope.launch {
-            _approvalState.value = ApprovalState.Loading
-            try {
-                val user = authRepository.getUserData(authRepository.getCurrentUserId())
-                userRole = user.role
+    init {
+        observeUserApprovalStatus()
+    }
 
-                when (user.role) {
-                    "student" -> {
-                        _approvalState.value = ApprovalState.Approved
-                    }
-                    "teacher", "parent" -> {
-                        if (user.isApproved) {
-                            _approvalState.value = ApprovalState.Approved
-                        } else {
-                            _approvalState.value = ApprovalState.NotApproved
+    private fun observeUserApprovalStatus() {
+        viewModelScope.launch {
+            _approvalState.value = ApprovalState.State(ApprovalState.Status.LOADING)
+            authRepository.observeUserData(authRepository.getCurrentUserId())
+                .map { user ->
+                    userRole = user.role
+
+                    when (user.role) {
+                        "student" -> ApprovalState.State(ApprovalState.Status.APPROVED)
+                        "teacher", "parent" -> {
+                            if (user.isApproved) ApprovalState.State(ApprovalState.Status.APPROVED)
+                            else ApprovalState.State(ApprovalState.Status.NOT_APPROVED)
                         }
-                    }
-                    else -> {
-                        _approvalState.value = ApprovalState.Error(
+
+                        else -> ApprovalState.State(
+                            ApprovalState.Status.ERROR,
                             resourceProvider.getString(R.string.invalid_role)
                         )
                     }
                 }
-            } catch (e: Exception) {
-                _approvalState.value = ApprovalState.Error(
-                    e.message ?: resourceProvider.getString(R.string.unknown_error)
-                )
-            }
+                .catch { e ->
+                    _approvalState.value = ApprovalState.State(
+                        ApprovalState.Status.ERROR,
+                        e.message ?: resourceProvider.getString(R.string.unknown_error)
+                    )
+                }
+                .collect { state ->
+                    _approvalState.value = state
+                }
         }
     }
 
@@ -62,15 +68,23 @@ class AdminConfirmationViewModel @Inject constructor(
                 authRepository.signOut()
             } catch (e: Exception) {
                 _approvalState.value =
-                    ApprovalState.Error(e.message ?: resourceProvider.getString(R.string.fail_logout))
+                    ApprovalState.State(
+                        ApprovalState.Status.ERROR,
+                        e.message ?: resourceProvider.getString(R.string.fail_logout)
+                    )
             }
         }
     }
 
     sealed class ApprovalState {
-        data object Loading : ApprovalState()
-        data object Approved : ApprovalState()
-        data object NotApproved : ApprovalState()
-        data class Error(val message: String) : ApprovalState()
+        data class State(val status: Status, val message: String? = null) : ApprovalState()
+
+        enum class Status {
+            LOADING,
+            APPROVED,
+            NOT_APPROVED,
+            ERROR
+        }
     }
-} 
+
+}

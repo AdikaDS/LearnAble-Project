@@ -1,6 +1,7 @@
 package com.adika.learnable.view.auth
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,6 +19,8 @@ class AdminConfirmationFragment : Fragment() {
     private val binding get() = _binding!!
     private val viewModel: AdminConfirmationViewModel by viewModels()
 
+    private var hasNavigated = false
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -31,7 +34,6 @@ class AdminConfirmationFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupObservers()
         setupClickListener()
-        viewModel.checkApprovalStatus()
     }
 
     private fun setupClickListener() {
@@ -42,31 +44,42 @@ class AdminConfirmationFragment : Fragment() {
     }
     private fun setupObservers() {
         viewModel.approvalState.observe(viewLifecycleOwner) { state ->
-            when (state) {
-                is AdminConfirmationViewModel.ApprovalState.Loading -> {
-                    binding.progressBar.visibility = View.VISIBLE
-                    binding.btnLogout.isEnabled = false
-                }
-                is AdminConfirmationViewModel.ApprovalState.Approved -> {
-                    binding.progressBar.visibility = View.GONE
-                    binding.btnLogout.isEnabled = true
-                    navigateToDashboard()
-                }
-                is AdminConfirmationViewModel.ApprovalState.NotApproved -> {
-                    binding.progressBar.visibility = View.GONE
-                    binding.btnLogout.isEnabled = true
-                    binding.tvStatus.text = getString(R.string.waiting_admin_approval)
-                }
-                is AdminConfirmationViewModel.ApprovalState.Error -> {
-                    binding.progressBar.visibility = View.GONE
-                    binding.btnLogout.isEnabled = true
-                    binding.tvStatus.text = state.message
+            if (state is AdminConfirmationViewModel.ApprovalState.State) {
+                when (state.status) {
+                    AdminConfirmationViewModel.ApprovalState.Status.LOADING -> {
+                        binding.progressBar.visibility = View.VISIBLE
+                        binding.btnLogout.isEnabled = false
+                    }
+
+                    AdminConfirmationViewModel.ApprovalState.Status.APPROVED -> {
+                        binding.progressBar.visibility = View.GONE
+                        binding.btnLogout.isEnabled = true
+
+                        if (!hasNavigated) {
+                            hasNavigated = true
+                            navigateToDashboard()
+                        }
+                    }
+
+                    AdminConfirmationViewModel.ApprovalState.Status.NOT_APPROVED -> {
+                        binding.progressBar.visibility = View.GONE
+                        binding.btnLogout.isEnabled = true
+                        binding.tvStatus.text = getString(R.string.waiting_admin_approval)
+                    }
+
+                    AdminConfirmationViewModel.ApprovalState.Status.ERROR -> {
+                        binding.progressBar.visibility = View.GONE
+                        binding.btnLogout.isEnabled = true
+                        binding.tvStatus.text = state.message
+                    }
                 }
             }
         }
+
     }
 
     private fun navigateToDashboard() {
+        Log.d("Approval", "cek role {${viewModel.getUserRole()}}")
         when (viewModel.getUserRole()) {
             "teacher" -> findNavController().navigate(R.id.action_adminConfirmation_to_teacher_dashboard)
             "parent" -> findNavController().navigate(R.id.action_adminConfirmation_to_parent_dashboard)

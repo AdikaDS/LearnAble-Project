@@ -55,7 +55,6 @@ class SignupFragment : Fragment() {
         credentialManager = CredentialManager.create(requireContext())
 
         if (savedInstanceState == null && viewModel.role == null) {
-            showToast("Silakan pilih peran terlebih dahulu")
             showRoleBottomSheet { selectedRole ->
                 viewModel.setRole(selectedRole)
             }
@@ -83,14 +82,7 @@ class SignupFragment : Fragment() {
 
             showLoading(true)
             disableButtons()
-            if (viewModel.role != null) {
-                viewModel.signUpWithEmail(name, email, password, ttl, viewModel.role!!)
-            } else {
-                showToast("Silakan pilih peran terlebih dahulu")
-                showRoleBottomSheet { selectedRole ->
-                    viewModel.setRole(selectedRole)
-                }
-            }
+            viewModel.signUpWithEmail(name, email, password, ttl, viewModel.role!!)
 
         }
 
@@ -120,12 +112,12 @@ class SignupFragment : Fragment() {
         )
 
         datePicker.datePicker.maxDate =
-            System.currentTimeMillis() // tidak bisa pilih tanggal di masa depan
+            System.currentTimeMillis()
         datePicker.show()
     }
 
     private fun showRoleBottomSheet(onRoleSelected: (String) -> Unit) {
-        val sheet = SelectRoleBottomSheet(onRoleSelected)
+        val sheet = SelectRoleBottomSheet(onRoleSelected, false)
         sheet.show(parentFragmentManager, "SelectRoleBottomSheet")
     }
 
@@ -178,11 +170,39 @@ class SignupFragment : Fragment() {
             is SignupViewModel.GoogleSignUpState.Success -> {
                 showLoading(false)
                 showToast(getString(R.string.signup_success))
-                when (viewModel.role) {
-                    "student" -> findNavController().navigate(R.id.action_signup_to_disability_selection)
-                    "teacher", "parent" -> findNavController().navigate(R.id.action_signup_to_login)
-                    else -> findNavController().navigate(R.id.action_signup_to_login)
+            }
+
+            is SignupViewModel.GoogleSignUpState.ShowRoleSelection -> {
+                showLoading(false)
+                showRoleBottomSheet { selectedRole ->
+                    viewModel.setRole(selectedRole)
+                    viewModel.signInWithStoredToken(selectedRole)
                 }
+            }
+
+            is SignupViewModel.GoogleSignUpState.NavigateToDisabilitySelection -> {
+                showLoading(false)
+                findNavController().navigate(R.id.action_signup_to_disability_selection)
+            }
+
+            is SignupViewModel.GoogleSignUpState.NavigateToStudentDashboard -> {
+                showLoading(false)
+                findNavController().navigate(R.id.action_signup_to_student_dashboard)
+            }
+
+            is SignupViewModel.GoogleSignUpState.NavigateToParentDashboard -> {
+                showLoading(false)
+                findNavController().navigate(R.id.action_signup_to_parent_dashboard)
+            }
+
+            is SignupViewModel.GoogleSignUpState.NavigateToTeacherDashboard -> {
+                showLoading(false)
+                findNavController().navigate(R.id.action_signup_to_teacher_dashboard)
+            }
+
+            is SignupViewModel.GoogleSignUpState.NavigateToAdminConfirmation -> {
+                showLoading(false)
+                findNavController().navigate(R.id.action_signup_to_admin_confirmation)
             }
 
             is SignupViewModel.SignupState.Error,
@@ -225,18 +245,11 @@ class SignupFragment : Fragment() {
     private fun handleSignIn(credential: Credential) {
         if (credential is CustomCredential && credential.type == TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
             val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-            if (viewModel.role != null) {
-                viewModel.signUpWithGoogle(googleIdTokenCredential.idToken, viewModel.role!!)
-            } else {
-                showToast("Silakan pilih peran terlebih dahulu")
-                showRoleBottomSheet { selectedRole ->
-                    viewModel.setRole(selectedRole)
-                }
-            }
-
-
+            viewModel.checkUserExists(googleIdTokenCredential.idToken)
         } else {
             Log.w(TAG, "Kredensial bukan tipe Google ID!")
+            showLoading(false)
+            enableButtons()
         }
     }
 
