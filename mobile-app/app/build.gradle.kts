@@ -21,7 +21,7 @@ android {
 
         buildConfigField("String", "BASE_URL_IMGUR_API", "\"https://api.imgur.com/3/\"")
         buildConfigField("String", "BASE_URL_TRANSCRIPTION_API", "\"http://192.168.0.108:8000/\"")
-        buildConfigField("String", "BASE_URL_EMAILJS_API", "\"https://api.emailjs.com/\"")
+        buildConfigField("String", "BASE_URL_RESEND_API", "\"https://api.resend.com/\"")
 //        https://learnable-whisper-api-app.azurewebsites.net/
         buildConfigField("String", "IMGUR_CLIENT_ID", "\"0084c0adcd8d6f2\"")
         buildConfigField("String", "AWS_ACCESS_KEY", "\"AKIAXFKVXH4LEZAU6VP7\"")

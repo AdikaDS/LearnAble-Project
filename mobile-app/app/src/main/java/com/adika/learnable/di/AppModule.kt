@@ -2,8 +2,8 @@ package com.adika.learnable.di
 
 import android.content.Context
 import com.adika.learnable.BuildConfig
-import com.adika.learnable.api.EmailJSService
 import com.adika.learnable.api.ImgurService
+import com.adika.learnable.api.ResendEmailService
 import com.adika.learnable.api.TranscriptionService
 import com.adika.learnable.util.ResourceProvider
 import com.adika.learnable.util.ResourceProviderImp
@@ -97,10 +97,10 @@ object AppModule {
 
     @Provides
     @Singleton
-    @Named ("emailjs")
-    fun provideEmailJSRetrofit(okHttpClient: OkHttpClient): Retrofit {
+    @Named ("resendemail")
+    fun provideResendEmailRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(BuildConfig.BASE_URL_EMAILJS_API)
+            .baseUrl(BuildConfig.BASE_URL_RESEND_API)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -108,8 +108,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideEmailJSService(@Named ("emailjs") emailJSService: Retrofit) : EmailJSService {
-        return emailJSService.create(EmailJSService::class.java)
+    fun provideResendEmailService(@Named ("resendemail") resendEmail: Retrofit) : ResendEmailService {
+        return resendEmail.create(ResendEmailService::class.java)
     }
 
     // Resource Provider
