@@ -15,5 +15,5 @@ data class User(
     val createdAt: Timestamp = Timestamp.now(),
     val parentId: String? = null,
     val studentIds: List<String>? = null,
-    val isApproved: Boolean = false
+    var isApproved: Boolean = false
 )

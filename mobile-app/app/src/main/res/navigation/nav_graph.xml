@@ -96,6 +96,34 @@
             app:exitAnim="@anim/slide_out_left"
             app:popUpTo="@id/signupFragment"
             app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_signup_to_student_dashboard"
+            app:destination="@id/studentDashboardFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popUpTo="@id/signupFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_signup_to_parent_dashboard"
+            app:destination="@id/parentDashboardFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popUpTo="@id/signupFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_signup_to_teacher_dashboard"
+            app:destination="@id/teacherDashboardFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popUpTo="@id/signupFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_signup_to_admin_confirmation"
+            app:destination="@id/adminConfirmationFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popUpTo="@id/signupFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 
     <fragment

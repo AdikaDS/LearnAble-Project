@@ -9,7 +9,6 @@ import androidx.lifecycle.viewModelScope
 import com.adika.learnable.model.User
 import com.adika.learnable.repository.AuthRepository
 import com.adika.learnable.util.ErrorMessages
-import com.adika.learnable.viewmodel.auth.SignupViewModel.Companion
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
@@ -42,6 +41,8 @@ class LoginViewModel @Inject constructor(
         savedStateHandle[KEY_ROLE] = role
     }
 
+    private var currentGoogleToken: String? = null
+
     fun loginUser(email: String, password: String) {
         viewModelScope.launch {
             _loginState.value = LoginState.Loading
@@ -67,11 +68,28 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun signInWithGoogle(idToken: String) {
+    fun checkUserExists(idToken: String) {
         viewModelScope.launch {
             _googleSignInState.value = GoogleSignInState.Loading
             try {
-                val user = authRepository.signInWithGoogle(idToken)
+                currentGoogleToken = idToken
+                val userId = authRepository.getFirebaseUserIdFromToken(idToken)
+                val user = authRepository.getUserData(userId)
+                
+                // User exists and has a role, proceed with sign in
+                signInWithGoogle(idToken, user.role)
+            } catch (e: Exception) {
+                // User doesn't exist or error occurred, show role selection
+                _googleSignInState.value = GoogleSignInState.ShowRoleSelection
+            }
+        }
+    }
+
+    private fun signInWithGoogle(idToken: String, role: String) {
+        viewModelScope.launch {
+            _googleSignInState.value = GoogleSignInState.Loading
+            try {
+                val user = authRepository.signInWithGoogle(idToken, role)
                 _googleSignInState.value = GoogleSignInState.Success(user)
                 checkUserRole()
             } catch (e: Exception) {
@@ -82,6 +100,12 @@ class LoginViewModel @Inject constructor(
                     )
                 )
             }
+        }
+    }
+
+    fun signInWithStoredToken(role: String) {
+        currentGoogleToken?.let { token ->
+            signInWithGoogle(token, role)
         }
     }
 
@@ -113,8 +137,8 @@ class LoginViewModel @Inject constructor(
                             _navigationState.value = NavigationState.NavigateToAdminConfirmation
                         }
                     }
-
                     else -> {
+                        _googleSignInState.value = GoogleSignInState.ShowRoleSelection
                         _loginState.value = LoginState.Error("Role tidak valid")
                         _googleSignInState.value = GoogleSignInState.Error("Role tidak valid")
                     }
@@ -137,6 +161,7 @@ class LoginViewModel @Inject constructor(
         data object Loading : GoogleSignInState()
         data class Success(val user: User) : GoogleSignInState()
         data class Error(val message: String) : GoogleSignInState()
+        data object ShowRoleSelection : GoogleSignInState()
     }
 
     sealed class NavigationState {

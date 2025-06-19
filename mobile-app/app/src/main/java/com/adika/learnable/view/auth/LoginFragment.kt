@@ -86,7 +86,14 @@ class LoginFragment : Fragment() {
     }
 
     private fun showRoleBottomSheet(onRoleSelected: (String) -> Unit) {
-        val sheet = SelectRoleBottomSheet(onRoleSelected)
+        val sheet = SelectRoleBottomSheet(
+            onRoleSelected = onRoleSelected,
+            isFromLogin = true,
+            onCancel = {
+                showLoading(false)
+                enableButtons()
+            }
+        )
         sheet.show(parentFragmentManager, "SelectRoleBottomSheet")
     }
 
@@ -113,6 +120,14 @@ class LoginFragment : Fragment() {
             is LoginViewModel.LoginState.Success,
             is LoginViewModel.GoogleSignInState.Success ->
                 showLoading(false)
+
+            is LoginViewModel.GoogleSignInState.ShowRoleSelection -> {
+                showLoading(false)
+                showRoleBottomSheet { selectedRole ->
+                    viewModel.setRole(selectedRole)
+                    viewModel.signInWithStoredToken(selectedRole)
+                }
+            }
 
             is LoginViewModel.LoginState.Error,
             is LoginViewModel.GoogleSignInState.Error -> {
@@ -194,9 +209,10 @@ class LoginFragment : Fragment() {
     private fun handleSignIn(credential: Credential) {
         if (credential is CustomCredential && credential.type == TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
             val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-            viewModel.signInWithGoogle(googleIdTokenCredential.idToken)
+            viewModel.checkUserExists(googleIdTokenCredential.idToken)
         } else {
             Log.w(TAG, "Kredensial bukan tipe Google ID!")
+            showLoading(false)
             enableButtons()
         }
     }
