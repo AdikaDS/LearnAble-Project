@@ -11,10 +11,7 @@ COPY requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
 # Salin semua file ke dalam container
-COPY . .
-
-# Ekspose port untuk aplikasi
-EXPOSE 8000
+COPY ./app /app
 
 # Jalankan aplikasi dengan gunicorn + uvicorn worker
-CMD ["gunicorn", "app:app", "-w", "1", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5000"]
