@@ -9,6 +9,7 @@ db = firestore.Client()
 @app.route("/webhook", methods=["POST"])
 def webhook():
     req = request.get_json()
+    print("DEBUG REQ:", req) 
     intent = req.get("queryResult", {}).get("intent", {}).get("displayName", "")
     print("DEBUG INTENT:", intent)
 
