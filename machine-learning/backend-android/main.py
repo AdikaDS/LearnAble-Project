@@ -33,11 +33,11 @@ def webhook():
     if intent == "Welcome" or intent == "Mulai":
         return handle_welcome()
     elif intent == "Pilih Jenjang SD":
-        return handle_subjects_by_level("sd")
+        return handle_subjects_by_level("sd", req)
     elif intent == "Pilih Jenjang SMP":
-        return handle_subjects_by_level("smp")
+        return handle_subjects_by_level("smp", req)
     elif intent == "Pilih Jenjang SMA":
-        return handle_subjects_by_level("sma")
+        return handle_subjects_by_level("sma", req)
     elif intent == "Pilih Topik Pelajaran":
         return handle_lessons_by_subject_name_level(req)
     elif intent == "Pilih Subbab":
@@ -55,19 +55,19 @@ def get_context_param(req, context_name, param_key):
 
 def handle_welcome():
     chips = [
-        {"text": "Pilih Jenjang SD"},
-        {"text": "Pilih Jenjang SMP"},
-        {"text": "Pilih Jenjang SMA"}
+        {"text": "Jenjang SD"},
+        {"text": "Jenjang SMP"},
+        {"text": "Jenjang SMA"}
     ]
     response = {
         "fulfillmentMessages": [
-            {"text": {"text": ["Halo! Selamat datang di LearnAble. Silakan pilih jenjang pendidikan:"]}},
+            {"text": {"text": ["👋 Halo! Selamat datang di LearnAble! 📚 Yuk mulai petualangan belajarmu bersama kami. Silakan pilih jenjang pendidikan di bawah ini:"]}},
             {"payload": {"richContent": [[{"type": "chips", "options": chips}]]}}
         ]
     }
     return jsonify(response)
     
-def handle_subjects_by_level(level):
+def handle_subjects_by_level(level, req):
     try:
         docs = db.collection("subjects").where("schoolLevel", "==", level).stream()
 
@@ -85,6 +85,15 @@ def handle_subjects_by_level(level):
             "fulfillmentMessages": [
                 {"text": {"text": [f"Berikut pelajaran untuk jenjang {level.upper()} yang tersedia:"]}},
                 {"payload": {"richContent": [[{"type": "chips", "options": chips}]]}}
+            ],
+            "outputContexts": [
+                {
+                    "name": f"{req['session']}/contexts/pilihjenjang-followup",
+                    "lifespanCount": 5,
+                    "parameters": {
+                        "school_level": level
+                    }
+                }
             ]
         }
 
