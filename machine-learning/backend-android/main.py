@@ -11,7 +11,9 @@ def webhook():
     req = request.get_json()
     intent = req.get("queryResult", {}).get("intent", {}).get("displayName", "")
 
-    if intent == "Pilih Jenjang SD":
+    if intent == "Welcome" or intent == "Mulai":
+        return handle_welcome
+    elif intent == "Pilih Jenjang SD":
         return handle_subjects_by_level("sd")
     elif intent == "Pilih Jenjang SMP":
         return handle_subjects_by_level("smp")
@@ -31,6 +33,20 @@ def get_context_param(req, context_name, param_key):
         if context_name in ctx["name"]:
             return ctx.get("parameters", {}).get(param_key)
     return None
+
+def handle_welcome():
+    chips = [
+        {"text": "Pilih Jenjang SD"},
+        {"text": "Pilih Jenjang SMP"},
+        {"text": "Pilih Jenjang SMA"}
+    ]
+    response = {
+        "fulfillmentMessages": [
+            {"text": {"text": ["Halo! Selamat datang di LearnAble. Silakan pilih jenjang pendidikan:"]}},
+            {"payload": {"richContent": [[{"type": "chips", "options": chips}]]}}
+        ]
+    }
+    return jsonify(response)
     
 def handle_subjects_by_level(level):
     try:
