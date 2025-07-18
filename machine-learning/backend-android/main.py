@@ -12,7 +12,7 @@ def webhook():
     intent = req.get("queryResult", {}).get("intent", {}).get("displayName", "")
 
     if intent == "Welcome" or intent == "Mulai":
-        return handle_welcome
+        return handle_welcome()
     elif intent == "Pilih Jenjang SD":
         return handle_subjects_by_level("sd")
     elif intent == "Pilih Jenjang SMP":
