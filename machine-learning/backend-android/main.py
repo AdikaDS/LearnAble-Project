@@ -1,10 +1,27 @@
 from flask import Flask, request, jsonify
 from google.cloud import firestore
+from google.oauth2 import service_account
+import google.auth.transport.requests
 
 app = Flask(__name__)
 
 # Inisialisasi Firestore
 db = firestore.Client()
+
+@app.route("/get-dialogflow-token", methods=["GET"])
+def get_dialogflow_token():
+    # Path ke file service account JSON
+    SERVICE_ACCOUNT_FILE = "credentials.json"
+    SCOPES = ["https://www.googleapis.com/auth/cloud-platform"]
+
+    credentials = service_account.Credentials.from_service_account_file(
+        SERVICE_ACCOUNT_FILE, scopes=SCOPES
+    )
+    request = google.auth.transport.requests.Request()
+    credentials.refresh(request)
+    access_token = credentials.token
+
+    return jsonify({"access_token": access_token})
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
