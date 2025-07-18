@@ -10,6 +10,7 @@ db = firestore.Client()
 def webhook():
     req = request.get_json()
     intent = req.get("queryResult", {}).get("intent", {}).get("displayName", "")
+    print("DEBUG INTENT:", intent)
 
     if intent == "Welcome" or intent == "Mulai":
         return handle_welcome()
