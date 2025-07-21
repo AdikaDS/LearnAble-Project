@@ -132,7 +132,42 @@ def handle_lessons_by_subject_name_level(req):
         subject_doc = next(subject_query, None)
         if not subject_doc:
             logging.warning("Pelajaran %s tidak ditemukan untuk level %s", subject_name, level)
-            return jsonify({"fulfillmentText": f"Tidak ditemukan pelajaran {subject_name} untuk jenjang {level.upper()}."})
+            # Fallback: tampilkan ulang semua subject untuk jenjang ini
+            fallback_subjects = db.collection("subjects").where("schoolLevel", "==", level).stream()
+            fallback_chips = [{"text": doc.to_dict().get("name")} for doc in fallback_subjects]
+
+            return jsonify({
+                "fulfillmentMessages": [
+                    {
+                        "text": {
+                            "text": [
+                                f"❗ Pelajaran '{subject_name}' tidak ditemukan untuk jenjang {level.upper()}.\nBerikut pelajaran yang tersedia:"
+                            ]
+                        }
+                    },
+                    {
+                        "payload": {
+                            "richContent": [
+                                [
+                                    {
+                                        "type": "chips",
+                                        "options": fallback_chips
+                                    }
+                                ]
+                            ]
+                        }
+                    }
+                ],
+                "outputContexts": [
+                    {
+                        "name": f"{req['session']}/contexts/pilihjenjang-followup",
+                        "lifespanCount": 5,
+                        "parameters": {
+                            "school_level": level
+                        }
+                    }
+                ]
+            })
 
         subject_data = subject_doc.to_dict()
         subject_id = subject_data.get("idSubject")
@@ -168,6 +203,16 @@ def handle_lessons_by_subject_name_level(req):
                         ]
                     }
                 }
+            ],
+            "outputContexts": [
+                {
+                    "name": f"{req['session']}/contexts/pilihpelajaran-followup",
+                    "lifespanCount": 5,
+                    "parameters": {
+                        "subject_name": subject_name,
+                        "school_level": level
+                    }
+                }
             ]
         }
 
@@ -180,22 +225,76 @@ def handle_subbab_by_lessonid(req):
     parameters = req["queryResult"].get("parameters", {})
     lesson_name = parameters.get("lesson_name") 
 
-    logging.info("Mencari sub-bab untuk lesson: %s", lesson_name)
+    # Ambil jenjang dan subject dari context sebelumnya
+    level = get_context_param(req, "pilihpelajaran-followup", "school_level")
+    subject_name = get_context_param(req, "pilihpelajaran-followup", "subject_name")
 
-    if not lesson_name:
+    logging.info("Mencari sub-bab untuk lesson: %s", lesson_name)
+    logging.info("Mencari sub-bab untuk level: %s", level)
+    logging.info("Mencari sub-bab untuk subject: %s", subject_name)
+
+    if not lesson_name or not subject_name or not level:
         return jsonify({"fulfillmentText": "Mohon pilih nama materi terlebih dahulu."})
 
     try:
-        # Cari ID lesson berdasarkan title
-        lesson_query = db.collection("lessons").where("title", "==", lesson_name).limit(1).stream()
+         # Cari lesson berdasarkan title, subject, dan level
+        subject_query = db.collection("subjects") \
+            .where("name", "==", subject_name) \
+            .where("schoolLevel", "==", level).limit(1).stream()
+        subject_doc = next(subject_query, None)
+        if not subject_doc:
+            return jsonify({"fulfillmentText": "Pelajaran tidak ditemukan."})
+
+        subject_id = subject_doc.to_dict().get("idSubject")
+
+         # Cari lesson dengan judul dan idSubject
+        lesson_query = db.collection("lessons") \
+            .where("title", "==", lesson_name) \
+            .where("idSubject", "==", subject_id) \
+            .limit(1).stream()
         lesson_doc = next(lesson_query, None)
 
         if not lesson_doc:
             logging.warning("Materi %s tidak ditemukan", lesson_name)
-            return jsonify({"fulfillmentText": f"Materi '{lesson_name}' tidak ditemukan."})
+             # Fallback jika lesson tidak ditemukan → tampilkan daftar materi
+            fallback_lessons = db.collection("lessons").where("idSubject", "==", subject_id).stream()
+            chips = [{"text": doc.to_dict().get("title")} for doc in fallback_lessons]
 
-        lesson_data = lesson_doc.to_dict()
-        lesson_id = lesson_data.get("lessonId")
+            return jsonify({
+                "fulfillmentMessages": [
+                    {
+                        "text": {
+                            "text": [
+                                f"❗ Materi '{lesson_name}' tidak ditemukan untuk pelajaran {subject_name}.\nSilakan pilih materi yang tersedia berikut ini:"
+                            ]
+                        }
+                    },
+                    {
+                        "payload": {
+                            "richContent": [
+                                [
+                                    {
+                                        "type": "chips",
+                                        "options": chips
+                                    }
+                                ]
+                            ]
+                        }
+                    }
+                ],
+                "outputContexts": [
+                    {
+                        "name": f"{req['session']}/contexts/pilihpelajaran-followup",
+                        "lifespanCount": 5,
+                        "parameters": {
+                            "school_level": level,
+                            "subject_name": subject_name
+                        }
+                    }
+                ]
+            })
+
+        lesson_id = lesson_doc.id
         logging.debug("lesson_id = %s", lesson_id)
 
         # Cari semua subbab yang punya lessonId sesuai
@@ -225,6 +324,17 @@ def handle_subbab_by_lessonid(req):
                                 }
                             ]
                         ]
+                    }
+                }
+            ],
+            "outputContexts": [
+                {
+                    "name": f"{req['session']}/contexts/pilihsubbab-followup",
+                    "lifespanCount": 5,
+                    "parameters": {
+                        "school_level": level,
+                        "subject_name": subject_name,
+                        "lesson_name": lesson_name
                     }
                 }
             ]
