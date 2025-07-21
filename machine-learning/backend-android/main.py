@@ -2,6 +2,10 @@ from flask import Flask, request, jsonify
 from google.cloud import firestore
 from google.oauth2 import service_account
 import google.auth.transport.requests
+import logging
+from os import getenv
+
+logging.basicConfig(level=logging.DEBUG, format="%(asctime)s [%(levelname)s] %(message)s")
 
 app = Flask(__name__)
 
@@ -26,9 +30,9 @@ def get_dialogflow_token():
 @app.route("/webhook", methods=["POST"])
 def webhook():
     req = request.get_json()
-    print("DEBUG REQ:", req) 
+    logging.debug("REQ JSON: %s", req)
     intent = req.get("queryResult", {}).get("intent", {}).get("displayName", "")
-    print("DEBUG INTENT:", intent)
+    logging.info("INTENT DITERIMA: %s", intent)
 
     if intent == "Welcome" or intent == "Mulai":
         return handle_welcome()
@@ -54,6 +58,7 @@ def get_context_param(req, context_name, param_key):
     return None
 
 def handle_welcome():
+    logging.info("Menampilkan pesan Welcome dan pilihan jenjang")
     chips = [
         {"text": "Jenjang SD"},
         {"text": "Jenjang SMP"},
@@ -68,6 +73,7 @@ def handle_welcome():
     return jsonify(response)
     
 def handle_subjects_by_level(level, req):
+    logging.info("Mengambil pelajaran untuk jenjang %s", level)
     try:
         docs = db.collection("subjects").where("schoolLevel", "==", level).stream()
 
@@ -76,6 +82,7 @@ def handle_subjects_by_level(level, req):
             data = doc.to_dict()
             nama_materi = data.get("name")
             if nama_materi:
+                logging.debug("Ditemukan pelajaran: %s", nama_materi)
                 chips.append({"text": nama_materi})
 
         if not chips:
@@ -110,6 +117,8 @@ def handle_lessons_by_subject_name_level(req):
    # Ambil jenjang dari context
     level = get_context_param(req, "pilihjenjang-followup", "school_level")
 
+    logging.info("Mencari materi untuk subject: %s, level: %s", subject_name, level)
+
     if not subject_name or not level:
         return jsonify({"fulfillmentText": "Mohon pilih pelajaran dan jenjang terlebih dahulu."})
     
@@ -122,10 +131,12 @@ def handle_lessons_by_subject_name_level(req):
 
         subject_doc = next(subject_query, None)
         if not subject_doc:
+            logging.warning("Pelajaran %s tidak ditemukan untuk level %s", subject_name, level)
             return jsonify({"fulfillmentText": f"Tidak ditemukan pelajaran {subject_name} untuk jenjang {level.upper()}."})
 
         subject_data = subject_doc.to_dict()
         subject_id = subject_data.get("idSubject")
+        logging.debug("subject_id = %s", subject_id)
 
         # Filter lesson berdasarkan idSubject
         lesson_query = db.collection("lessons").where("idSubject", "==", subject_id)
@@ -136,6 +147,7 @@ def handle_lessons_by_subject_name_level(req):
         for doc in lessons:
             title = doc.to_dict().get("title")
             if title:
+                logging.debug("Ditemukan materi: %s", title)
                 chips.append({"text": title})
 
         if not chips:
@@ -168,6 +180,8 @@ def handle_subbab_by_lessonid(req):
     parameters = req["queryResult"].get("parameters", {})
     lesson_name = parameters.get("lesson_name") 
 
+    logging.info("Mencari sub-bab untuk lesson: %s", lesson_name)
+
     if not lesson_name:
         return jsonify({"fulfillmentText": "Mohon pilih nama materi terlebih dahulu."})
 
@@ -177,9 +191,12 @@ def handle_subbab_by_lessonid(req):
         lesson_doc = next(lesson_query, None)
 
         if not lesson_doc:
+            logging.warning("Materi %s tidak ditemukan", lesson_name)
             return jsonify({"fulfillmentText": f"Materi '{lesson_name}' tidak ditemukan."})
 
-        lesson_id = lesson_doc.id
+        lesson_data = lesson_doc.to_dict()
+        lesson_id = lesson_data.get("lessonId")
+        logging.debug("lesson_id = %s", lesson_id)
 
         # Cari semua subbab yang punya lessonId sesuai
         subbab_query = db.collection("sub_bab").where("lessonId", "==", lesson_id).stream()
@@ -189,6 +206,7 @@ def handle_subbab_by_lessonid(req):
             data = doc.to_dict()
             title = data.get("title")
             if title:
+                logging.debug("Ditemukan sub-bab: %s", title)
                 chips.append({"text": title})
 
         if not chips:
