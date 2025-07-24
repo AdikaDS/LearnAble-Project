@@ -114,8 +114,12 @@ def handle_lessons_by_subject_name_level(req):
     parameters = req["queryResult"].get("parameters", {})
     subject_name = parameters.get("subject_name")  # e.g. "Matematika"
 
+    logging.debug("Contexts: %s", req.get("queryResult", {}).get("outputContexts", []))
+
+
    # Ambil jenjang dari context
-    level = get_context_param(req, "pilihjenjang-followup", "school_level")
+    level = get_context_param(req, "pilihjenjang-followup", "school_level") or \
+            get_context_param(req, "pilihpelajaran-followup", "school_level")
 
     logging.info("Mencari materi untuk subject: %s, level: %s", subject_name, level)
 
@@ -165,6 +169,14 @@ def handle_lessons_by_subject_name_level(req):
                         "parameters": {
                             "school_level": level
                         }
+                    },
+                    {
+                        "name": f"{req['session']}/contexts/pilihpelajaran-followup",
+                        "lifespanCount": 5,
+                        "parameters": {
+                            "school_level": level,
+                            "subject_name": subject_name 
+                        }
                     }
                 ]
             })
@@ -205,6 +217,13 @@ def handle_lessons_by_subject_name_level(req):
                 }
             ],
             "outputContexts": [
+                {
+                    "name": f"{req['session']}/contexts/pilihjenjang-followup",
+                    "lifespanCount": 5,
+                    "parameters": {
+                        "school_level": level
+                    }
+                },
                 {
                     "name": f"{req['session']}/contexts/pilihpelajaran-followup",
                     "lifespanCount": 5,
