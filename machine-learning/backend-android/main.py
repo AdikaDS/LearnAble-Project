@@ -111,15 +111,11 @@ def handle_subjects_by_level(level, req):
 
 
 def handle_lessons_by_subject_name_level(req):
-    parameters = req["queryResult"].get("parameters", {})
-    subject_name = parameters.get("subject_name")  # e.g. "Matematika"
+    # Ambil subject dari user input langsung
+    subject_name = req.get("queryResult", {}).get("queryText", "").strip()
 
-    logging.debug("Contexts: %s", req.get("queryResult", {}).get("outputContexts", []))
-
-
-   # Ambil jenjang dari context
-    level = get_context_param(req, "pilihjenjang-followup", "school_level") or \
-            get_context_param(req, "pilihpelajaran-followup", "school_level")
+    # Ambil jenjang dari context
+    level = get_context_param(req, "pilihjenjang-followup", "school_level")
 
     logging.info("Mencari materi untuk subject: %s, level: %s", subject_name, level)
 
@@ -169,14 +165,6 @@ def handle_lessons_by_subject_name_level(req):
                         "parameters": {
                             "school_level": level
                         }
-                    },
-                    {
-                        "name": f"{req['session']}/contexts/pilihpelajaran-followup",
-                        "lifespanCount": 5,
-                        "parameters": {
-                            "school_level": level,
-                            "subject_name": subject_name 
-                        }
                     }
                 ]
             })
@@ -186,12 +174,10 @@ def handle_lessons_by_subject_name_level(req):
         logging.debug("subject_id = %s", subject_id)
 
         # Filter lesson berdasarkan idSubject
-        lesson_query = db.collection("lessons").where("idSubject", "==", subject_id)
-
-        lessons = lesson_query.stream()
+        lesson_query = db.collection("lessons").where("idSubject", "==", subject_id).stream()
 
         chips = []
-        for doc in lessons:
+        for doc in lesson_query:
             title = doc.to_dict().get("title")
             if title:
                 logging.debug("Ditemukan materi: %s", title)
@@ -218,13 +204,6 @@ def handle_lessons_by_subject_name_level(req):
             ],
             "outputContexts": [
                 {
-                    "name": f"{req['session']}/contexts/pilihjenjang-followup",
-                    "lifespanCount": 5,
-                    "parameters": {
-                        "school_level": level
-                    }
-                },
-                {
                     "name": f"{req['session']}/contexts/pilihpelajaran-followup",
                     "lifespanCount": 5,
                     "parameters": {
@@ -237,36 +216,36 @@ def handle_lessons_by_subject_name_level(req):
 
         return jsonify(response)
     except Exception as e:
-        print("Firestore Error:", e)
+        logging.error("Firestore Error: %s", e)
         return jsonify({"fulfillmentText": "Terjadi kesalahan saat mengambil materi."})
 
 def handle_subbab_by_lessonid(req):
-    parameters = req["queryResult"].get("parameters", {})
-    lesson_name = parameters.get("lesson_name") 
+    # Ambil nama materi (lesson) dari input langsung user
+    lesson_name = req.get("queryResult", {}).get("queryText", "").strip()
 
     # Ambil jenjang dan subject dari context sebelumnya
     level = get_context_param(req, "pilihpelajaran-followup", "school_level")
     subject_name = get_context_param(req, "pilihpelajaran-followup", "subject_name")
 
     logging.info("Mencari sub-bab untuk lesson: %s", lesson_name)
-    logging.info("Mencari sub-bab untuk level: %s", level)
-    logging.info("Mencari sub-bab untuk subject: %s", subject_name)
+    logging.info("Level: %s | Subject: %s", level, subject_name)
 
     if not lesson_name or not subject_name or not level:
         return jsonify({"fulfillmentText": "Mohon pilih nama materi terlebih dahulu."})
 
     try:
-         # Cari lesson berdasarkan title, subject, dan level
+        # Cari subject untuk mendapatkan idSubject
         subject_query = db.collection("subjects") \
             .where("name", "==", subject_name) \
-            .where("schoolLevel", "==", level).limit(1).stream()
+            .where("schoolLevel", "==", level) \
+            .limit(1).stream()
         subject_doc = next(subject_query, None)
         if not subject_doc:
             return jsonify({"fulfillmentText": "Pelajaran tidak ditemukan."})
 
         subject_id = subject_doc.to_dict().get("idSubject")
 
-         # Cari lesson dengan judul dan idSubject
+        # Cari lesson berdasarkan title dan idSubject
         lesson_query = db.collection("lessons") \
             .where("title", "==", lesson_name) \
             .where("idSubject", "==", subject_id) \
@@ -274,8 +253,8 @@ def handle_subbab_by_lessonid(req):
         lesson_doc = next(lesson_query, None)
 
         if not lesson_doc:
-            logging.warning("Materi %s tidak ditemukan", lesson_name)
-             # Fallback jika lesson tidak ditemukan → tampilkan daftar materi
+            logging.warning("Materi '%s' tidak ditemukan", lesson_name)
+            # Fallback → tampilkan daftar materi yang tersedia
             fallback_lessons = db.collection("lessons").where("idSubject", "==", subject_id).stream()
             chips = [{"text": doc.to_dict().get("title")} for doc in fallback_lessons]
 
@@ -316,13 +295,12 @@ def handle_subbab_by_lessonid(req):
         lesson_id = lesson_doc.id
         logging.debug("lesson_id = %s", lesson_id)
 
-        # Cari semua subbab yang punya lessonId sesuai
+        # Ambil semua sub-bab berdasarkan lessonId
         subbab_query = db.collection("sub_bab").where("lessonId", "==", lesson_id).stream()
 
         chips = []
         for doc in subbab_query:
-            data = doc.to_dict()
-            title = data.get("title")
+            title = doc.to_dict().get("title")
             if title:
                 logging.debug("Ditemukan sub-bab: %s", title)
                 chips.append({"text": title})
@@ -360,7 +338,7 @@ def handle_subbab_by_lessonid(req):
         }
         return jsonify(response)
     except Exception as e:
-        print("Firestore Error:", e)
+        logging.error("Firestore Error: %s", e)
         return jsonify({"fulfillmentText": "Terjadi kesalahan saat mengambil sub-bab."})
 
 if __name__ == "__main__":
