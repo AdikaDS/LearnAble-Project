@@ -120,7 +120,36 @@ def handle_lessons_by_subject_name_level(req):
     logging.info("Mencari materi untuk subject: %s, level: %s", subject_name, level)
 
     if not subject_name or not level:
-        return jsonify({"fulfillmentText": "Mohon pilih pelajaran dan jenjang terlebih dahulu."})
+        chips = [
+            {"text": "Jenjang SD"},
+            {"text": "Jenjang SMP"},
+            {"text": "Jenjang SMA"}
+        ]
+        return jsonify({
+            "fulfillmentMessages": [
+            {
+                "text": {
+                    "text": ["👋 Silakan pilih ulang jenjang pendidikan terlebih dahulu:"]
+                }
+            },
+            {
+                "payload": {
+                    "richContent": [[
+                        {
+                            "type": "chips",
+                            "options": chips
+                        }
+                    ]]
+                }
+            }
+        ],
+        "outputContexts": [
+            {
+                "name": f"{req['session']}/contexts/pilihjenjang-followup",
+                "lifespanCount": 5
+            }
+        ]
+        })
     
     try:
         # Cari subject berdasarkan name + schoolLevel
