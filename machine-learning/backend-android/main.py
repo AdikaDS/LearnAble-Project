@@ -329,10 +329,15 @@ def handle_subbab_by_lessonid(req):
 
         chips = []
         for doc in subbab_query:
-            title = doc.to_dict().get("title")
+            data = doc.to_dict()
+            data['id'] = doc.id  # Tambahkan ID sub-bab ke data
+            title = data.get("title")
             if title:
                 logging.debug("Ditemukan sub-bab: %s", title)
-                chips.append({"text": title})
+                chips.append({
+                    "text": title,
+                    "subBabData": data
+                    })
 
         if not chips:
             return jsonify({"fulfillmentText": f"Belum ada sub-bab untuk materi {lesson_name}."})
