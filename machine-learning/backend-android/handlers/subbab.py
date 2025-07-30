@@ -84,11 +84,10 @@ def handle_subbab_by_lessonid(req):
         chips = []
         for doc in subbab_query:
             data = doc.to_dict()
-            data['id'] = doc.id  # Tambahkan ID sub-bab ke data
             title = data.get("title")
             if title:
                 logging.debug("Ditemukan sub-bab: %s", title)
-                chips.append({"text": title, "subBabData": data})
+                chips.append({"text": title})
 
         if not chips:
             return jsonify({
