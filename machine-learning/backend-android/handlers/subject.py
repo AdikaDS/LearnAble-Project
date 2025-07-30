@@ -8,7 +8,7 @@ from services.firestore_service import db
 def handle_subjects_by_level(level, req):
     logging.info("Mengambil pelajaran untuk jenjang %s", level)
     try:
-        docs = db.collection("subjects").where("schoolLevel", "==",level).stream()
+        docs = db.collection("subjects").where(filter=("schoolLevel", "==",level)).stream()
 
         chips = []
         for doc in docs:

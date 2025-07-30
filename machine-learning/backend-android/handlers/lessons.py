@@ -46,8 +46,8 @@ def handle_lessons_by_subject_name_level(req):
     try:
         # Cari subject berdasarkan name + schoolLevel
         subject_query = db.collection("subjects") \
-                        .where("name", "==", subject_name) \
-                        .where("schoolLevel", "==", level) \
+                        .where(filter=("name", "==", subject_name)) \
+                        .where(filter=("schoolLevel", "==", level)) \
                         .limit(1).stream()
 
         subject_doc = next(subject_query, None)
@@ -55,8 +55,8 @@ def handle_lessons_by_subject_name_level(req):
             logging.warning("Pelajaran %s tidak ditemukan untuk level %s",
                             subject_name, level)
             # Fallback: tampilkan ulang semua subject untuk jenjang ini
-            fallback_subjects = db.collection("subjects").where(
-                "schoolLevel", "==", level).stream()
+            fallback_subjects = db.collection("subjects").where(filter=(
+                "schoolLevel", "==", level)).stream()
             fallback_chips = [{
                 "text": doc.to_dict().get("name")
             } for doc in fallback_subjects]
@@ -90,8 +90,8 @@ def handle_lessons_by_subject_name_level(req):
         logging.debug("subject_id = %s", subject_id)
 
         # Filter lesson berdasarkan idSubject
-        lesson_query = db.collection("lessons").where("idSubject", "==",
-                                                      subject_id).stream()
+        lesson_query = db.collection("lessons").where(filter=("idSubject", "==",
+                                                      subject_id)).stream()
 
         chips = []
         for doc in lesson_query:
