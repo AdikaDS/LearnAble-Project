@@ -137,8 +137,8 @@ def sync_all_training_phrases():
     subbab_docs = firestore_client.collection("sub_bab").limit(
         MAX_PHRASES).stream()
     subbab_phrases = [
-        doc.to_dict().get("content") for doc in subbab_docs
-        if doc.to_dict().get("content")
+        doc.to_dict().get("title") for doc in subbab_docs
+        if doc.to_dict().get("title")
     ]
     sync_training_phrases(INTENT_DISPLAY3, subbab_phrases)
 
