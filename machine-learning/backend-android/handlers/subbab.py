@@ -23,8 +23,8 @@ def handle_subbab_by_lessonid(req):
     try:
         # Cari subject untuk mendapatkan idSubject
         subject_query = db.collection("subjects") \
-            .where(filter=("name", "==", subject_name)) \
-            .where(filter=("schoolLevel", "==", level)) \
+            .where("name", "==", subject_name) \
+            .where("schoolLevel", "==", level) \
             .limit(1).stream()
         subject_doc = next(subject_query, None)
         if not subject_doc:
@@ -34,16 +34,16 @@ def handle_subbab_by_lessonid(req):
 
         # Cari lesson berdasarkan title dan idSubject
         lesson_query = db.collection("lessons") \
-            .where(filter=("title", "==", lesson_name)) \
-            .where(filter=("idSubject", "==", subject_id)) \
+            .where("title", "==", lesson_name) \
+            .where("idSubject", "==", subject_id) \
             .limit(1).stream()
         lesson_doc = next(lesson_query, None)
 
         if not lesson_doc:
             logging.warning("Materi '%s' tidak ditemukan", lesson_name)
             # Fallback → tampilkan daftar materi yang tersedia
-            fallback_lessons = db.collection("lessons").where(filter=(
-                "idSubject", "==", subject_id)).stream()
+            fallback_lessons = db.collection("lessons").where(
+                "idSubject", "==", subject_id).stream()
             chips = [{
                 "text": doc.to_dict().get("title")
             } for doc in fallback_lessons]
@@ -78,8 +78,8 @@ def handle_subbab_by_lessonid(req):
         logging.debug("lesson_id = %s", lesson_id)
 
         # Ambil semua sub-bab berdasarkan lessonId
-        subbab_query = db.collection("sub_bab").where(filter=("lessonId", "==",
-                                                      lesson_id)).stream()
+        subbab_query = db.collection("sub_bab").where("lessonId", "==",
+                                                      lesson_id).stream()
 
         chips = []
         for doc in subbab_query:
