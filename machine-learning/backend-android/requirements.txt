@@ -1,5 +1,6 @@
 fastapi
 uvicorn
+gunicorn
 httpx
 google-cloud-firestore
 python-dotenv
