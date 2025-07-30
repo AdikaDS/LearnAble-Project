@@ -1,23 +1,19 @@
-from flask import jsonify
 from services.firestore_service import db
 import logging
 
-def handle_subjects_by_level(level, req):
-    logging.info("Mengambil pelajaran untuk jenjang %s", level)
+async def handle_subjects_by_level(level: str, req):
+    logging.info(f"Mengambil pelajaran untuk jenjang {level}")
     try:
         docs = db.collection("subjects").where("schoolLevel", "==", level).stream()
-
         chips = []
         for doc in docs:
             data = doc.to_dict()
             nama_materi = data.get("name")
             if nama_materi:
-                logging.debug("Ditemukan pelajaran: %s", nama_materi)
+                logging.debug(f"Ditemukan pelajaran: {nama_materi}")
                 chips.append({"text": nama_materi})
-
         if not chips:
-            return jsonify({"fulfillmentText": f"Belum ada pelajaran untuk jenjang {level.upper()}."})
-
+            return {"fulfillmentText": f"Belum ada pelajaran untuk jenjang {level.upper()}."}
         response = {
             "fulfillmentMessages": [
                 {"text": {"text": [f"Berikut pelajaran untuk jenjang {level.upper()} yang tersedia:"]}},
@@ -25,7 +21,7 @@ def handle_subjects_by_level(level, req):
             ],
             "outputContexts": [
                 {
-                    "name": f"{req['session']}/contexts/pilihjenjang-followup",
+                    "name": f"{req.session}/contexts/pilihjenjang-followup",
                     "lifespanCount": 5,
                     "parameters": {
                         "school_level": level
@@ -33,9 +29,8 @@ def handle_subjects_by_level(level, req):
                 }
             ]
         }
-
-        return jsonify(response)
+        return response
     except Exception as e:
-        print("Firestore Error:", e)
-        return jsonify({"fulfillmentText": "Terjadi kesalahan saat mengambil data pelajaran."})
+        logging.error(f"Firestore Error: {e}")
+        return {"fulfillmentText": "Terjadi kesalahan saat mengambil data pelajaran."}
 

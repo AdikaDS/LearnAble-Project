@@ -1,6 +1,6 @@
-Flask
-gunicorn
+fastapi
+uvicorn
+httpx
 google-cloud-firestore
 python-dotenv
 google-auth
-requests

@@ -1,28 +1,18 @@
-from flask import jsonify
+from services.gemini_service_async import chat_with_gemini_api
 
-from services.gemini_service import chat_with_gemini_api
-
-def handle_custom_question(req):
-    # Ambil pertanyaan dari user
-    user_question = req.get("queryResult", {}).get("queryText", "").strip()
-
-    chips = [{
-        "text": "💬 Tanya Lagi ke AI"
-    }, {
-        "text": "🏠 Kembali ke Menu"
-    }],
-
-    # Validasi input
+async def handle_custom_question(req):
+    user_question = req.queryResult.get("queryText", "").strip()
+    chips = [
+        {"text": "💬 Tanya Lagi ke AI"},
+        {"text": "🏠 Kembali ke Menu"}
+    ]
     if not user_question:
-        return jsonify({
+        return {
             "fulfillmentText": "❗ Pertanyaan tidak boleh kosong."
-        })
-
+        }
     try:
-        # Kirim ke Gemini API
-        jawaban = chat_with_gemini_api(user_question)
-
-        return jsonify({
+        jawaban = await chat_with_gemini_api(user_question)
+        return {
             "fulfillmentMessages": [
                 {
                     "text": {
@@ -43,9 +33,8 @@ def handle_custom_question(req):
                     }
                 }
             ]
-        })
-
+        }
     except Exception as e:
-        return jsonify({
+        return {
             "fulfillmentText": f"Terjadi kesalahan: {str(e)}"
-        }), 500
+        }
