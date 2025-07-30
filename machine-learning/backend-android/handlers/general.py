@@ -1,14 +1,9 @@
-from flask import jsonify
-
-
-def handle_welcome():
-    chips = [{
-        "text": "Jenjang SD"
-    }, {
-        "text": "Jenjang SMP"
-    }, {
-        "text": "Jenjang SMA"
-    }]
+async def handle_welcome():
+    chips = [
+        {"text": "Jenjang SD"},
+        {"text": "Jenjang SMP"},
+        {"text": "Jenjang SMA"}
+    ]
     response = {
         "fulfillmentMessages": [{
             "text": {
@@ -25,4 +20,4 @@ def handle_welcome():
             }
         }]
     }
-    return jsonify(response)
+    return response
