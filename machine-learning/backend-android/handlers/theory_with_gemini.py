@@ -18,7 +18,7 @@ def get_theory_from_subbab(req):
 
     # Ambil data subbab dari Firestore
     try:
-        subbab_docs = db.collection("sub_bab").where(filter=("title", "==", subbab_name)).stream()
+        subbab_docs = db.collection("sub_bab").where("title", "==", subbab_name).stream()
         subbab_data = next((doc.to_dict() for doc in subbab_docs), None)
         logging.info("🧾 Data subbab ditemukan: %s", subbab_data is not None)
 
