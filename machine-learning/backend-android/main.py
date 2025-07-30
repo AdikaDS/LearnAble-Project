@@ -4,6 +4,13 @@ from handlers import general, lessons, subject, subbab, custom_question, theory_
 from utils.dialogflow_token import get_dialogflow_token
 from dotenv import load_dotenv
 from os import getenv
+import logging
+
+# Konfigurasi logging
+logging.basicConfig(
+    level=logging.DEBUG,  # Ubah ke INFO atau WARNING jika tidak ingin terlalu banyak log
+    format="%(asctime)s [%(levelname)s] %(message)s"
+)
 
 # Load konfigurasi dari .env
 load_dotenv()
