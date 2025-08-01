@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, BackgroundTasks
 from pydantic import BaseModel
 import logging
 from handlers.theory_with_gemini import get_theory_from_subbab
@@ -7,7 +7,7 @@ from handlers.lessons import handle_lessons_by_subject_name_level
 from handlers.subbab import handle_subbab_by_lessonid
 from handlers.general import handle_welcome
 from handlers.custom_question import handle_custom_question
-from services.gemini_service_async import chat_with_gemini_api
+from services.redis_client import redis_client
 from utils.dialogflow_token import get_dialogflow_token
 
 app = FastAPI()
@@ -21,7 +21,7 @@ class ChatGeminiRequest(BaseModel):
     message: str
 
 @app.post("/webhook")
-async def webhook(req: DialogflowRequest):
+async def webhook(req: DialogflowRequest, background_task: BackgroundTasks):
     intent = req.queryResult.get("intent", {}).get("displayName", "")
     if intent in ["Welcome", "Mulai", "Menu Utama"]:
         return await handle_welcome()
@@ -36,15 +36,17 @@ async def webhook(req: DialogflowRequest):
     elif intent == "Pilih Subbab":
         return await handle_subbab_by_lessonid(req)
     elif intent == "Pilih Teori Subbab":
-        return await get_theory_from_subbab(req)
+        return await get_theory_from_subbab(req, background_task)
     elif intent == "Tanya Lagi ke AI":
         return await handle_custom_question(req)
     return {"fulfillmentText": "Maaf, intent tidak dikenali."}
 
-@app.post("/chat-gemini")
-async def chat_gemini(req: ChatGeminiRequest):
-    reply = await chat_with_gemini_api(req.message)
-    return {"reply": reply}
+@app.get("/check-theory-result")
+async def check_theory_result(cache_key: str):
+    cached = await redis_client.get(cache_key)
+    if cached:
+        return {"status": "ready", "jawaban": cached}
+    return {"status": "pending"}
 
 @app.get("/get-dialogflow-token")
 async def dialogflow_token():
