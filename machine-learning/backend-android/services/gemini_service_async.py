@@ -17,13 +17,13 @@ async def chat_with_gemini_api(user_message: str) -> str:
 
     async with httpx.AsyncClient() as client:
         try:
-            response = await client.post(GEMINI_ENDPOINT, json=payload, headers=headers, timeout=10)
+            response = await client.post(GEMINI_ENDPOINT, json=payload, headers=headers, timeout=60)
             response.raise_for_status()
             data = response.json()
             return data["candidates"][0]["content"]["parts"][0]["text"]
         except httpx.TimeoutException:
-            return "⏱️ Waktu permintaan habis. Silakan coba lagi."
+            return None
         except httpx.RequestError as e:
-            return f"⚠️ Terjadi kesalahan jaringan: {str(e)}"
+            return None
         except (KeyError, IndexError):
-            return "🤖 Maaf, saya belum bisa memberikan jawaban saat ini." 
+            return None

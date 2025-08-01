@@ -31,7 +31,13 @@ def make_response(jawaban: str):
 async def generate_and_cache_gemini_answer(prompt: str, cache_key: str):
     try:
         jawaban = await chat_with_gemini_api(prompt)
-        await redis_client.set(cache_key, jawaban, ex=60*60*6)  # 6 jam
+        if jawaban:  # hanya simpan jika jawaban valid
+            await redis_client.set(cache_key, jawaban, ex=60 * 60 * 6)
+        else:
+            logging.warning("❌ Jawaban dari Gemini gagal. Tidak disimpan ke Redis.")
+            return {
+                "fulfillmentText": "🤖 Maaf, saya belum bisa memberikan jawaban saat ini. Silakan coba lagi nanti."
+            }
         logging.info(f"✅ Jawaban Gemini disimpan ke Redis untuk key: {cache_key}")
         logging.info("✅ Respons dari Gemini berhasil didapat.")
     except Exception as e:
@@ -50,11 +56,8 @@ async def get_theory_from_subbab(req, background_task:BackgroundTasks):
 
     # Ambil data subbab dari Firestore
     try:
-        t1 = time.time()
         subbab_docs = db.collection("sub_bab").where("title", "==", subbab_name).stream()
         subbab_data = next((doc.to_dict() for doc in subbab_docs), None)
-        t2 = time.time()
-        logging.info("⏱️ Firestore: %.2f detik", t2 - t1)
         logging.info("🟾 Data subbab ditemukan: %s", subbab_data is not None)
 
         if not subbab_data:
