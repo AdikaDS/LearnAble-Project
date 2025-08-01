@@ -48,6 +48,11 @@ async def check_theory_result(cache_key: str):
         return {"status": "ready", "jawaban": cached}
     return {"status": "pending"}
 
+@app.get("/clear-all-cache")
+async def clear_all_cache():
+    await redis_client.flushall()
+    return {"status": "✅ Semua cache Redis telah dihapus"}
+
 @app.get("/get-dialogflow-token")
 async def dialogflow_token():
     try:
