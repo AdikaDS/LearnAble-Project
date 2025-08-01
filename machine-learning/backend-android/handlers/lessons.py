@@ -1,5 +1,7 @@
 from utils.context_helper import get_context_param
 from services.firestore_service import db
+from services.redis_client import redis_client
+import json
 import logging
 
 async def handle_lessons_by_subject_name_level(req):
@@ -32,7 +34,17 @@ async def handle_lessons_by_subject_name_level(req):
                 "lifespanCount": 5
             }]
         }
+    
+    # Buat cache key Redis
+    cache_key = f"lessons:{level}:{subject_name}"
+
     try:
+        # Cek cache Redis
+        cached = await redis_client.get(cache_key)
+        if cached:
+            logging.info("✅ Materi ditemukan di Redis")
+            return json.loads(cached)
+        
         subject_query = db.collection("subjects") \
                         .where("name", "==", subject_name) \
                         .where("schoolLevel", "==", level) \
@@ -106,6 +118,9 @@ async def handle_lessons_by_subject_name_level(req):
                 }
             }]
         }
+         # Simpan ke Redis (expire 1 jam)
+        await redis_client.set(cache_key, json.dumps(response), ex=3600)
+        logging.info("🧠 Data materi disimpan ke Redis.")
         return response
     except Exception as e:
         logging.error(f"Firestore Error: {e}")

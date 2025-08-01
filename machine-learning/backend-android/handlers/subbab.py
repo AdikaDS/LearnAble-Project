@@ -1,5 +1,7 @@
 from services.firestore_service import db
 from utils.context_helper import get_context_param
+from services.redis_client import redis_client
+import json
 import logging
 
 async def handle_subbab_by_lessonid(req):
@@ -8,9 +10,18 @@ async def handle_subbab_by_lessonid(req):
     subject_name = get_context_param(req.dict(), "pilihpelajaran-followup", "subject_name")
     logging.info(f"Mencari sub-bab untuk lesson: {lesson_name}")
     logging.info(f"Level: {level} | Subject: {subject_name}")
+
     if not lesson_name or not subject_name or not level:
         return {"fulfillmentText": "Mohon pilih nama materi terlebih dahulu."}
+    
+    cache_key = f"subbab:{level}:{subject_name}:{lesson_name}"
+
     try:
+        cached = await redis_client.get(cache_key)
+        if cached:
+            logging.info("📦 Mengambil data dari Redis cache.")
+            return json.loads(cached)
+        
         subject_query = db.collection("subjects") \
             .where("name", "==", subject_name) \
             .where("schoolLevel", "==", level) \
@@ -94,6 +105,10 @@ async def handle_subbab_by_lessonid(req):
                 }
             }]
         }
+        
+        # Simpan hasil ke Redis (expire dalam 1 jam)
+        await redis_client.set(cache_key, json.dumps(response), ex=3600)
+        logging.info("🧠 Data subbab disimpan ke Redis.")
         return response
     except Exception as e:
         logging.error(f"Firestore Error: {e}")
