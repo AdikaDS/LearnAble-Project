@@ -5,7 +5,6 @@ from services.redis_client import redis_client
 from fastapi import BackgroundTasks
 import hashlib
 import logging
-import time
 
 def generate_cache_key(level: str, materi: str) -> str:
     key_string = f"{level}:{materi}"
@@ -21,7 +20,7 @@ def make_response(jawaban: str):
     response = {
         "fulfillmentMessages": [
             {"text": {"text": [f"🤖 Gemini Bot:\n{jawaban}"]}},
-            {"text": {"text": ["🤖 Chatbot:\nIngin bertanya lagi, lanjut belajar atau kembali ke menu?:"]}},
+            {"text": {"text": ["🤖 Chatbot:\nIngin bertanya lagi atau kembali ke menu?:"]}},
             {"payload": {"richContent": [[{"type": "chips", "options": chips}] ]}}
         ]
     }
@@ -32,7 +31,7 @@ async def generate_and_cache_gemini_answer(prompt: str, cache_key: str):
     try:
         jawaban = await chat_with_gemini_api(prompt)
         if jawaban:  # hanya simpan jika jawaban valid
-            await redis_client.set(cache_key, jawaban, ex=60 * 60 * 6)
+            await redis_client.set(cache_key, jawaban, ex=60 * 60 * 6) # Simpan ke Redis dengan expire 6 jam
         else:
             logging.warning("❌ Jawaban dari Gemini gagal. Tidak disimpan ke Redis.")
             return {
@@ -43,7 +42,7 @@ async def generate_and_cache_gemini_answer(prompt: str, cache_key: str):
     except Exception as e:
         logging.error(f"❌ Gagal generate jawaban Gemini: {str(e)}")
 
-async def get_theory_from_subbab(req, background_task:BackgroundTasks):
+async def get_theory_from_subbab(req, background_task: BackgroundTasks):
     logging.info("➡️ Memulai proses get_theory_from_subbab")
 
     # Ambil nama subbab dari input langsung user
@@ -86,10 +85,20 @@ async def get_theory_from_subbab(req, background_task:BackgroundTasks):
         # Jika belum ada, kirim respon awal
         logging.info("🕐 Jawaban belum tersedia. Kirim respon awal ke Dialogflow.")
         background_task.add_task(generate_and_cache_gemini_answer, prompt, cache_key)
-
         
         return {
-            "fulfillmentText": "🤖 Jawaban sedang diproses... Mohon tunggu sebentar."
+            "fulfillmentText": "🤖 Jawaban sedang diproses... Mohon tunggu sebentar.",
+            "outputContexts": [
+                {
+                    "name": f"{req.session}/contexts/waiting_theory_answer",
+                    "lifespanCount": 3,
+                    "parameters": {
+                        "cache_key": cache_key,
+                        "school_level": level,
+                        "subbab_name": subbab_name
+                    }
+                }
+            ]
         }
 
     except Exception as e:
