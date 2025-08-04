@@ -38,14 +38,25 @@ async def webhook(req: DialogflowRequest, background_task: BackgroundTasks):
     elif intent == "Pilih Teori Subbab":
         return await get_theory_from_subbab(req, background_task)
     elif intent == "Tanya Lagi ke AI":
-        return await handle_custom_question(req)
+        return await handle_custom_question(req, background_task)
     return {"fulfillmentText": "Maaf, intent tidak dikenali."}
 
-@app.get("/check-theory-result")
-async def check_theory_result(cache_key: str):
+@app.get("/check-gemini-result")
+async def check_gemini_result(cache_key: str):
     cached = await redis_client.get(cache_key)
     if cached:
-        return {"status": "ready", "jawaban": cached}
+        chips = [
+            {"text": "💬 Tanya Lagi ke AI"},
+            {"text": "🏠 Menu Utama"}
+        ]
+        return {
+            "status": "ready",
+            "fulfillmentMessages": [
+                {"text": {"text": [f"🤖 Gemini Bot:\n{cached}"]}},
+                {"text": {"text": ["🤖 Chatbot:\nIngin bertanya lagi atau kembali ke menu?:"]}},
+                {"payload": {"richContent": [[{"type": "chips", "options": chips}]]}}
+            ]
+        }
     return {"status": "pending"}
 
 @app.get("/clear-all-cache")
