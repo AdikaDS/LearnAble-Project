@@ -44,9 +44,16 @@ async def handle_custom_question(req, background_task: BackgroundTasks):
     user_question = req.queryResult.get("queryText", "").strip()
     session = req.session
     intent = req.queryResult.get("intent", {}).get("displayName", "")
+    output_contexts = req.queryResult.get("outputContexts", [])
 
     logging.info(f"🎯 Intent: {intent}, User Question: '{user_question}'")
     logging.info(f"📝 Session: {session}")
+
+    # Cek apakah ada context waiting_custom_answer
+    has_waiting_context = any(
+        "waiting_custom_answer" in context.get("name", "")
+        for context in output_contexts
+    )
 
     # Handle intent "Tanya Lagi ke AI" (klik chip)
     if intent == "Tanya Lagi ke AI":
@@ -61,9 +68,9 @@ async def handle_custom_question(req, background_task: BackgroundTasks):
             ]
         }
     
-    # Handle intent "Custom Pertanyaan" (user mengetik pertanyaan)
-    elif intent == "Custom Pertanyaan":
-        logging.info(f"💭 User mengetik pertanyaan: '{user_question}'")
+    # Handle intent "Custom Pertanyaan" atau "Default Fallback Intent" dengan context waiting_custom_answer
+    elif intent in ["Custom Pertanyaan", "Default Fallback Intent"] and has_waiting_context:
+        logging.info(f"💭 User mengetik pertanyaan: '{user_question}' (Intent: {intent})")
         
         if not user_question:
             logging.warning("⚠️ Pertanyaan kosong")
@@ -110,7 +117,7 @@ async def handle_custom_question(req, background_task: BackgroundTasks):
     
     # Fallback untuk intent yang tidak dikenali
     else:
-        logging.warning(f"⚠️ Intent tidak dikenali: '{intent}'")
+        logging.warning(f"⚠️ Intent tidak dikenali atau tidak ada context: '{intent}'")
         return {
             "fulfillmentText": "Maaf, intent tidak dikenali."
         }
