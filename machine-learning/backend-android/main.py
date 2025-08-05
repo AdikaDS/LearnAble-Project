@@ -44,7 +44,22 @@ async def webhook(req: DialogflowRequest, background_task: BackgroundTasks):
             raise HTTPException(status_code=400, detail="Invalid request: queryResult is required")
         
         intent = req.queryResult.get("intent", {}).get("displayName", "")
+        query_text = req.queryResult.get("queryText", "").strip()
+        output_contexts = req.queryResult.get("outputContexts", [])
+        
         logging.info(f"🎯 Intent yang diterima: '{intent}'")
+        logging.info(f"💬 Query text: '{query_text}'")
+        
+        # Cek apakah ada context waiting_custom_answer
+        has_waiting_context = any(
+            "waiting_custom_answer" in context.get("name", "")
+            for context in output_contexts
+        )
+        
+        # Handle Default Fallback Intent dengan context waiting_custom_answer
+        if intent == "Default Fallback Intent" and has_waiting_context and query_text:
+            logging.info("💭 Fallback intent dengan context waiting_custom_answer - treat as Custom Pertanyaan")
+            return await handle_custom_question(req, background_task)
         
         if not intent:
             logging.warning("⚠️ Intent kosong")
