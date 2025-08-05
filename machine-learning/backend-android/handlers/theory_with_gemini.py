@@ -30,15 +30,12 @@ def make_response(jawaban: str):
 async def generate_and_cache_gemini_answer(prompt: str, cache_key: str):
     try:
         jawaban = await chat_with_gemini_api(prompt)
-        if jawaban:  # hanya simpan jika jawaban valid
+        if jawaban and not jawaban.startswith("❌") and not jawaban.startswith("⏰") and not jawaban.startswith("🌐") and not jawaban.startswith("📄"):
             await redis_client.set(cache_key, jawaban, ex=60 * 60 * 6) # Simpan ke Redis dengan expire 6 jam
+            logging.info(f"✅ Jawaban Gemini disimpan ke Redis untuk key: {cache_key}")
         else:
-            logging.warning("❌ Jawaban dari Gemini gagal. Tidak disimpan ke Redis.")
-            return {
-                "fulfillmentText": "🤖 Maaf, saya belum bisa memberikan jawaban saat ini. Silakan coba lagi nanti."
-            }
-        logging.info(f"✅ Jawaban Gemini disimpan ke Redis untuk key: {cache_key}")
-        logging.info("✅ Respons dari Gemini berhasil didapat.")
+            logging.warning("❌ Jawaban dari Gemini gagal atau error. Tidak disimpan ke Redis.")
+        logging.info("✅ Respons dari Gemini berhasil diproses.")
     except Exception as e:
         logging.error(f"❌ Gagal generate jawaban Gemini: {str(e)}")
 

@@ -43,51 +43,63 @@ async def generate_and_cache_gemini_answer(prompt: str, cache_key: str):
 async def handle_custom_question(req, background_task: BackgroundTasks):
     user_question = req.queryResult.get("queryText", "").strip()
     session = req.session
+    intent = req.queryResult.get("intent", {}).get("displayName", "")
 
-    if not user_question:
-        return {
-            "fulfillmentText": "❗ Pertanyaan tidak boleh kosong."
-        }
-    try:
-        # Kalau hanya klik chip "Tanya Lagi ke AI", kirim prompt awal saja
-        if user_question == "💬 Tanya Lagi ke AI":
-            return {
-                "fulfillmentText": "Silakan ketik pertanyaan yang ingin kamu tanyakan 😊",
-                "outputContexts": [
-            {
-                "name": f"{req.session}/contexts/waiting_custom_answer",
-                "lifespanCount": 5
-            }
-        ]
-            }
-        
-        cache_key = generate_cache_key(session, user_question)
+    logging.info(f"Intent: {intent}, User Question: '{user_question}'")
 
-        # Panggil Gemini API
-        # Cek di Redis
-        cached = await redis_client.get(cache_key)
-        if cached:
-            logging.info("📦 Jawaban diambil dari Redis cache.")
-            # Kirim langsung ke user
-            return make_response(cached)
-        
-        # Jika belum ada, kirim respon awal
-        logging.info("🕐 Jawaban belum tersedia. Kirim respon awal ke Dialogflow.")
-        background_task.add_task(generate_and_cache_gemini_answer, user_question, cache_key)
-        
+    # Handle intent "Tanya Lagi ke AI" (klik chip)
+    if intent == "Tanya Lagi ke AI":
         return {
-            "fulfillmentText": "🤖 Jawaban sedang diproses... Mohon tunggu sebentar.",
+            "fulfillmentText": "Silakan ketik pertanyaan yang ingin kamu tanyakan 😊",
             "outputContexts": [
-            {
-                "name": f"{req.session}/contexts/waiting_custom_answer",
-                "lifespanCount": 5,
-                "parameters": {
-                    "cache_key": cache_key
+                {
+                    "name": f"{req.session}/contexts/waiting_custom_answer",
+                    "lifespanCount": 5
                 }
-            }
-        ]
+            ]
         }
-    except Exception as e:
+    
+    # Handle intent "Custom Pertanyaan" (user mengetik pertanyaan)
+    elif intent == "Custom Pertanyaan":
+        if not user_question:
+            return {
+                "fulfillmentText": "❗ Pertanyaan tidak boleh kosong."
+            }
+        
+        try:
+            cache_key = generate_cache_key(session, user_question)
+
+            # Cek di Redis
+            if redis_client:
+                cached = await redis_client.get(cache_key)
+                if cached:
+                    logging.info("📦 Jawaban diambil dari Redis cache.")
+                    return make_response(cached)
+            
+            # Jika belum ada, kirim respon awal
+            logging.info("🕐 Jawaban belum tersedia. Kirim respon awal ke Dialogflow.")
+            background_task.add_task(generate_and_cache_gemini_answer, user_question, cache_key)
+            
+            return {
+                "fulfillmentText": "🤖 Jawaban sedang diproses... Mohon tunggu sebentar.",
+                "outputContexts": [
+                    {
+                        "name": f"{req.session}/contexts/waiting_custom_answer",
+                        "lifespanCount": 5,
+                        "parameters": {
+                            "cache_key": cache_key
+                        }
+                    }
+                ]
+            }
+        except Exception as e:
+            logging.error(f"Error dalam handle_custom_question: {str(e)}")
+            return {
+                "fulfillmentText": f"Terjadi kesalahan: {str(e)}"
+            }
+    
+    # Fallback untuk intent yang tidak dikenali
+    else:
         return {
-            "fulfillmentText": f"Terjadi kesalahan: {str(e)}"
+            "fulfillmentText": "Maaf, intent tidak dikenali."
         }
