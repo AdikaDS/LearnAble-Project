@@ -52,7 +52,13 @@ async def handle_custom_question(req, background_task: BackgroundTasks):
         # Kalau hanya klik chip "Tanya Lagi ke AI", kirim prompt awal saja
         if user_question == "💬 Tanya Lagi ke AI":
             return {
-                "fulfillmentText": "Silakan ketik pertanyaan yang ingin kamu tanyakan 😊"
+                "fulfillmentText": "Silakan ketik pertanyaan yang ingin kamu tanyakan 😊",
+                "outputContexts": [
+            {
+                "name": f"{req.session}/contexts/waiting_custom_answer",
+                "lifespanCount": 5
+            }
+        ]
             }
         
         cache_key = generate_cache_key(session, user_question)
