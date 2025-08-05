@@ -49,6 +49,12 @@ async def handle_custom_question(req, background_task: BackgroundTasks):
             "fulfillmentText": "❗ Pertanyaan tidak boleh kosong."
         }
     try:
+        # Kalau hanya klik chip "Tanya Lagi ke AI", kirim prompt awal saja
+        if user_question == "💬 Tanya Lagi ke AI":
+            return {
+                "fulfillmentText": "Silakan ketik pertanyaan yang ingin kamu tanyakan 😊"
+            }
+        
         cache_key = generate_cache_key(session, user_question)
 
         # Panggil Gemini API
