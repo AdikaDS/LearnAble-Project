@@ -45,10 +45,12 @@ async def handle_custom_question(req, background_task: BackgroundTasks):
     session = req.session
     intent = req.queryResult.get("intent", {}).get("displayName", "")
 
-    logging.info(f"Intent: {intent}, User Question: '{user_question}'")
+    logging.info(f"🎯 Intent: {intent}, User Question: '{user_question}'")
+    logging.info(f"📝 Session: {session}")
 
     # Handle intent "Tanya Lagi ke AI" (klik chip)
     if intent == "Tanya Lagi ke AI":
+        logging.info("💬 User klik chip 'Tanya Lagi ke AI'")
         return {
             "fulfillmentText": "Silakan ketik pertanyaan yang ingin kamu tanyakan 😊",
             "outputContexts": [
@@ -61,13 +63,17 @@ async def handle_custom_question(req, background_task: BackgroundTasks):
     
     # Handle intent "Custom Pertanyaan" (user mengetik pertanyaan)
     elif intent == "Custom Pertanyaan":
+        logging.info(f"💭 User mengetik pertanyaan: '{user_question}'")
+        
         if not user_question:
+            logging.warning("⚠️ Pertanyaan kosong")
             return {
                 "fulfillmentText": "❗ Pertanyaan tidak boleh kosong."
             }
         
         try:
             cache_key = generate_cache_key(session, user_question)
+            logging.info(f"🔑 Cache key: {cache_key}")
 
             # Cek di Redis
             if redis_client:
@@ -75,6 +81,10 @@ async def handle_custom_question(req, background_task: BackgroundTasks):
                 if cached:
                     logging.info("📦 Jawaban diambil dari Redis cache.")
                     return make_response(cached)
+                else:
+                    logging.info("🔄 Cache tidak ditemukan, akan generate jawaban baru")
+            else:
+                logging.warning("⚠️ Redis client tidak tersedia")
             
             # Jika belum ada, kirim respon awal
             logging.info("🕐 Jawaban belum tersedia. Kirim respon awal ke Dialogflow.")
@@ -93,13 +103,14 @@ async def handle_custom_question(req, background_task: BackgroundTasks):
                 ]
             }
         except Exception as e:
-            logging.error(f"Error dalam handle_custom_question: {str(e)}")
+            logging.error(f"❌ Error dalam handle_custom_question: {str(e)}")
             return {
                 "fulfillmentText": f"Terjadi kesalahan: {str(e)}"
             }
     
     # Fallback untuk intent yang tidak dikenali
     else:
+        logging.warning(f"⚠️ Intent tidak dikenali: '{intent}'")
         return {
             "fulfillmentText": "Maaf, intent tidak dikenali."
         }
