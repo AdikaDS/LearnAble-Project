@@ -39,6 +39,8 @@ async def webhook(req: DialogflowRequest, background_task: BackgroundTasks):
         return await get_theory_from_subbab(req, background_task)
     elif intent == "Tanya Lagi ke AI":
         return await handle_custom_question(req, background_task)
+    elif intent == "Custom Pertanyaan":
+        return await handle_custom_question(req, background_task)
     return {"fulfillmentText": "Maaf, intent tidak dikenali."}
 
 @app.get("/check-gemini-result")
