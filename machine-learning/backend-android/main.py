@@ -1,6 +1,7 @@
 from fastapi import FastAPI, BackgroundTasks, HTTPException
 from pydantic import BaseModel
 import logging
+import sys
 from handlers.theory_with_gemini import get_theory_from_subbab
 from handlers.subject import handle_subjects_by_level
 from handlers.lessons import handle_lessons_by_subject_name_level
@@ -10,8 +11,20 @@ from handlers.custom_question import handle_custom_question
 from services.redis_client import redis_client
 from utils.dialogflow_token import get_dialogflow_token
 
+# Konfigurasi logging yang lebih robust
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('app.log', encoding='utf-8')
+    ]
+)
+
+# Set level untuk semua logger
+logging.getLogger().setLevel(logging.INFO)
+
 app = FastAPI()
-logging.basicConfig(level=logging.INFO)
 
 class DialogflowRequest(BaseModel):
     queryResult: dict
@@ -23,34 +36,52 @@ class ChatGeminiRequest(BaseModel):
 @app.post("/webhook")
 async def webhook(req: DialogflowRequest, background_task: BackgroundTasks):
     try:
+        logging.info("🔄 Webhook dipanggil")
+        logging.info(f"📥 Request session: {req.session}")
+        
         if not req.queryResult:
+            logging.error("❌ queryResult kosong")
             raise HTTPException(status_code=400, detail="Invalid request: queryResult is required")
         
         intent = req.queryResult.get("intent", {}).get("displayName", "")
+        logging.info(f"🎯 Intent yang diterima: '{intent}'")
+        
         if not intent:
+            logging.warning("⚠️ Intent kosong")
             return {"fulfillmentText": "Maaf, intent tidak dikenali."}
             
         if intent in ["Welcome", "Mulai", "Menu Utama"]:
+            logging.info("🏠 Menangani intent Welcome/Mulai/Menu Utama")
             return await handle_welcome()
         elif intent == "Pilih Jenjang SD":
+            logging.info("📚 Menangani intent Pilih Jenjang SD")
             return await handle_subjects_by_level("sd", req)
         elif intent == "Pilih Jenjang SMP":
+            logging.info("📚 Menangani intent Pilih Jenjang SMP")
             return await handle_subjects_by_level("smp", req)
         elif intent == "Pilih Jenjang SMA":
+            logging.info("📚 Menangani intent Pilih Jenjang SMA")
             return await handle_subjects_by_level("sma", req)
         elif intent == "Pilih Topik Pelajaran":
+            logging.info("📖 Menangani intent Pilih Topik Pelajaran")
             return await handle_lessons_by_subject_name_level(req)
         elif intent == "Pilih Subbab":
+            logging.info("📝 Menangani intent Pilih Subbab")
             return await handle_subbab_by_lessonid(req)
         elif intent == "Pilih Teori Subbab":
+            logging.info("🧠 Menangani intent Pilih Teori Subbab")
             return await get_theory_from_subbab(req, background_task)
         elif intent == "Tanya Lagi ke AI":
+            logging.info("🤖 Menangani intent Tanya Lagi ke AI")
             return await handle_custom_question(req, background_task)
         elif intent == "Custom Pertanyaan":
+            logging.info("💬 Menangani intent Custom Pertanyaan")
             return await handle_custom_question(req, background_task)
+        
+        logging.warning(f"⚠️ Intent tidak dikenali: '{intent}'")
         return {"fulfillmentText": "Maaf, intent tidak dikenali."}
     except Exception as e:
-        logging.error(f"Error in webhook: {str(e)}")
+        logging.error(f"❌ Error in webhook: {str(e)}")
         return {"fulfillmentText": "Terjadi kesalahan internal. Silakan coba lagi."}
 
 @app.get("/check-gemini-result")
