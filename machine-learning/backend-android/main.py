@@ -2,14 +2,14 @@ from fastapi import FastAPI, BackgroundTasks, HTTPException
 from pydantic import BaseModel
 import logging
 import sys
-from handlers.theory_with_gemini import get_theory_from_subbab
-from handlers.subject import handle_subjects_by_level
-from handlers.lessons import handle_lessons_by_subject_name_level
-from handlers.subbab import handle_subbab_by_lessonid
-from handlers.general import handle_welcome
-from handlers.custom_question import handle_custom_question
-from services.redis_client import redis_client
-from utils.dialogflow_token import get_dialogflow_token
+from chatbot.handlers.theory_with_gemini import get_theory_from_subbab
+from chatbot.handlers.subject import handle_subjects_by_level
+from chatbot.handlers.lessons import handle_lessons_by_subject_name_level
+from chatbot.handlers.subbab import handle_subbab_by_lessonid
+from chatbot.handlers.general import handle_welcome
+from chatbot.handlers.custom_question import handle_custom_question
+from chatbot.services.redis_client import redis_client
+from chatbot.utils.dialogflow_token import get_dialogflow_token
 
 # Konfigurasi logging yang lebih robust
 logging.basicConfig(
