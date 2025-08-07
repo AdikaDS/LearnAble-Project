@@ -1,5 +1,5 @@
-from services.firestore_service import db
-from services.redis_client import redis_client
+from chatbot.services.firestore_service import db
+from chatbot.services.redis_client import redis_client
 import json
 import logging
 

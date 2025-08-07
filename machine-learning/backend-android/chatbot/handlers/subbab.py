@@ -1,6 +1,6 @@
-from services.firestore_service import db
-from utils.context_helper import get_context_param
-from services.redis_client import redis_client
+from chatbot.services.firestore_service import db
+from chatbot.utils.context_helper import get_context_param
+from chatbot.services.redis_client import redis_client
 import json
 import logging
 

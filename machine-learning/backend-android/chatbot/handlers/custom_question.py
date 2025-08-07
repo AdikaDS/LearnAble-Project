@@ -1,6 +1,6 @@
-from services.gemini_service_async import chat_with_gemini_api
+from chatbot.services.gemini_service_async import chat_with_gemini_api
 import hashlib
-from services.redis_client import redis_client
+from chatbot.services.redis_client import redis_client
 from fastapi import BackgroundTasks
 import logging
 
