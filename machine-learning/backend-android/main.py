@@ -2,6 +2,8 @@ from fastapi import FastAPI, BackgroundTasks, HTTPException
 from pydantic import BaseModel
 import logging
 import sys
+import os
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 from chatbot.handlers.theory_with_gemini import get_theory_from_subbab
 from chatbot.handlers.subject import handle_subjects_by_level
 from chatbot.handlers.lessons import handle_lessons_by_subject_name_level

@@ -2,3 +2,4 @@
 credentials.json
 .env
 __pycache__
+generate_init.py
