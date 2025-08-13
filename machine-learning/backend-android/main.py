@@ -10,6 +10,8 @@ from chatbot.handlers.general import handle_welcome
 from chatbot.handlers.custom_question import handle_custom_question
 from chatbot.services.redis_client import redis_client
 from chatbot.utils.dialogflow_token import get_dialogflow_token
+from send_email.send_email import send_email_to_admin, send_email_approve_to_user, send_email_unapprove_to_user
+from send_email.background_task import _enqueue_email
 
 # Konfigurasi logging yang lebih robust
 logging.basicConfig(
@@ -33,8 +35,18 @@ class DialogflowRequest(BaseModel):
 class ChatGeminiRequest(BaseModel):
     message: str
 
-@app.post("/webhook")
+class UserRegistrationRequest(BaseModel):
+    email: str
+    role: str  # "orang tua" atau "guru"
+    name: str
+    phone: str = None
+
+@app.post("/webhook", tags=["Chatbot"])
 async def webhook(req: DialogflowRequest, background_task: BackgroundTasks):
+    """
+    Endpoint untuk menangani webhook dari Dialogflow.
+    Menerima request dari Dialogflow, memproses intent, dan mengembalikan response.
+    """
     try:
         logging.info("🔄 Webhook dipanggil")
         logging.info(f"📥 Request session: {req.session}")
@@ -99,7 +111,7 @@ async def webhook(req: DialogflowRequest, background_task: BackgroundTasks):
         logging.error(f"❌ Error in webhook: {str(e)}")
         return {"fulfillmentText": "Terjadi kesalahan internal. Silakan coba lagi."}
 
-@app.get("/check-gemini-result")
+@app.get("/check-gemini-result", tags=["Chatbot"])
 async def check_gemini_result(cache_key: str):
     cached = await redis_client.get(cache_key)
     if cached:
@@ -117,15 +129,75 @@ async def check_gemini_result(cache_key: str):
         }
     return {"status": "pending"}
 
-@app.get("/clear-all-cache")
+@app.get("/clear-all-cache", tags=["Reddis"])
 async def clear_all_cache():
+    """
+    Endpoint untuk menghapus semua cache Redis.
+    """
     await redis_client.flushall()
     return {"status": "✅ Semua cache Redis telah dihapus"}
 
-@app.get("/get-dialogflow-token")
+@app.get("/get-dialogflow-token", tags=["Chatbot"])
 async def dialogflow_token():
+    """
+    Endpoint untuk mengambil token Dialogflow yang digunakan untuk autentikasi API.
+    """
     try:
         token = get_dialogflow_token()
         return {"access_token": token}
     except Exception as e:
         return {"error": str(e)}
+
+@app.post("/email-admin-verification", tags=["Send Email"])
+async def email_admin(user_data: UserRegistrationRequest, background_task: BackgroundTasks):
+    """
+    Endpoint untuk mengirim notifikasi ke admin
+    """
+    ok = _enqueue_email(
+        background_task,
+        send_email_to_admin,
+        user_data.name, user_data.email, user_data.role
+    )
+    if not ok:
+        raise HTTPException(status_code=500, detail="Gagal menjadwalkan email ke Admin.")
+    return {
+        "status": "success",
+        "message": "Email notifikasi telah dijadwalkan untuk admin.",
+        "user": user_data.model_dump()
+    }
+
+@app.post("/email-approve-user", tags=["Send Email"])
+async def email_approve_user(user_data: UserRegistrationRequest, background_task: BackgroundTasks):
+    """
+    Endpoint untuk mengirim notifikasi ke user bahwa akun mereka telah disetujui
+    """
+    ok = _enqueue_email(
+        background_task,
+        send_email_approve_to_user,
+        user_data.name, user_data.email, user_data.role
+    )
+    if not ok:
+        raise HTTPException(status_code=500, detail="Gagal menjadwalkan email Approval.")
+    return {
+        "status": "success",
+        "message": "Email Approval telah dijadwalkan untuk user.",
+        "user": user_data.model_dump()
+    }
+
+@app.post("/email-unapprove-user", tags=["Send Email"])
+async def email_unapprove_user(user_data: UserRegistrationRequest, background_task: BackgroundTasks):
+    """
+    Endpoint untuk mengirim notifikasi ke user bahwa akun mereka belum disetujui
+    """
+    ok = _enqueue_email(
+        background_task,
+        send_email_unapprove_to_user,
+        user_data.name, user_data.email, user_data.role
+    )
+    if not ok:
+        raise HTTPException(status_code=500, detail="Gagal menjadwalkan email Unapproval.")
+    return {
+        "status": "success",
+        "message": "Email Unapproval telah dijadwalkan untuk user.",
+        "user": user_data.model_dump()
+    }
