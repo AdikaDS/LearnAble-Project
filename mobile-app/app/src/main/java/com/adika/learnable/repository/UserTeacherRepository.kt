@@ -31,8 +31,7 @@ class UserTeacherRepository @Inject constructor(
             val student = studentSnapshot.toObjects(User::class.java)
 
             return student.filter { students ->
-                students.name.contains(query, ignoreCase = true) ||
-                        (students.disabilityType?.contains(query, ignoreCase = true) ?: false)
+                students.name.contains(query, ignoreCase = true)
             }
         } catch (e: Exception) {
             Log.e("LessonRepository", "Error searching lessons", e)

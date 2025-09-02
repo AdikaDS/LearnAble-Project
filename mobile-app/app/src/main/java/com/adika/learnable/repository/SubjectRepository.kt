@@ -16,14 +16,12 @@ class SubjectRepository @Inject constructor(
     private val subjectCache = mutableMapOf<String, List<Subject>>()
 
     suspend fun getSubjectsBySchoolLevel(
-        schoolLevel: String,
-        disabilityType: String
+        schoolLevel: String
     ): List<Subject> {
-        val cacheKey = "$schoolLevel-$disabilityType"
-        
+
         // Return cached data if available
-        subjectCache[cacheKey]?.let {
-            Log.d("SubjectRepository", "Returning cached subjects for $cacheKey")
+        subjectCache[schoolLevel]?.let {
+            Log.d("SubjectRepository", "Returning cached subjects for $schoolLevel")
             return it
         }
 
@@ -36,15 +34,14 @@ class SubjectRepository @Inject constructor(
             val subjects = subjectSnapshot.toObjects(Subject::class.java)
 
             val processedSubjects = subjects.map { subject ->
-                val lessons = lessonRepository.getLessonsBySubjectAndDisabilityType(
-                    idSubject = subject.idSubject,
-                    disabilityType = disabilityType
+                val lessons = lessonRepository.getLessonsBySubject(
+                    idSubject = subject.idSubject
                 )
 
                 val totalLessons = lessons.size
                 Log.d(
                     "SubjectRepository",
-                    "Subject ${subject.name} has $totalLessons lessons for disability type: $disabilityType"
+                    "Subject ${subject.name} has $totalLessons lessons"
                 )
 
                 updateTotalLesson(subject.idSubject, totalLessons)
@@ -52,7 +49,7 @@ class SubjectRepository @Inject constructor(
             }
 
             // Cache the processed subjects
-            subjectCache[cacheKey] = processedSubjects
+            subjectCache[schoolLevel] = processedSubjects
             return processedSubjects
         } catch (e: Exception) {
             Log.e("SubjectRepository", "Error getting subjects", e)

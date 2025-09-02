@@ -118,7 +118,6 @@ class StudentProfileFragment : Fragment() {
         binding.apply {
             tvStudentName.text = student.name
             tvStudentEmail.text = student.email
-            tvDisabilityType.text = student.disabilityType
 
             student.profilePicture.let { url ->
                 Glide.with(requireContext())

@@ -22,7 +22,7 @@ class ForgotPasswordViewModel @Inject constructor(
             _resetState.value = ResetState.Loading
             try {
                 authRepository.resetPassword(email)
-                _resetState.value = ResetState.Success
+                _resetState.value = ResetState.Success(email)
             } catch (e: Exception) {
                 _resetState.value =
                     ResetState.Error(e.message ?: "Gagal mengirim email reset password")
@@ -30,9 +30,16 @@ class ForgotPasswordViewModel @Inject constructor(
         }
     }
 
+    fun resendResetEmail() {
+        val lastEmail = (resetState.value as? ResetState.Success)?.email
+        if (!lastEmail.isNullOrEmpty()) {
+            resetPassword(lastEmail)
+        }
+    }
+
     sealed class ResetState {
         data object Loading : ResetState()
-        data object Success : ResetState()
+        data class Success(val email: String) : ResetState()
         data class Error(val message: String) : ResetState()
     }
 } 

@@ -186,11 +186,13 @@ class TeacherLessonListFragment : Fragment() {
             .setTitle(getString(R.string.delete_lesson))
             .setMessage(getString(R.string.confirm_delete_lesson))
             .setPositiveButton(getString(R.string.delete)) { _, _ ->
-                lessonViewModel.deleteLesson(lesson.id, lesson.teacherId) { result ->
-                    result.onSuccess {
-                       showToast(getString(R.string.succes_delete_lesson))
-                    }.onFailure {
-                        showToast(getString(R.string.fail_delete_lesson, it.message))
+                lesson.teacherId?.let {
+                    lessonViewModel.deleteLesson(lesson.id, it) { result ->
+                        result.onSuccess {
+                            showToast(getString(R.string.succes_delete_lesson))
+                        }.onFailure {
+                            showToast(getString(R.string.fail_delete_lesson, it.message))
+                        }
                     }
                 }
             }

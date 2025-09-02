@@ -1,6 +1,5 @@
 package com.adika.learnable.viewmodel
 
-import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -12,6 +11,7 @@ import com.adika.learnable.repository.EditProfileRepository
 import com.adika.learnable.util.ResourceProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
@@ -56,38 +56,27 @@ class EditProfileViewModel @Inject constructor(
         }
     }
 
-    fun uploadProfilePicture(uri: Uri) {
+    fun uploadProfilePicture(file: File) {
         viewModelScope.launch {
             _uploadState.value = UploadState.Loading
-
-            val result = editProfileRepository.uploadToImgur(uri)
-
-            result.fold(
-                onSuccess = { imageUrl ->
-                    // Update profil user dengan URL gambar baru
-
-                    try {
-                        val currentUser =
-                            editProfileRepository.getUserData(editProfileRepository.getCurrentUserId())
-                        val updatedUser = currentUser.copy(profilePicture = imageUrl)
-                        editProfileRepository.updateUserData(updatedUser)
-                        _uploadState.value = UploadState.Success(imageUrl)
-                        _userState.value = UserState.Success(updatedUser)
-                    } catch (e: Exception) {
-                        _uploadState.value = UploadState.Error(
-                            e.message ?: resourceProvider.getString(R.string.fail_update_profil)
-                        )
-                    }
-                },
-                onFailure = { error ->
-                    _uploadState.value = UploadState.Error(
-                        error.message ?: resourceProvider.getString(R.string.fail_up_picture)
-                    )
-                }
-            )
-
+            try {
+                val userId = editProfileRepository.getCurrentUserId()
+                val imageUrl = editProfileRepository.uploadProfilePicture(file, userId)
+                val currentUser = editProfileRepository.getUserData(userId)
+                val updatedUser = currentUser.copy(profilePicture = imageUrl)
+                editProfileRepository.updateUserData(updatedUser)
+                _uploadState.value = UploadState.Success(imageUrl)
+                _userState.value = UserState.Success(updatedUser)
+            } catch (e: IllegalArgumentException) {
+                _uploadState.value = UploadState.Error(
+                    e.message ?: resourceProvider.getString(R.string.fail_up_picture)
+                )
+            } catch (e: Exception) {
+                _uploadState.value = UploadState.Error(
+                    e.message ?: resourceProvider.getString(R.string.fail_up_picture)
+                )
+            }
         }
-
     }
 
     fun updatePassword(currentPassword: String, newPassword: String) {

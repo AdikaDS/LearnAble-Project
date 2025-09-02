@@ -6,8 +6,16 @@
     <color name="secondary_dark">#FFA000</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="grey_300">#E0E0E0</color>
+    <color name="grey_300">#737373</color>
+    <color name="grey">#595959</color>
+    <color name="grey_light">#CCCCCC</color>
+    <color name="grey_bg">#E6E6E6</color>
+    <color name="green">#138C63</color>
+    <color name="soft_green">#ECFDF5</color>
     <color name="blue">#3674B5</color>
     <color name="success">#22bb33</color>
     <color name="error">#bb2124</color>
+    <color name="strength_weak">#F4471F</color>
+    <color name="strength_medium">#F7CF20</color>
+    <color name="strength_strong">#3DB724</color>
 </resources>

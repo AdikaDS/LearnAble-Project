@@ -1,6 +1,5 @@
 package com.adika.learnable.view.dashboard.teacher
 
-import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,7 +7,6 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.fragment.app.viewModels
 import com.adika.learnable.R
-import com.adika.learnable.databinding.DialogDisabilityCheckboxBinding
 import com.adika.learnable.databinding.DialogLessonFormBinding
 import com.adika.learnable.model.Lesson
 import com.adika.learnable.util.ValidationUtils
@@ -55,7 +53,6 @@ class LessonFormBottomSheetDialogFragment : BottomSheetDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
         setupViews()
         setupDropdowns()
-        setupDisabilityCheckbox()
         fillExistingData()
         getData()
     }
@@ -73,47 +70,6 @@ class LessonFormBottomSheetDialogFragment : BottomSheetDialogFragment() {
         binding.btnCancel.setOnClickListener {
             dismiss()
         }
-    }
-
-    private fun setupDisabilityCheckbox() {
-        binding.disabilityTypeAutoComplete.setOnClickListener {
-            showDisabilityCheckboxDialog()
-        }
-    }
-
-    private fun showDisabilityCheckboxDialog() {
-        val dialog = Dialog(requireContext())
-        val dialogBinding = DialogDisabilityCheckboxBinding.inflate(layoutInflater)
-        dialog.setContentView(dialogBinding.root)
-
-        // Set initial state dari checkbox berdasarkan nilai yang sudah ada
-        val currentTypes = (binding.disabilityTypeAutoComplete.tag as? List<String>) ?: emptyList()
-        dialogBinding.checkboxTunarungu.isChecked = currentTypes.contains("Tunarungu")
-        dialogBinding.checkboxTunanetra.isChecked = currentTypes.contains("Tunanetra")
-
-        dialogBinding.btnCancel.setOnClickListener {
-            dialog.dismiss()
-        }
-
-        dialogBinding.btnConfirm.setOnClickListener {
-            val selectedTypes = mutableListOf<String>()
-            if (dialogBinding.checkboxTunarungu.isChecked) {
-                selectedTypes.add("Tunarungu")
-            }
-            if (dialogBinding.checkboxTunanetra.isChecked) {
-                selectedTypes.add("Tunanetra")
-            }
-
-            // Update tampilan
-            binding.disabilityTypeAutoComplete.setText(
-                selectedTypes.joinToString(", ")
-            )
-            binding.disabilityTypeAutoComplete.tag = selectedTypes
-
-            dialog.dismiss()
-        }
-
-        dialog.show()
     }
 
     private fun setupDropdowns() {
@@ -197,12 +153,6 @@ class LessonFormBottomSheetDialogFragment : BottomSheetDialogFragment() {
             binding.titleEditText.setText(it.title)
             binding.contentEditText.setText(it.content)
             binding.durationEditText.setText(it.duration.toString())
-
-            // Set disability types
-            binding.disabilityTypeAutoComplete.setText(
-                it.disabilityTypes.joinToString(", ")
-            )
-            binding.disabilityTypeAutoComplete.tag = it.disabilityTypes
 
             val schoolLevelPosition = when (it.schoolLevel) {
                 "sd" -> 0
@@ -288,14 +238,6 @@ class LessonFormBottomSheetDialogFragment : BottomSheetDialogFragment() {
             )
         ) isValid = false
 
-        if (!ValidationUtils.validateDisabilitySelection(
-                requireContext(),
-                binding.disabilityTypeInputLayout,
-                binding.disabilityTypeAutoComplete.tag,
-                ValidationUtils.FieldType.DISABILITY
-            )
-        ) isValid = false
-
         if (!ValidationUtils.validateInputsData(
                 requireContext(),
                 binding.subjectInputLayout,
@@ -336,8 +278,6 @@ class LessonFormBottomSheetDialogFragment : BottomSheetDialogFragment() {
             schoolLevel = binding.schoolLevelAutoComplete.tag.toString(),
             duration = binding.durationEditText.text.toString().toIntOrNull() ?: 0,
             difficulty = binding.difficultyAutoComplete.tag.toString(),
-            disabilityTypes = (binding.disabilityTypeAutoComplete.tag as? List<String>)
-                ?: emptyList(),
             teacherId = currentTeacherId
         )
     }

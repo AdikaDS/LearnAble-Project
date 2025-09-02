@@ -2,8 +2,10 @@ package com.adika.learnable.di
 
 import android.content.Context
 import com.adika.learnable.BuildConfig
-import com.adika.learnable.api.ImgurService
-import com.adika.learnable.api.ResendEmailService
+import com.adika.learnable.api.DialogflowService
+import com.adika.learnable.api.GeminiApiService
+import com.adika.learnable.api.SendEmailService
+import com.adika.learnable.api.TokenDialogflowService
 import com.adika.learnable.api.TranscriptionService
 import com.adika.learnable.util.ResourceProvider
 import com.adika.learnable.util.ResourceProviderImp
@@ -48,39 +50,9 @@ object AppModule {
     @Singleton
     fun provideFirebaseFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
 
-    // API Services
     @Provides
     @Singleton
-    @Named("imgur")
-    fun provideImgurRetrofit(
-        okHttpClient: OkHttpClient
-    ): Retrofit {
-        return Retrofit.Builder()
-            .baseUrl(BuildConfig.BASE_URL_IMGUR_API)
-            .client(okHttpClient.newBuilder()
-                .addInterceptor { chain ->
-                    val original = chain.request()
-                    val request = original.newBuilder()
-                        .header("Authorization", "Client-ID ${BuildConfig.IMGUR_CLIENT_ID}")
-                        .method(original.method, original.body)
-                        .build()
-                    chain.proceed(request)
-                }
-                .build()
-            )
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-    }
-
-    @Provides
-    @Singleton
-    fun provideImgurService(@Named ("imgur") imgurRetrofit: Retrofit): ImgurService {
-        return imgurRetrofit.create(ImgurService::class.java)
-    }
-
-    @Provides
-    @Singleton
-    @Named ("transcribe")
+    @Named("transcribe")
     fun provideTranscribeRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BuildConfig.BASE_URL_TRANSCRIPTION_API)
@@ -97,10 +69,10 @@ object AppModule {
 
     @Provides
     @Singleton
-    @Named ("resendemail")
-    fun provideResendEmailRetrofit(okHttpClient: OkHttpClient): Retrofit {
+    @Named("dialogflow")
+    fun provideDialogflowRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(BuildConfig.BASE_URL_RESEND_API)
+            .baseUrl(BuildConfig.BASE_URL_DIALOGFLOW)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -108,8 +80,37 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideResendEmailService(@Named ("resendemail") resendEmail: Retrofit) : ResendEmailService {
-        return resendEmail.create(ResendEmailService::class.java)
+    fun provideDialogflowService(@Named("dialogflow") dialogflowRetrofit: Retrofit): DialogflowService {
+        return dialogflowRetrofit.create(DialogflowService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    @Named("backend")
+    fun provideBackendRetrofit(okHttpClient: OkHttpClient): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(BuildConfig.BASE_URL_BACKEND)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideTokenDialogflowService(@Named("backend") backendRetrofit: Retrofit): TokenDialogflowService {
+        return backendRetrofit.create(TokenDialogflowService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGeminiApiService(@Named("backend") backendRetrofit: Retrofit): GeminiApiService {
+        return backendRetrofit.create(GeminiApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSendEmailService(@Named("backend") backendRetrofit: Retrofit): SendEmailService {
+        return backendRetrofit.create(SendEmailService::class.java)
     }
 
     // Resource Provider

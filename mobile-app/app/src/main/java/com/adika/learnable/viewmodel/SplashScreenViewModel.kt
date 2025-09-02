@@ -18,7 +18,6 @@ class SplashViewModel @Inject constructor(
         private const val STUDENT = "student"
         private const val TEACHER = "teacher"
         private const val PARENT = "parent"
-        private const val DISABILITY_SELECTION = "disability_selection"
         private const val STUDENT_DASHBOARD = "student_dashboard"
         private const val PARENT_DASHBOARD = "parent_dashboard"
         private const val TEACHER_DASHBOARD = "teacher_dashboard"
@@ -37,11 +36,7 @@ class SplashViewModel @Inject constructor(
 
                 when (user.role) {
                     STUDENT -> {
-                        if (user.disabilityType == null) {
-                            _navigationEvent.value = DISABILITY_SELECTION
-                        } else {
-                            _navigationEvent.value = STUDENT_DASHBOARD
-                        }
+                        _navigationEvent.value = STUDENT_DASHBOARD
                     }
 
                     TEACHER -> {
@@ -59,6 +54,7 @@ class SplashViewModel @Inject constructor(
                             _navigationEvent.value = ADMIN_CONFIRMATION
                         }
                     }
+
                     else -> _navigationEvent.value = LOGIN
                 }
             } catch (e: Exception) {

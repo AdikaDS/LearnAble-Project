@@ -54,7 +54,19 @@ class SplashActivity : AppCompatActivity() {
     private fun navigateToMainWithDestination(destination: String) {
         startActivity(
             Intent(this, MainActivity::class.java).apply {
-                putExtra("destination", destination)
+                // Jika ini forwarding dari deeplink, jangan kirim "destination" agar tidak override
+                val fromDeeplink = intent?.getBooleanExtra("from_deeplink", false) == true
+                if (!fromDeeplink) {
+                    putExtra("destination", destination)
+                }
+                // forward extras dari deeplink jika ada
+                intent?.let { source ->
+                    if (source.getBooleanExtra("from_deeplink", false)) {
+                        putExtra("from_deeplink", true)
+                        putExtra("email_action_mode", source.getStringExtra("email_action_mode"))
+                        putExtra("oobCode", source.getStringExtra("oobCode"))
+                    }
+                }
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             }
         )

@@ -1,12 +1,14 @@
 package com.adika.learnable.view
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import com.adika.learnable.NavGraphDirections
 import com.adika.learnable.R
 import com.adika.learnable.databinding.ActivityMainBinding
 import com.adika.learnable.model.Lesson
@@ -29,7 +31,6 @@ class MainActivity : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
 
     companion object {
-        private const val DISABILITY_SELECTION = "disability_selection"
         private const val STUDENT_DASHBOARD = "student_dashboard"
         private const val PARENT_DASHBOARD = "parent_dashboard"
         private const val TEACHER_DASHBOARD = "teacher_dashboard"
@@ -43,8 +44,12 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setupNavigation()
-//        upQuiz()
-        handleDestination()
+        // Jika datang dari deeplink, jangan override dengan handleDestination()
+        val cameFromDeeplink = intent.getBooleanExtra("from_deeplink", false)
+        handleEmailActionDeepLink(intent)
+        if (!cameFromDeeplink) {
+            handleDestination()
+        }
     }
 
     override fun attachBaseContext(newBase: Context) {
@@ -297,24 +302,21 @@ class MainActivity : AppCompatActivity() {
                 difficulty = "easy",
                 duration = 30,
                 schoolLevel = "sd",
-                idSubject = "science",
-                disabilityTypes = listOf("Tunanetra")
+                idSubject = "science"
             ), Lesson(
                 title = "Belajar Membaca",
                 content = "Bab ini mengajarkan cara membaca dengan metode yang mudah dipahami.",
                 difficulty = "medium",
                 duration = 60,
                 schoolLevel = "sd",
-                idSubject = "bahasaIndonesia",
-                disabilityTypes = listOf("Tunarungu"),
+                idSubject = "bahasaIndonesia"
             ), Lesson(
                 title = "Pengenalan Matematika Dasar",
                 content = "Bab ini membahas tentang konsep dasar matematika seperti penjumlahan, pengurangan, perkalian, dan pembagian.",
                 difficulty = "easy",
                 duration = 45,
                 schoolLevel = "sd",
-                idSubject = "math",
-                disabilityTypes = listOf("Tunarungu", "Tunanetra"),
+                idSubject = "math"
             )
         )
 
@@ -323,6 +325,31 @@ class MainActivity : AppCompatActivity() {
             val lessonWithId = lesson.copy(id = docRef.id)
             docRef.set(lessonWithId)
         }
+    }
+
+    /** Baca extras dari DeepLinkActivity dan arahkan ke ResetPasswordFragment */
+    private fun handleEmailActionDeepLink(intent: Intent) {
+        val fromDeeplink = intent.getBooleanExtra("from_deeplink", false)
+        if (!fromDeeplink) return
+
+        val mode = intent.getStringExtra("email_action_mode")
+        val oob = intent.getStringExtra("oobCode")
+
+        if (mode == "resetPassword" && !oob.isNullOrEmpty()) {
+            // Pastikan NavHost sudah siap
+            try {
+                val action = NavGraphDirections.actionGlobalResetPasswordFragment(oob)
+                navController.navigate(action)
+            } catch (e: Exception) {
+                // Kalau mau, log error atau tunda sampai nav ready
+                Log.e("MainActivity", "DeepLink nav error: ${e.message}")
+            }
+        }
+
+        // Optional: hapus flag supaya tidak dinavigasi ulang saat rotate
+        intent.removeExtra("from_deeplink")
+        intent.removeExtra("email_action_mode")
+        intent.removeExtra("oobCode")
     }
 
     private fun setupNavigation() {
@@ -344,10 +371,6 @@ class MainActivity : AppCompatActivity() {
         if (destination != null) {
             try {
                 when (destination) {
-                    DISABILITY_SELECTION -> {
-                        navController.navigate(R.id.disabilitySelectionFragment)
-                    }
-
                     ADMIN_CONFIRMATION -> {
                         navController.navigate(R.id.adminConfirmationFragment)
                     }
