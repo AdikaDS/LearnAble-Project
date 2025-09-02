@@ -14,18 +14,12 @@ class LessonRepository @Inject constructor(
 ) {
     private val lessonsCollection = firestore.collection("lessons")
 
-    suspend fun getLessonsBySubjectAndDisabilityType(
-        idSubject: String,
-        disabilityType: String
+    suspend fun getLessonsBySubject(
+        idSubject: String
     ): List<Lesson> {
-        Log.d(
-            "LessonRepository",
-            "Getting lessons for subject: $idSubject, disability: $disabilityType"
-        )
         try {
             val lessonSnapshot = lessonsCollection
                 .whereEqualTo("idSubject", idSubject)
-                .whereArrayContains("disabilityTypes", disabilityType)
                 .get()
                 .await()
 
@@ -42,13 +36,10 @@ class LessonRepository @Inject constructor(
 
     suspend fun searchLessons(
         query: String,
-        disabilityType: String,
         idSubject: String
     ): List<Lesson> {
         try {
             var lessonQuery: Query = lessonsCollection
-
-            lessonQuery = lessonQuery.whereArrayContains("disabilityTypes", disabilityType)
 
             lessonQuery = lessonQuery.whereEqualTo("idSubject", idSubject)
 

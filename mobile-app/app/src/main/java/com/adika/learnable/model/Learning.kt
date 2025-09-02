@@ -65,9 +65,8 @@ data class Lesson(
     val duration: Int = 0, // Durasi dalam menit
     val difficulty: String = "", // "easy", "medium", "hard"
     val prerequisites: List<String> = listOf(), // ID materi yang harus diselesaikan sebelumnya
-    val disabilityTypes: List<String> = listOf(), // Tipe disabilitas yang didukung ("tunarungu", "tunanetra")
     val subBab: List<SubBab> = listOf(), // List of sub-bab
-    val teacherId: String = "" // ID dari teacher yang membuat lesson
+    val teacherId: String? = null // ID dari teacher yang membuat lesson
 )
 
 // Model untuk sub bab materi
@@ -78,10 +77,10 @@ data class SubBab(
     val title: String = "",
     val content: String = "",
     val duration: Int = 0, // Durasi dalam menit
-    val mediaUrls: Map<String, String> = mapOf( // URL media untuk setiap tipe disabilitas
-        "video" to "", // URL video bahasa isyarat
-        "audio" to "", // URL deskripsi audio
-        "pdfLesson" to "" // Url Materi berbentuk PDF
+    val mediaUrls: Map<String, String> = mapOf( // URL media
+        "video" to "",
+        "audio" to "",
+        "pdfLesson" to ""
     )
 ) : Parcelable
 

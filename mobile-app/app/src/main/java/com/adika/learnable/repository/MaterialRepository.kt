@@ -2,6 +2,7 @@ package com.adika.learnable.repository
 
 import android.media.MediaMetadataRetriever
 import android.util.Log
+import com.adika.learnable.BuildConfig
 import com.adika.learnable.model.AudioResource
 import com.adika.learnable.model.PdfResource
 import com.adika.learnable.model.VideoResource
@@ -25,7 +26,6 @@ class MaterialRepository @Inject constructor(
     private val audioCollection = firestore.collection("audio_resource")
     private val pdfCollection = firestore.collection("pdf_resource")
     private val subBabCollection = firestore.collection("sub_bab")
-    private val bucketName: String = "learnable-lessons-bucket"
 
     private fun generateUniqueObjectKey(type: MaterialType, originalFileName: String): String {
         val timestamp = System.currentTimeMillis()
@@ -86,7 +86,7 @@ class MaterialRepository @Inject constructor(
 
     private fun generateS3Url(objectKey: String): String {
         return try {
-            val url = s3Client.getUrl(bucketName, objectKey).toString()
+            val url = s3Client.getUrl(BuildConfig.S3_BUCKET_NAME, objectKey).toString()
             Log.d("MaterialRepository", "Generated S3 URL: $url")
             url
         } catch (e: Exception) {
@@ -98,7 +98,7 @@ class MaterialRepository @Inject constructor(
     private suspend fun uploadToS3(file: File, objectKey: String) {
         return withContext(Dispatchers.IO) {
             try {
-                s3Client.putObject(PutObjectRequest(bucketName, objectKey, file))
+                s3Client.putObject(PutObjectRequest(BuildConfig.S3_BUCKET_NAME, objectKey, file))
                 Log.d("MaterialRepository", "S3 upload completed successfully")
             } catch (e: Exception) {
                 Log.e("MaterialRepository", "S3 upload failed", e)
@@ -107,13 +107,49 @@ class MaterialRepository @Inject constructor(
         }
     }
 
+    private suspend fun deleteFromS3(objectKey: String) {
+        return withContext(Dispatchers.IO) {
+            try {
+                s3Client.deleteObject(BuildConfig.S3_BUCKET_NAME, objectKey)
+                Log.d("MaterialRepository", "S3 delete completed successfully")
+            } catch (e: Exception) {
+                Log.e("MaterialRepository", "S3 delete failed", e)
+                throw Exception("Gagal delete dari S3: ${e.message}")
+            }
+        }
+    }
+
+    private suspend fun getExistingObjectKey (type: MaterialType, id: String): String? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val docSnapshot = when (type) {
+                    MaterialType.VIDEO -> videoCollection.document(id).get().await()
+                    MaterialType.AUDIO -> audioCollection.document(id).get().await()
+                    MaterialType.PDF -> pdfCollection.document(id).get().await()
+                }
+
+                if (!docSnapshot.exists()) return@withContext null
+
+                when (type) {
+                    MaterialType.VIDEO -> docSnapshot.toObject(VideoResource::class.java)?.objectKey
+                    MaterialType.AUDIO -> docSnapshot.toObject(AudioResource::class.java)?.objectKey
+                    MaterialType.PDF -> docSnapshot.toObject(PdfResource::class.java)?.objectKey
+                }
+            } catch (e: Exception) {
+                Log.e("Material Repository", "Gagal memuat object lama", e)
+                null
+            }
+        }
+    }
+
     private suspend fun uploadMaterial(
         file: File,
         title: String,
         subBabId: String,
-        type: MaterialType
+        type: MaterialType,
+        existingMaterialId: String? = null
     ): Any {
-        Log.d("MaterialRepository", "Mulai upload ${type.name.lowercase()}: ${file.name}")
+        Log.d("MaterialRepository", "Mulai upload ${type.name.lowercase()}: ${file.name}, existingID = $existingMaterialId")
         validateFileFormat(file, type)
 
         return withContext(Dispatchers.IO) {
@@ -122,6 +158,13 @@ class MaterialRepository @Inject constructor(
                     throw FileNotFoundException("File tidak ditemukan: ${file.absolutePath}")
                 }
 
+                if (existingMaterialId != null) {
+                    val oldObjectKey = getExistingObjectKey(type, existingMaterialId)
+                    if (!oldObjectKey.isNullOrEmpty()) {
+                        Log.d("MaterialRepository", "Menghapus file lama di S3: $oldObjectKey")
+                        deleteFromS3(oldObjectKey)
+                    }
+                }
                 val objectKey = generateUniqueObjectKey(type, file.name)
                 Log.d("MaterialRepository", "Generated object key: $objectKey")
 
@@ -146,22 +189,22 @@ class MaterialRepository @Inject constructor(
 
                 // Simpan ke Firestore
                 Log.d("MaterialRepository", "Saving ${type.name.lowercase()} resource to Firestore...")
-                val resource = when (type) {
-                    MaterialType.VIDEO -> VideoResource(id = "", title = title, bucketName = bucketName, objectKey = objectKey, duration = duration)
-                    MaterialType.AUDIO -> AudioResource(id = "", title = title, bucketName = bucketName, objectKey = objectKey, duration = duration)
-                    MaterialType.PDF -> PdfResource(id = "", title = title, bucketName = bucketName, objectKey = objectKey)
+                val newResource = when (type) {
+                    MaterialType.VIDEO -> VideoResource(id = "", title = title, bucketName = BuildConfig.S3_BUCKET_NAME, objectKey = objectKey, duration = duration)
+                    MaterialType.AUDIO -> AudioResource(id = "", title = title, bucketName = BuildConfig.S3_BUCKET_NAME, objectKey = objectKey, duration = duration)
+                    MaterialType.PDF -> PdfResource(id = "", title = title, bucketName = BuildConfig.S3_BUCKET_NAME, objectKey = objectKey)
                 }
 
                 val docRef = when (type) {
-                    MaterialType.VIDEO -> videoCollection.document()
-                    MaterialType.AUDIO -> audioCollection.document()
-                    MaterialType.PDF -> pdfCollection.document()
+                    MaterialType.VIDEO -> if (!existingMaterialId.isNullOrBlank()) videoCollection.document(existingMaterialId) else videoCollection.document()
+                    MaterialType.AUDIO -> if (!existingMaterialId.isNullOrBlank()) audioCollection.document(existingMaterialId) else audioCollection.document()
+                    MaterialType.PDF -> if (!existingMaterialId.isNullOrBlank()) pdfCollection.document(existingMaterialId) else pdfCollection.document()
                 }
 
-                val finalResource = when(resource) {
-                    is VideoResource -> resource.copy(id = docRef.id)
-                    is AudioResource -> resource.copy(id = docRef.id)
-                    is PdfResource -> resource.copy(id = docRef.id)
+                val finalResource = when(newResource) {
+                    is VideoResource -> newResource.copy(id = docRef.id)
+                    is AudioResource -> newResource.copy(id = docRef.id)
+                    is PdfResource -> newResource.copy(id = docRef.id)
                 }
 
                 docRef.set(finalResource).await()

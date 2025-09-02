@@ -1,5 +1,6 @@
 package com.adika.learnable.repository
 
+import android.util.Log
 import com.adika.learnable.model.User
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
@@ -13,6 +14,15 @@ class UserParentRepository @Inject constructor(
     private val usersCollection = firestore.collection("users")
 
     suspend fun connectStudentWithParent(studentId: String, parentId: String) {
+        // Check if student already has a parent
+        val studentDoc = usersCollection.document(studentId).get().await()
+        val student = studentDoc.toObject(User::class.java)
+            ?: throw Exception("Student not found")
+        
+        if (student.parentId?.isNotBlank() == true) {
+            throw Exception("Student already has a parent")
+        }
+
         // Update student document with parent ID
         usersCollection.document(studentId)
             .update("parentId", parentId)
@@ -34,12 +44,30 @@ class UserParentRepository @Inject constructor(
 
     }
 
+    suspend fun checkStudentsAvailability(studentIds: List<String>): List<String> {
+        val unavailableStudents = mutableListOf<String>()
+        
+        for (studentId in studentIds) {
+            val studentDoc = usersCollection.document(studentId).get().await()
+            val student = studentDoc.toObject(User::class.java)
+                ?: continue
+            
+            if (student.parentId?.isNotBlank() == true) {
+                unavailableStudents.add(student.name)
+            }
+        }
+        
+        return unavailableStudents
+    }
+
     suspend fun getStudentsByParentId(parentId: String): List<User> {
         val students = usersCollection
             .whereEqualTo("parentId", parentId)
             .get()
             .await()
-        return students.toObjects(User::class.java)
+        return students.documents.mapNotNull { doc ->
+            doc.toObject(User::class.java)?.copy(id = doc.id)
+        }
     }
 
     suspend fun getParentByStudentId(studentId: String): User? {
@@ -63,9 +91,33 @@ class UserParentRepository @Inject constructor(
             .await()
 
         return if (studentQuery.documents.isNotEmpty()) {
-            studentQuery.documents[0].toObject(User::class.java)
+            studentQuery.documents[0].toObject(User::class.java)?.copy(id = studentQuery.documents[0].id)
         } else {
             null
+        }
+    }
+
+    /**
+     * Hybrid search: fetch students (role == "student") and filter by name contains query (case-insensitive).
+     * This avoids composite index requirements on Firestore while remaining reasonably efficient for small datasets.
+     */
+    suspend fun searchStudentByNameHybrid(query: String): List<User> {
+        val trimmed = query.trim()
+        if (trimmed.isEmpty()) return emptyList()
+
+        return try {
+            val snapshot = usersCollection
+                .whereEqualTo("role", "student")
+                .get()
+                .await()
+
+            val lower = trimmed.lowercase()
+            snapshot.documents.mapNotNull { doc ->
+                doc.toObject(User::class.java)?.copy(id = doc.id)
+            }.filter { it.name.lowercase().contains(lower) }
+        } catch (e: Exception) {
+            Log.e("UserParentRepository", "Failed searching students", e)
+            emptyList()
         }
     }
 }

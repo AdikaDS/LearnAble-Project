@@ -47,7 +47,7 @@
             tools:text="john.doe@example.com" />
 
         <TextView
-            android:id="@+id/tvDisabilityType"
+            android:id="@+id/tvNomorInduk"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"

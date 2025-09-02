@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "854871060006-vskduvae4mq6gt70qe39ur97j6ql2rqj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.adika.learnable",
+            "certificate_hash": "60014225e1d4c0c39f27e934e6c5bd8f709b2014"
+          }
+        },
+        {
           "client_id": "854871060006-vripgl49aajbp30kmp69fjnoen3hsi25.apps.googleusercontent.com",
           "client_type": 3
         }

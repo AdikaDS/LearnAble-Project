@@ -22,10 +22,12 @@ android {
         buildConfigField("String", "BASE_URL_IMGUR_API", "\"https://api.imgur.com/3/\"")
         buildConfigField("String", "BASE_URL_TRANSCRIPTION_API", "\"http://192.168.0.108:8000/\"")
         buildConfigField("String", "BASE_URL_RESEND_API", "\"https://api.resend.com/\"")
-//        https://learnable-whisper-api-app.azurewebsites.net/
+        buildConfigField("String", "BASE_URL_BACKEND", "\"https://learnable-project.onrender.com/\"")
+        buildConfigField("String", "BASE_URL_DIALOGFLOW", "\"https://dialogflow.googleapis.com/\"")
         buildConfigField("String", "IMGUR_CLIENT_ID", "\"0084c0adcd8d6f2\"")
         buildConfigField("String", "AWS_ACCESS_KEY", "\"AKIAXFKVXH4LEZAU6VP7\"")
         buildConfigField("String", "AWS_SECRET_KEY", "\"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\"")
+        buildConfigField("String", "S3_BUCKET_NAME", "\"learnable-lessons-bucket\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -88,6 +90,7 @@ dependencies {
     implementation(libs.hilt.navigation)
     implementation(libs.splash.screen)
     implementation(libs.lottie)
+    implementation(libs.flex.box)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

@@ -33,7 +33,7 @@ class AdminConfirmationViewModel @Inject constructor(
             _approvalState.value = ApprovalState.State(ApprovalState.Status.LOADING)
             authRepository.observeUserData(authRepository.getCurrentUserId())
                 .map { user ->
-                    userRole = user.role
+                    userRole = user.role.toString()
 
                     when (user.role) {
                         "student" -> ApprovalState.State(ApprovalState.Status.APPROVED)

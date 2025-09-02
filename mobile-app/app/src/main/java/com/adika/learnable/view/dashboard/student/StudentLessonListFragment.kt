@@ -49,8 +49,7 @@ class StudentLessonListFragment : Fragment() {
                 val action = StudentLessonListFragmentDirections
                     .actionStudentLessonListFragmentToStudentSubBabDetailFragment(subBab)
                 findNavController().navigate(action)
-            },
-            viewModel = viewModel
+            }
         )
 
         binding.lessonsRecyclerView.apply {
@@ -63,7 +62,6 @@ class StudentLessonListFragment : Fragment() {
         binding.searchEditText.addTextChangedListener { text ->
             viewModel.searchLessons(
                 query = text?.toString() ?: "",
-                disabilityType = arguments?.getString("disabilityType")!!,
                 idSubject = arguments?.getString("idSubject")!!
             )
         }
@@ -106,10 +104,9 @@ class StudentLessonListFragment : Fragment() {
 
     private fun getLesson() {
         val idSubject = arguments?.getString("idSubject")
-        val disabilityType = arguments?.getString("disabilityType")
 
-        if (idSubject != null && disabilityType != null) {
-            viewModel.getLessonsBySubjectAndDisabilityType(idSubject, disabilityType)
+        if (idSubject != null) {
+            viewModel.getLessonsBySubject(idSubject)
         } else {
             showToast(getString(R.string.data_not_completed))
         }

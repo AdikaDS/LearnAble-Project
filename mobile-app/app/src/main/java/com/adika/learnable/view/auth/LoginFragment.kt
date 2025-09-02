@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import android.widget.Toast
 import androidx.credentials.Credential
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
@@ -19,9 +18,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.adika.learnable.R
 import com.adika.learnable.databinding.FragmentLoginBinding
-import com.adika.learnable.util.ValidationResult
 import com.adika.learnable.util.ValidationUtils
-import com.adika.learnable.view.SelectRoleBottomSheet
 import com.adika.learnable.viewmodel.auth.LoginViewModel
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
@@ -58,12 +55,17 @@ class LoginFragment : Fragment() {
 
     private fun setupClickListeners() {
         binding.btnLogin.setOnClickListener {
-            val email = binding.etEmail.text.toString().trim()
-            val password = binding.etPassword.text.toString().trim()
+            clearLoginError()
 
-            if (!validateInputs(email, password)) {
+            val isValid = validateInputs()
+            if (!isValid) {
+                showLoading(false)
+                enableButtons()
                 return@setOnClickListener
             }
+
+            val email = binding.etEmail.getText().trim()
+            val password = binding.etPassword.getText().trim()
 
             showLoading(true)
             disableButtons()
@@ -83,18 +85,6 @@ class LoginFragment : Fragment() {
         binding.tvForgotPassword.setOnClickListener {
             findNavController().navigate(R.id.action_login_to_forgot_password)
         }
-    }
-
-    private fun showRoleBottomSheet(onRoleSelected: (String) -> Unit) {
-        val sheet = SelectRoleBottomSheet(
-            onRoleSelected = onRoleSelected,
-            isFromLogin = true,
-            onCancel = {
-                showLoading(false)
-                enableButtons()
-            }
-        )
-        sheet.show(parentFragmentManager, "SelectRoleBottomSheet")
     }
 
     private fun observeViewModel() {
@@ -121,28 +111,27 @@ class LoginFragment : Fragment() {
             is LoginViewModel.GoogleSignInState.Success ->
                 showLoading(false)
 
-            is LoginViewModel.GoogleSignInState.ShowRoleSelection -> {
+            is LoginViewModel.GoogleSignInState.NeedMoreData -> {
                 showLoading(false)
-                showRoleBottomSheet { selectedRole ->
-                    viewModel.setRole(selectedRole)
-                    viewModel.signInWithStoredToken(selectedRole)
-                }
+                val action = LoginFragmentDirections
+                    .actionSigninToCompleteAdditionalData(
+                        userId = state.user.id,
+                        prefillEmail = state.user.email,
+                        prefillName = state.user.name
+
+                    )
+                findNavController().navigate(action)
             }
 
             is LoginViewModel.LoginState.Error,
             is LoginViewModel.GoogleSignInState.Error -> {
                 showLoading(false)
-                showToast(
-                    (state as? LoginViewModel.LoginState.Error)?.message
-                        ?: (state as? LoginViewModel.GoogleSignInState.Error)?.message
-                        ?: getString(R.string.unknown_error)
-                )
-                enableButtons()
-            }
+                val errorMessage = (state as? LoginViewModel.LoginState.Error)?.message
+                    ?: (state as? LoginViewModel.GoogleSignInState.Error)?.message
+                    ?: getString(R.string.unknown_error)
 
-            is LoginViewModel.NavigationState.NavigateToDisabilitySelection -> {
-                showLoading(false)
-                findNavController().navigate(R.id.action_login_to_disability_selection)
+                showLoginError(errorMessage)
+                enableButtons()
             }
             is LoginViewModel.NavigationState.NavigateToStudentDashboard -> {
                 showLoading(false)
@@ -163,21 +152,27 @@ class LoginFragment : Fragment() {
         }
     }
 
-    private fun validateInputs(email: String, password: String): Boolean {
-        val validationResult = ValidationUtils.validateLoginData(
-            context = requireContext(),
-            email = email,
-            password = password
-        )
-
-        when (validationResult) {
-            is ValidationResult.Invalid -> {
-                showToast(validationResult.message)
-                return false
-            }
-
-            is ValidationResult.Valid -> return true
+    private fun validateInputs(): Boolean {
+        val isEmail = binding.etEmail.validateWith {
+            ValidationUtils.validateEmail(requireContext(), binding.etEmail.getText())
         }
+
+        val isPassword = binding.etPassword.validateWith {
+            ValidationUtils.validatePasswordLogin(requireContext(), binding.etPassword.getText())
+        }
+
+        return isEmail && isPassword
+    }
+
+    private fun clearLoginError() {
+        binding.tvLoginError.visibility = View.GONE
+        binding.etEmail.setError(null)
+        binding.etPassword.setError(null)
+    }
+
+    private fun showLoginError(message: String) {
+        binding.tvLoginError.text = message
+        binding.tvLoginError.visibility = View.VISIBLE
     }
 
 
@@ -209,7 +204,7 @@ class LoginFragment : Fragment() {
     private fun handleSignIn(credential: Credential) {
         if (credential is CustomCredential && credential.type == TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
             val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-            viewModel.checkUserExists(googleIdTokenCredential.idToken)
+            viewModel.signInWithGoogle(googleIdTokenCredential.idToken)
         } else {
             Log.w(TAG, "Kredensial bukan tipe Google ID!")
             showLoading(false)
@@ -258,10 +253,6 @@ class LoginFragment : Fragment() {
     private fun disableButtons() {
         binding.btnLogin.isEnabled = false
         binding.btnGoogleSignIn.isEnabled = false
-    }
-
-    private fun showToast(message: String) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 
     override fun onDestroyView() {

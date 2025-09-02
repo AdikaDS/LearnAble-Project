@@ -36,14 +36,11 @@ class LessonViewModel @Inject constructor(
 
     /// Student ///
     // Bagian untuk Lesson
-    fun getLessonsBySubjectAndDisabilityType(idSubject: String, disabilityType: String) {
+    fun getLessonsBySubject(idSubject: String) {
         viewModelScope.launch {
             _studentState.value = StudentState.Loading
             try {
-                val lessons = lessonRepository.getLessonsBySubjectAndDisabilityType(
-                    idSubject,
-                    disabilityType
-                )
+                val lessons = lessonRepository.getLessonsBySubject(idSubject)
                 Log.d("LessonViewModel", "Retrieved ${lessons.size} lessons")
                 _studentState.value = StudentState.Success(
                     lessons = lessons,
@@ -52,23 +49,27 @@ class LessonViewModel @Inject constructor(
                 )
             } catch (e: Exception) {
                 Log.e("LessonViewModel", "Error getting lessons", e)
-                _studentState.value = StudentState.Error(e.message ?: resourceProvider.getString(R.string.fail_load_lessons))
+                _studentState.value = StudentState.Error(
+                    e.message ?: resourceProvider.getString(R.string.fail_load_lessons)
+                )
             }
         }
     }
 
-    fun searchLessons(query: String, disabilityType: String, idSubject: String) {
+    fun searchLessons(query: String, idSubject: String) {
         viewModelScope.launch {
             _studentState.value = StudentState.Loading
             try {
-                val lessons = lessonRepository.searchLessons(query, disabilityType, idSubject)
+                val lessons = lessonRepository.searchLessons(query, idSubject)
                 _studentState.value = StudentState.Success(
                     lessons = lessons,
                     selectedLesson = null,
                     subBabs = emptyList()
                 )
             } catch (e: Exception) {
-                _studentState.value = StudentState.Error(e.message ?: resourceProvider.getString(R.string.fail_find_lessons))
+                _studentState.value = StudentState.Error(
+                    e.message ?: resourceProvider.getString(R.string.fail_find_lessons)
+                )
             }
         }
     }
@@ -97,7 +98,9 @@ class LessonViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 Log.e("LessonViewModel", "Error loading sub-babs", e)
-                _studentState.value = StudentState.Error(e.message ?: resourceProvider.getString(R.string.fail_load_subbab))
+                _studentState.value = StudentState.Error(
+                    e.message ?: resourceProvider.getString(R.string.fail_load_subbab)
+                )
             }
         }
     }
@@ -115,7 +118,9 @@ class LessonViewModel @Inject constructor(
                     subBabs = emptyList()
                 )
             } catch (e: Exception) {
-                _teacherState.value = TeacherState.Error(e.message ?: resourceProvider.getString(R.string.fail_load_lessons))
+                _teacherState.value = TeacherState.Error(
+                    e.message ?: resourceProvider.getString(R.string.fail_load_lessons)
+                )
             }
         }
     }
@@ -127,7 +132,7 @@ class LessonViewModel @Inject constructor(
                 val newLesson = lessonRepository.addLesson(lesson)
                 onResult(Result.success(newLesson))
                 // Refresh lesson list
-                getLessonsByTeacherId(lesson.teacherId)
+                lesson.teacherId?.let { getLessonsByTeacherId(it) }
             } catch (e: Exception) {
                 onResult(Result.failure(e))
             }
@@ -141,7 +146,7 @@ class LessonViewModel @Inject constructor(
                 lessonRepository.updateLesson(lesson)
                 onResult(Result.success(Unit))
                 // Refresh lesson list
-                getLessonsByTeacherId(lesson.teacherId)
+                lesson.teacherId?.let { getLessonsByTeacherId(it) }
             } catch (e: Exception) {
                 onResult(Result.failure(e))
             }
@@ -227,7 +232,9 @@ class LessonViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 Log.e("LessonViewModel", "Error loading sub-babs", e)
-                _teacherState.value = TeacherState.Error(e.message ?: resourceProvider.getString(R.string.fail_load_subbab))
+                _teacherState.value = TeacherState.Error(
+                    e.message ?: resourceProvider.getString(R.string.fail_load_subbab)
+                )
             }
         }
     }
@@ -237,15 +244,14 @@ class LessonViewModel @Inject constructor(
         viewModelScope.launch {
             _progressState.value = ProgressState.Loading
             try {
-                val progress = studentProgressRepository.getStudentLessonProgress(studentId, lessonId)
+                val progress =
+                    studentProgressRepository.getStudentLessonProgress(studentId, lessonId)
                 _progressState.value = ProgressState.Success(progress)
             } catch (e: Exception) {
                 _progressState.value = ProgressState.Error(e.message ?: "Fail Load progress")
             }
         }
     }
-
-
 
 
     sealed class StudentState {
@@ -266,6 +272,7 @@ class LessonViewModel @Inject constructor(
             val selectedLesson: Lesson? = null,
             val subBabs: List<SubBab> = emptyList()
         ) : TeacherState()
+
         data class Error(val message: String) : TeacherState()
     }
 

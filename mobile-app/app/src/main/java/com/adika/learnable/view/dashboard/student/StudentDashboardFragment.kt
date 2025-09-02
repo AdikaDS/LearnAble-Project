@@ -40,7 +40,7 @@ class StudentDashboardFragment : Fragment() {
         setupSchoolLevelDropdown()
         observeViewModel()
         setupClickListeners()
-        
+
         if (isFirstLoad) {
             viewModel.loadUserData()
             isFirstLoad = false
@@ -62,18 +62,12 @@ class StudentDashboardFragment : Fragment() {
 
             if (state is StudentDashboardViewModel.StudentState.Success) {
                 showLoading(false)
-                val user = state.student
+                val action = StudentDashboardFragmentDirections
+                    .actionStudentDashboardToLessonList(
+                        idSubject = subject.idSubject
+                    )
+                findNavController().navigate(action)
 
-                if (user.disabilityType != null) {
-                    val action = StudentDashboardFragmentDirections
-                        .actionStudentDashboardToLessonList(
-                            idSubject = subject.idSubject,
-                            disabilityType = user.disabilityType
-                        )
-                    findNavController().navigate(action)
-                } else {
-                    showToast(getString(R.string.pick_disability))
-                }
             } else {
                 showToast(getString(R.string.fail_load_user_data))
             }
@@ -88,6 +82,11 @@ class StudentDashboardFragment : Fragment() {
     private fun setupClickListeners() {
         binding.btnEditProfile.setOnClickListener {
             findNavController().navigate(R.id.action_studentDashboard_to_editProfile)
+        }
+
+        binding.btnChatbot.setOnClickListener {
+            showLoading(true)
+            findNavController().navigate(R.id.action_studentDashboardFragment_to_chatbotFragment)
         }
     }
 
@@ -137,6 +136,7 @@ class StudentDashboardFragment : Fragment() {
             is StudentDashboardViewModel.StudentState.Loading -> {
                 showLoading(true)
             }
+
             is StudentDashboardViewModel.SubjectState.Loading -> {
                 showLoading(true)
             }
@@ -146,7 +146,6 @@ class StudentDashboardFragment : Fragment() {
                 state.student.let { student ->
                     binding.tvName.text = student.name
                     Log.d("StudentDashboard", "User loaded: $student")
-                    Log.d("StudentDashboard", "Disability type: ${student.disabilityType}")
                 }
             }
 

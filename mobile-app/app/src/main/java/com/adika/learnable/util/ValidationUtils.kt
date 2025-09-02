@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.Patterns
 import android.widget.EditText
 import com.adika.learnable.R
-import com.adika.learnable.model.User
 import com.google.android.material.textfield.TextInputLayout
 
 object ValidationUtils {
@@ -24,32 +23,16 @@ object ValidationUtils {
         }
     }
 
-    fun validateDisabilitySelection(
-        context: Context,
-        inputLayout: TextInputLayout,
-        selectedTag: Any?,
-        fieldType: FieldType
-    ): Boolean {
-        return if ((selectedTag as? List<*>)?.isEmpty() != false) {
-            inputLayout.error = context.getString(fieldType.errorResId)
-            false
-        } else {
-            inputLayout.error = null
-            true
-        }
-    }
-
     enum class FieldType(val errorResId: Int) {
         TITLE(R.string.title_required),
         CONTENT(R.string.content_required),
         DURATION(R.string.duration_required),
-        DISABILITY(R.string.type_disability_required),
         SUBJECT(R.string.subject_required),
         SCHOOL_LEVEL(R.string.school_level_required),
         DIFFICULTY(R.string.difficulty_required)
     }
 
-    private fun validateName(context: Context, name: String): ValidationResult {
+    fun validateName(context: Context, name: String): ValidationResult {
         return when {
             name.isBlank() -> ValidationResult.Invalid(context.getString(R.string.name_required))
             else -> ValidationResult.Valid
@@ -68,6 +51,36 @@ object ValidationUtils {
         return when {
             phone.isBlank() -> ValidationResult.Invalid(context.getString(R.string.phone_required))
             !isValidPhone(phone) -> ValidationResult.Invalid(context.getString(R.string.phone_invalid))
+            else -> ValidationResult.Valid
+        }
+    }
+
+    fun validatePasswordLogin(context: Context, password: String): ValidationResult {
+        return when {
+            password.isBlank() -> ValidationResult.Invalid(context.getString(R.string.password_required))
+            else -> ValidationResult.Valid
+        }
+    }
+
+    fun validateNISN(context: Context, nisn: String): ValidationResult {
+        return when {
+            nisn.isBlank() -> ValidationResult.Invalid(context.getString(R.string.nisn_required))
+            !isNISN(nisn) -> ValidationResult.Invalid(context.getString(R.string.nisn_invalid))
+            else -> ValidationResult.Valid
+        }
+    }
+
+    fun validateRole(context: Context, role: String): ValidationResult {
+        return when {
+            role.isBlank() -> ValidationResult.Invalid(context.getString(R.string.role_required))
+            else -> ValidationResult.Valid
+        }
+    }
+
+    fun validateNIP(context: Context, nip: String): ValidationResult {
+        return when {
+            nip.isBlank() -> ValidationResult.Invalid(context.getString(R.string.nip_required))
+            !isNIP(nip) -> ValidationResult.Invalid(context.getString(R.string.nip_invalid))
             else -> ValidationResult.Valid
         }
     }
@@ -103,7 +116,7 @@ object ValidationUtils {
         }
     }
 
-    private fun validateConfirmPassword(
+    fun validateConfirmPassword(
         context: Context,
         password: String,
         confirmPassword: String
@@ -115,58 +128,6 @@ object ValidationUtils {
         }
     }
 
-    fun validateUserData(context: Context, user: User): ValidationResult {
-        val nameValidation = validateName(context, user.name)
-        if (nameValidation is ValidationResult.Invalid) return nameValidation
-
-        val emailValidation = validateEmail(context, user.email)
-        if (emailValidation is ValidationResult.Invalid) return emailValidation
-
-        val phoneValidation = validatePhone(context, user.phone)
-        if (phoneValidation is ValidationResult.Invalid) return phoneValidation
-
-        return ValidationResult.Valid
-    }
-
-
-    fun validateLoginData(
-        context: Context,
-        email: String,
-        password: String,
-        minPasswordLength: Int = 8
-    ): ValidationResult {
-        val emailValidation = validateEmail(context, email)
-        if (emailValidation is ValidationResult.Invalid) return emailValidation
-
-        val passwordValidation = validatePassword(context, password, minPasswordLength)
-        if (passwordValidation is ValidationResult.Invalid) return passwordValidation
-
-        return ValidationResult.Valid
-    }
-
-    fun validateSignupData(
-        context: Context,
-        name: String,
-        email: String,
-        password: String,
-        confirmPassword: String,
-        minPasswordLength: Int = 8
-    ): ValidationResult {
-        val nameValidation = validateName(context, name)
-        if (nameValidation is ValidationResult.Invalid) return nameValidation
-
-        val emailValidation = validateEmail(context, email)
-        if (emailValidation is ValidationResult.Invalid) return emailValidation
-
-        val passwordValidation = validatePassword(context, password, minPasswordLength)
-        if (passwordValidation is ValidationResult.Invalid) return passwordValidation
-
-        val confirmPasswordValidation = validateConfirmPassword(context, password, confirmPassword)
-        if (confirmPasswordValidation is ValidationResult.Invalid) return confirmPasswordValidation
-
-        return ValidationResult.Valid
-    }
-
     private fun isValidEmail(email: String): Boolean {
         return Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
@@ -174,5 +135,13 @@ object ValidationUtils {
     private fun isValidPhone(phone: String): Boolean {
         val phoneRegex = "^(0|\\+62)[0-9]{9,12}$"
         return phone.matches(phoneRegex.toRegex())
+    }
+
+    private fun isNISN(nisn: String): Boolean {
+        return nisn.length == 10 && nisn.all { it.isDigit() }
+    }
+
+    private fun isNIP(nip: String): Boolean {
+        return nip.length in 8..18 && nip.all { it.isDigit() }
     }
 }

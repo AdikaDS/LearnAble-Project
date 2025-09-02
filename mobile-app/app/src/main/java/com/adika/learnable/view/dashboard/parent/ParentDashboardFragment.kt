@@ -66,10 +66,7 @@ class ParentDashboardFragment : Fragment() {
         }
 
         binding.btnConnectStudent.setOnClickListener {
-            val studentEmail = binding.etStudentEmail.text.toString()
-            if (validateEmail(studentEmail)) {
-                viewModel.connectStudent(studentEmail)
-            }
+
         }
     }
 

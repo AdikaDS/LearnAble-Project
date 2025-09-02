@@ -1,4 +1,4 @@
-package com.adika.learnable.view.auth
+package com.adika.learnable.view.auth.resetpassword
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,7 +10,6 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.adika.learnable.R
 import com.adika.learnable.databinding.FragmentForgotPasswordBinding
-import com.adika.learnable.util.ValidationResult
 import com.adika.learnable.util.ValidationUtils
 import com.adika.learnable.viewmodel.auth.ForgotPasswordViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -34,12 +33,13 @@ class ForgotPasswordFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupClickListeners()
         observeViewModel()
+        dialogListener()
     }
 
     private fun setupClickListeners() {
         binding.btnResetPassword.setOnClickListener {
-            val email = binding.etEmail.text.toString().trim()
-            if (validateEmail(email)) {
+            val email = binding.etEmail.getText().trim()
+            if (validateEmail()) {
                 viewModel.resetPassword(email)
             }
         }
@@ -55,11 +55,11 @@ class ForgotPasswordFragment : Fragment() {
                 is ForgotPasswordViewModel.ResetState.Loading -> showLoading(true)
                 is ForgotPasswordViewModel.ResetState.Success -> {
                     showLoading(false)
-                    showToast(
-                        getString(R.string.reset_password)
-                    )
-                    findNavController().navigate(R.id.action_forgot_password_to_login)
+                    EmailSentDialogFragment
+                        .newInstance(state.email)
+                        .show(childFragmentManager, EmailSentDialogFragment.TAG)
                 }
+
                 is ForgotPasswordViewModel.ResetState.Error -> {
                     showLoading(false)
                     showToast(state.message)
@@ -68,19 +68,25 @@ class ForgotPasswordFragment : Fragment() {
         }
     }
 
-    private fun validateEmail (email: String) : Boolean {
-        val validationResult = ValidationUtils.validateEmail(
-            context = requireContext(),
-            email = email
-        )
-
-        when (validationResult) {
-            is ValidationResult.Invalid -> {
-                showToast(validationResult.message)
-                return false
+    private fun dialogListener() {
+        childFragmentManager.setFragmentResultListener(
+            EmailSentDialogFragment.REQ, viewLifecycleOwner
+        ) { _, bundle ->
+            when (bundle.getString(EmailSentDialogFragment.ACTION)) {
+                "resend" -> viewModel.resendResetEmail()              // panggil ulang
+                "change" -> binding.etEmail.requestFocus()            // arahkan ke form email
+                "close" -> { findNavController().navigate(R.id.action_forgot_password_to_login) }
             }
-            is ValidationResult.Valid -> return true
         }
+
+    }
+
+    private fun validateEmail(): Boolean {
+        val isEmail = binding.etEmail.validateWith {
+            ValidationUtils.validateEmail(requireContext(), binding.etEmail.getText())
+        }
+
+        return isEmail
     }
 
     private fun showLoading(isLoading: Boolean) {

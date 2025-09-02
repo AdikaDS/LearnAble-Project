@@ -8,19 +8,31 @@
     <string name="full_name">Nama Lengkap</string>
     <string name="email" translatable="false">Email</string>
     <string name="password">Kata Sandi</string>
-    <string name="role">Pilih Role</string>
+    <string name="nisn" translatable="false">NISN (10 digit)</string>
+    <string name="nip" translatable="false">NIP</string>
+    <string name="role">Pilih Peran</string>
     <string name="sign_up">Daftar</string>
     <string name="or">ATAU</string>
     <string name="sign_up_with_google">Daftar dengan Google</string>
     <string name="already_have_account">Sudah punya akun?</string>
     <string name="login">Masuk</string>
+    <string name="login_information1">Silakan Masuk</string>
+    <string name="login_information2">Isi alamat email dan kata sandi untuk masuk</string>
+    <string name="signup_information1">Silakan Daftar</string>
+    <string name="signup_information2">Silahkan daftar dengan mengisi beberapa informasi dengan benar</string>
     <string name="create_new_account">Buat Akun</string>
     <string name="confirm_password">Konfirmasi Kata Sandi</string>
 
     <string name="forget_password">Lupa Kata Sandi?</string>
     <string name="login_with_google">Masuk dengan Google</string>
-    <string name="dont_have_account">Tidak memiliki akun?</string>
+    <string name="dont_have_account">Belum punya akun? Silakan</string>
     <string name="reset_password">Link reset password telah dikirim ke email Anda</string>
+    <string name="header_reset_password">Atur Ulang Password</string>
+    <string name="description_reset_password">Masukkan email Anda untuk menerima link reset password</string>
+    <string name="remember_password">Ingat kata sandi? Silakan</string>
+    <string name="send">Kirim</string>
+    <string name="description_new_password">Silahkan isi kata sandi yang baru untuk akun anda</string>
+    <string name="reset">Mengatur Ulang</string>
     <string name="logout">Keluar</string>
 
     <!-- Validation Messages -->
@@ -36,6 +48,11 @@
     <string name="password_match">Password Tidak Cocok</string>
     <string name="phone_invalid">Nomor telepon tidak valid</string>
     <string name="phone_required">Nomor telepon tidak boleh kosong</string>
+    <string name="role_required">Pilih peran terlebih dahulu</string>
+    <string name="nisn_required">NISN tidak boleh kosong</string>
+    <string name="nisn_invalid">NISN harus terdiri dari 10 digit angka</string>
+    <string name="nip_required">NIP tidak boleh kosong</string>
+    <string name="nip_invalid">NIP harus terdiri dari 8–18 digit angka</string>
 
 
     <!-- Firebase Error Messages -->
@@ -43,7 +60,7 @@
     <string name="password_invalid">Password tidak valid</string>
     <string name="email_exist">Email sudah terdaftar</string>
     <string name="network_error">Terjadi kesalahan jaringan</string>
-    <string name="invalid_credential">Kredensial tidak valid</string>
+    <string name="invalid_credential">Email atau kata sandi salah</string>
     <string name="too_many_attempts">Terlalu banyak percobaan, silakan coba lagi nanti</string>
     <string name="user_disabled">Akun telah dinonaktifkan</string>
 
@@ -53,17 +70,28 @@
     <string name="verify_email_failed">Gagal mengirim email verifikasi</string>
     <string name="auth_failed">Autentikasi gagal</string>
     <string name="signup_failed">Pendaftaran gagal</string>
-    <string name="signup_success">Pendaftaran berhasil. Silahkan verifikasi email terlebih dahul!</string>
+    <string name="signup_success">Pendaftaran berhasil. Silakan verifikasi email terlebih dahul!</string>
     <string name="profile_update_failed">Gagal memperbarui profil</string>
     <string name="credential_error">Terjadi kesalahan pada kredensial</string>
     <string name="login_failed">Login gagal</string>
     <string name="email_doesnt_exist">Email tidak terdaftar</string>
     <string name="unknown_error">Terjadi permasalahan yang tidak diketahui</string>
+    <string name="login_credentials_error">Email atau kata sandi salah</string>
     <string name="password_update_success">Kata sandi berhasil diperbarui</string>
     <string name="password_update_failed">Kata sandi gagal diperbarui</string>
+    <string name="reset_code_invalid">Kode reset tidak valid</string>
+    <string name="reset_code_expired">Kode reset sudah kadaluarsa</string>
     <string name="pick_disability">Silakan pilih tipe disabilitas terlebih dahulu</string>\
     <string name="fail_load_user_data">Data user belum dimuat</string>
-
+    <string name="email_sent">Email Terkirim!</string>
+    <string name="email_sent_desc">Link atur ulang kata sandi sudah dikirim ke email %1$s. Silhakan periksa kotak masuk anda dan ikuti instruksinya!</string>
+    <string name="didnt_get_the_email">Tidak mendapatkan email?</string>
+    <string name="send_email_again">Kirim Ulang Email</string>
+    <string name="wrong_email">Alamat Email Salah?</string>
+    <string name="change_email">Ganti Alamat Email</string>
+    <string name="password_successfully_change">Kata sandi berhasil diperbarui!</string>
+    <string name="password_successfully_change_desc">Silahkan kembali ke halaman Masuk</string>
+    <string name="back_to_login">Kembali Ke Halaman Masuk</string>"
 
     <!--Keterangan-keterangan-->
     <string name="duration_learning">%1$d menit</string>
@@ -100,11 +128,21 @@
     <string name="succes_delete_subbab">Sub Bab berhasil dihapus</string>
     <string name="fail_delete_subbab">Gagal menghapus Sub Bab: %1$s</string>
     <string name="succes_save_disability">Berhasil menyimpan tipe disabilitas</string>
-    
+    <string name="type_question_here">Ketik pertanyaanmu disini</string>
+    <string name="password_too_weak">Kata sandi terlalu lemah. Gunakan kombinasi huruf besar/kecil, angka, dan simbol (min. 8 karakter).</string>
+
     <string name="exit_app">Keluar Aplikasi</string>
     <string name="confirm_exit_app">Apakah Anda yakin ingin keluar?</string>
     <string name="yes">Ya</string>
     <string name="no">No</string>
+
+    <!--Text View-->
+    <string name="children_name">Nama Anak</string>
+    <string name="full_children_name">Nama Lengkap Anak</string>
+    <string name="add_child">Tambah Anak +</string>
+    <string name="children1">Anak 1</string>
+    <string name="search_student_hint">Cari nama siswa</string>
+    <string name="added_child">Ditambahkan: %1$s</string>
 
     <!--Keterangan ViewModel-->
     <string name="fail_send_email_reset">Gagal mengirim email reset password</string>
@@ -145,34 +183,63 @@
     <string name="difficulty_required">Tingkat kesulitan harus dipilih</string>
     <string name="fail_update_progress">Gagal memperbarui kemajuan</string>
 
-    <string-array name="type_disabilty">
-        <item>Tunarungu</item>
-        <item>Tunanetra</item>
+    <string-array name="roles">
+        <item>@string/student</item>
+        <item>@string/parent</item>
+        <item>@string/teacher</item>
     </string-array>
+
+    <string name="student">Siswa</string>
+    <string name="parent">Orangtua</string>
+    <string name="teacher">Guru</string>
 
     <string-array name="school_levels">
-        <item>SD</item>
-        <item>SMP</item>
-        <item>SMA</item>
+        <item>@string/elementarySchool</item>
+        <item>@string/juniorHighSchool</item>
+        <item>@string/seniorHighSchool</item>
     </string-array>
+
+    <string name="elementarySchool">SD</string>
+    <string name="juniorHighSchool">SMP</string>
+    <string name="seniorHighSchool">SMA</string>
 
     <string-array name="elementarySchoolSubjects">
-        <item>Matematika</item>
-        <item>Bahasa Indonesia</item>
-        <item>Ilmu Pengetahuan Alam dan Sosial</item>
+        <item>@string/math</item>
+        <item>@string/indonesianLanguage</item>
+        <item>@string/naturalAndSocialScience</item>
     </string-array>
 
+    <string name="math">Matematika</string>
+    <string name="indonesianLanguage">Bahasa Indonesia</string>
+    <string name="naturalAndSocialScience">Ilmu Pengetahuan Alam dan Sosial</string>
+    <string name="naturalScience">Ilmu Pengetahuan Alam</string>
+
     <string-array name="juniorHighSchoolSubjects">
-        <item>Matematika</item>
-        <item>Bahasa Indonesia</item>
-        <item>Ilmu Pengetahuan Alam</item>
+        <item>@string/math</item>
+        <item>@string/indonesianLanguage</item>
+        <item>@string/naturalScience</item>
     </string-array>
 
     <string-array name="difficulties">
-        <item>Mudah</item>
-        <item>Sedang</item>
-        <item>Sulit</item>
+        <item>@string/easy</item>
+        <item>@string/medium</item>
+        <item>@string/hard</item>
     </string-array>
+
+    <string name="easy">Mudah</string>
+    <string name="medium">Sedang</string>
+    <string name="hard">Sulit</string>
+
+    <!--Chatbot-->
+    <string name="chatbot_title" translatable="false">LearnBot</string>
+    <string name="pic_back">Gambar Kembali</string>
+    <string name="pic_error">Gambar Error</string>
+    <string name="an_error">Terjadi Kesalahan</string>
+    <string name="try_again">Coba Lagi</string>
+    <string name="pic_timeout">Gambar Batas Waktu</string>
+    <string name="timeout">Batas Waktu Koneksi Habis. Silakan coba lagi.</string>
+    <string name="pic_emoji">Gambar Emoji</string>
+    <string name="pic_send">Gambar Kirim</string>
 
     <!-- Quiz -->
     <string name="quiz_not_found">Quiz tidak ditemukan</string>
@@ -187,5 +254,6 @@
 
     <string name="admin_confirmation_title">Menunggu Persetujuan Admin</string>
     <string name="waiting_admin_approval">Akun Anda sedang menunggu persetujuan dari admin. Mohon tunggu beberapa saat.</string>
+    <string name="lorem_ipsum" translatable="false">loremipsum</string>
 
 </resources>

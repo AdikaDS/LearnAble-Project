@@ -34,7 +34,8 @@ class StudentDashboardViewModel @Inject constructor(
     private val _selectedSchoolLevel = MutableLiveData<String>()
     val selectedSchoolLevel: LiveData<String> = _selectedSchoolLevel
 
-    private val sharedPreferences = context.getSharedPreferences("student_dashboard", Context.MODE_PRIVATE)
+    private val sharedPreferences =
+        context.getSharedPreferences("student_dashboard", Context.MODE_PRIVATE)
 
     fun loadUserData() {
         viewModelScope.launch {
@@ -43,7 +44,9 @@ class StudentDashboardViewModel @Inject constructor(
                 val user = authRepository.getUserData(authRepository.getCurrentUserId())
                 _studentState.value = StudentState.Success(user)
             } catch (e: Exception) {
-                _studentState.value = StudentState.Error(e.message ?: resourceProvider.getString(R.string.fail_get_user_data))
+                _studentState.value = StudentState.Error(
+                    e.message ?: resourceProvider.getString(R.string.fail_get_user_data)
+                )
             }
         }
     }
@@ -52,27 +55,25 @@ class StudentDashboardViewModel @Inject constructor(
         _selectedSchoolLevel.value = schoolLevel
 
         sharedPreferences.edit() { putString("selected_school_level", schoolLevel) }
-        
+
         viewModelScope.launch {
             _subjectsState.value = SubjectState.Loading
             try {
                 val currentState = _studentState.value
                 if (currentState is StudentState.Success) {
-                    val user = currentState.student
-                    if (user.disabilityType != null) {
-                        val subjects = subjectRepository.getSubjectsBySchoolLevel(
-                            schoolLevel = schoolLevel,
-                            disabilityType = user.disabilityType
-                        )
-                        _subjectsState.value = SubjectState.Success(subjects)
-                    } else {
-                        _subjectsState.value = SubjectState.Error(resourceProvider.getString(R.string.type_disability_not_yet_pick))
-                    }
+                    val subjects = subjectRepository.getSubjectsBySchoolLevel(
+                        schoolLevel = schoolLevel
+                    )
+                    _subjectsState.value = SubjectState.Success(subjects)
+
                 } else {
-                    _subjectsState.value = SubjectState.Error(resourceProvider.getString(R.string.load_user_data_not_completed))
+                    _subjectsState.value =
+                        SubjectState.Error(resourceProvider.getString(R.string.load_user_data_not_completed))
                 }
             } catch (e: Exception) {
-                _subjectsState.value = SubjectState.Error(e.message ?: resourceProvider.getString(R.string.fail_load_subjects))
+                _subjectsState.value = SubjectState.Error(
+                    e.message ?: resourceProvider.getString(R.string.fail_load_subjects)
+                )
             }
         }
     }

@@ -12,12 +12,10 @@ import com.adika.learnable.databinding.ItemLessonBinding
 import com.adika.learnable.model.Lesson
 import com.adika.learnable.model.SubBab
 import com.adika.learnable.model.StudentLessonProgress
-import com.adika.learnable.viewmodel.LessonViewModel
 
 class StudentLessonAdapter(
     private val onLessonClick: (Lesson) -> Unit,
-    private val onSubBabClick: (SubBab) -> Unit,
-    private val viewModel: LessonViewModel
+    private val onSubBabClick: (SubBab) -> Unit
 ) : ListAdapter<Lesson, StudentLessonAdapter.StudentLessonViewHolder>(LessonDiffCallback()) {
 
     private val expandedItems = mutableSetOf<String>()

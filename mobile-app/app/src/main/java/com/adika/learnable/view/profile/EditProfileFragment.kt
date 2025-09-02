@@ -21,6 +21,7 @@ import com.adika.learnable.viewmodel.EditProfileViewModel
 import com.bumptech.glide.Glide
 import com.github.dhaval2404.imagepicker.ImagePicker
 import dagger.hilt.android.AndroidEntryPoint
+import java.io.File
 import java.util.Locale
 
 @AndroidEntryPoint
@@ -32,7 +33,12 @@ class EditProfileFragment : Fragment() {
     private val imagePickerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val uri: Uri = result.data?.data!!
-            viewModel.uploadProfilePicture(uri)
+            val file = uriToFile(uri)
+            if (file != null) {
+                viewModel.uploadProfilePicture(file)
+            } else {
+                showToast(getString(R.string.fail_up_picture))
+            }
         } else if (result.resultCode == ImagePicker.RESULT_ERROR) {
             Toast.makeText(requireContext(), ImagePicker.getError(result.data), Toast.LENGTH_SHORT).show()
         }
@@ -113,9 +119,9 @@ class EditProfileFragment : Fragment() {
     private fun setupClickListeners() {
         binding.btnUpdateProfile.setOnClickListener {
             val user = collectUserData()
-            if (validateUserData(user)) {
-                viewModel.updateUserProfile(user)
-            }
+//            if (validateUserData(user)) {
+//                viewModel.updateUserProfile(user)
+//            }
         }
 
         binding.btnChangePassword.setOnClickListener {
@@ -150,8 +156,29 @@ class EditProfileFragment : Fragment() {
             }
     }
 
+    private fun uriToFile(uri: Uri): File? {
+        return try {
+            val contentResolver = requireContext().contentResolver
+            val type = contentResolver.getType(uri)
+            val extension = when (type) {
+                "image/jpeg" -> ".jpg"
+                "image/png" -> ".png"
+                "image/webp" -> ".webp"
+                else -> ".jpg" // default
+            }
+            val tempFile = File.createTempFile("profile_", extension, requireContext().cacheDir)
+            contentResolver.openInputStream(uri)?.use { input ->
+                tempFile.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+            tempFile
+        } catch (e: Exception) {
+            null
+        }
+    }
 
-    private fun validateUserData(user: User): Boolean {
+/*    private fun validateUserData(user: User): Boolean {
         val validationResult = ValidationUtils.validateUserData(
             context = requireContext(),
             user = user
@@ -164,7 +191,7 @@ class EditProfileFragment : Fragment() {
             }
             is ValidationResult.Valid -> return true
         }
-    }
+    }*/
 
     private fun validatePassword(password: String): Boolean {
         val validationResult = ValidationUtils.validatePassword(

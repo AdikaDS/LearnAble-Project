@@ -1,5 +1,6 @@
 package com.adika.learnable.viewmodel.dashboard
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -10,6 +11,7 @@ import com.adika.learnable.repository.AuthRepository
 import com.adika.learnable.repository.UserParentRepository
 import com.adika.learnable.util.ResourceProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -17,7 +19,8 @@ import javax.inject.Inject
 class ParentDashboardViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val userParentRepository: UserParentRepository,
-    private val resourceProvider: ResourceProvider
+    private val resourceProvider: ResourceProvider,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _parentState = MutableLiveData<ParentState>()
@@ -52,33 +55,29 @@ class ParentDashboardViewModel @Inject constructor(
         }
     }
 
-    private suspend fun isStudentConnectedToOtherParent(studentId: String): Boolean {
-        val parent = userParentRepository.getParentByStudentId(studentId)
-        return parent != null && parent.id != authRepository.getCurrentUserId()
+    fun connectStudentsToParent(parentId: String, studentIds: List<String>, onComplete: (Boolean, String?) -> Unit) {
+        viewModelScope.launch {
+            try {
+                for (studentId in studentIds) {
+                    userParentRepository.connectStudentWithParent(studentId, parentId)
+                }
+                onComplete(true, null)
+            } catch (e: Exception) {
+                onComplete(false, e.message ?: context.getString(R.string.fail_connect_student))
+            }
+        }
     }
 
-    fun connectStudent(studentEmail: String) {
+    fun searchStudents(query: String) {
         viewModelScope.launch {
             _studentState.value = StudentState.Loading
             try {
-                val parentId = authRepository.getCurrentUserId()
-                
-                val student = userParentRepository.findStudentEmail(studentEmail)
-                    ?: throw Exception(resourceProvider.getString(R.string.fail_find_student))
-
-                if (isStudentConnectedToOtherParent(student.id)) {
-                    _studentState.value =
-                        StudentState.Error(resourceProvider.getString(R.string.student_have_been_conected))
-                    return@launch
-                }
-
-                userParentRepository.connectStudentWithParent(student.id, parentId)
-                loadStudents()
-                _studentState.value = StudentState.SuccessMessage(resourceProvider.getString(R.string.sucess_connect_student))
-                
+                val students = userParentRepository.searchStudentByNameHybrid(query)
+                _studentState.value = StudentState.Success(students)
             } catch (e: Exception) {
-                _studentState.value =
-                    StudentState.Error(e.message ?: resourceProvider.getString(R.string.fail_connect_student))
+                _studentState.value = StudentState.Error(
+                    e.message ?: context.getString(R.string.fail_find_student)
+                )
             }
         }
     }
