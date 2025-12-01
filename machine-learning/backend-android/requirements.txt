@@ -7,3 +7,4 @@ python-dotenv
 google-auth
 gunicorn
 jinja2
+google-cloud-dialogflow
