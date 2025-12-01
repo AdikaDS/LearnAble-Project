@@ -90,34 +90,29 @@ async def get_theory_from_subbab(req, background_task: BackgroundTasks):
         materi = subbab_data.get("content", "")
         if not materi:
             logging.warning("⚠️ Konten 'content' kosong di subbab '%s'", subbab_name)
-            # Kembali ke chip sebelumnya (subbab chips)
-            logging.info("⚠️ Konten tidak tersedia, kembali ke chip subbab sebelumnya")
-            previous = await get_previous_chips(req, db)
-            if previous:
-                response = {
-                    "fulfillmentMessages": [{
-                        "text": {
-                            "text": [
-                                f"❗ Konten materi untuk subbab '{subbab_name}' belum tersedia.\n{previous['message']}"
-                            ]
-                        }
-                    }, {
-                        "payload": {
-                            "richContent": [[{
-                                "type": "chips",
-                                "options": previous["chips"]
-                            }]]
-                        }
-                    }]
-                }
-                if previous["context_name"]:
-                    response["outputContexts"] = [{
-                        "name": previous["context_name"],
-                        "lifespanCount": 5,
-                        "parameters": previous["context_params"]
-                    }]
-                return response
-            return {"fulfillmentText": "Konten materi belum tersedia."}
+            # Kembali ke home (level chips)
+            logging.info("⚠️ Konten tidak tersedia, kembali ke home")
+            chips = [
+                {"text": "Jenjang SD"},
+                {"text": "Jenjang SMP"},
+                {"text": "Jenjang SMA"}
+            ]
+            return {
+                "fulfillmentMessages": [{
+                    "text": {
+                        "text": [
+                            f"❗ Konten materi untuk subbab '{subbab_name}' belum tersedia.\n👋 Silakan pilih jenjang pendidikan:"
+                        ]
+                    }
+                }, {
+                    "payload": {
+                        "richContent": [[{
+                            "type": "chips",
+                            "options": chips
+                        }]]
+                    }
+                }]
+            }
 
         # Buat prompt Gemini
         prompt = f"Jelaskan dengan sederhana kepada siswa {level}: {materi}. Berikan 1 contoh soal sederhana juga."

@@ -12,7 +12,29 @@ async def handle_subbab_by_lessonid(req):
     logging.info(f"Level: {level} | Subject: {subject_name}")
 
     if not lesson_name or not subject_name or not level:
-        return {"fulfillmentText": "Mohon pilih nama materi terlebih dahulu."}
+        # Kembali ke home (level chips)
+        logging.info("⚠️ Validasi gagal, kembali ke home")
+        chips = [
+            {"text": "Jenjang SD"},
+            {"text": "Jenjang SMP"},
+            {"text": "Jenjang SMA"}
+        ]
+        return {
+            "fulfillmentMessages": [{
+                "text": {
+                    "text": [
+                        "❗ Validasi gagal.\n👋 Silakan pilih jenjang pendidikan:"
+                    ]
+                }
+            }, {
+                "payload": {
+                    "richContent": [[{
+                        "type": "chips",
+                        "options": chips
+                    }]]
+                }
+            }]
+        }
     
     cache_key = f"subbab:{level}:{subject_name}:{lesson_name}"
 
