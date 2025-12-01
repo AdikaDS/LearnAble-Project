@@ -1,5 +1,5 @@
 from chatbot.services.firestore_service import db
-from chatbot.utils.context_helper import get_context_param
+from chatbot.utils.context_helper import get_context_param, get_previous_chips
 from chatbot.services.redis_client import redis_client
 import json
 import logging
@@ -28,6 +28,33 @@ async def handle_subbab_by_lessonid(req):
             .limit(1).stream()
         subject_doc = next(subject_query, None)
         if not subject_doc:
+            # Kembali ke chip sebelumnya (subject chips)
+            logging.info("⚠️ Pelajaran tidak ditemukan, kembali ke chip subject sebelumnya")
+            previous = await get_previous_chips(req, db)
+            if previous:
+                response = {
+                    "fulfillmentMessages": [{
+                        "text": {
+                            "text": [
+                                f"❗ Pelajaran tidak ditemukan.\n{previous['message']}"
+                            ]
+                        }
+                    }, {
+                        "payload": {
+                            "richContent": [[{
+                                "type": "chips",
+                                "options": previous["chips"]
+                            }]]
+                        }
+                    }]
+                }
+                if previous["context_name"]:
+                    response["outputContexts"] = [{
+                        "name": previous["context_name"],
+                        "lifespanCount": 5,
+                        "parameters": previous["context_params"]
+                    }]
+                return response
             return {"fulfillmentText": "Pelajaran tidak ditemukan."}
         subject_id = subject_doc.to_dict().get("idSubject")
         lesson_query = db.collection("lessons") \
@@ -78,6 +105,33 @@ async def handle_subbab_by_lessonid(req):
                 logging.debug(f"Ditemukan sub-bab: {title}")
                 chips.append({"text": title})
         if not chips:
+            # Kembali ke chip sebelumnya (lesson chips)
+            logging.info("⚠️ Tidak ada sub-bab, kembali ke chip lesson sebelumnya")
+            previous = await get_previous_chips(req, db)
+            if previous:
+                response = {
+                    "fulfillmentMessages": [{
+                        "text": {
+                            "text": [
+                                f"❗ Belum ada sub-bab untuk materi {lesson_name}.\n{previous['message']}"
+                            ]
+                        }
+                    }, {
+                        "payload": {
+                            "richContent": [[{
+                                "type": "chips",
+                                "options": previous["chips"]
+                            }]]
+                        }
+                    }]
+                }
+                if previous["context_name"]:
+                    response["outputContexts"] = [{
+                        "name": previous["context_name"],
+                        "lifespanCount": 5,
+                        "parameters": previous["context_params"]
+                    }]
+                return response
             return {
                 "fulfillmentText":
                 f"Belum ada sub-bab untuk materi {lesson_name}."
@@ -112,4 +166,31 @@ async def handle_subbab_by_lessonid(req):
         return response
     except Exception as e:
         logging.error(f"Firestore Error: {e}")
+        # Kembali ke chip sebelumnya (lesson chips)
+        logging.info("⚠️ Error terjadi, kembali ke chip lesson sebelumnya")
+        previous = await get_previous_chips(req, db)
+        if previous:
+            response = {
+                "fulfillmentMessages": [{
+                    "text": {
+                        "text": [
+                            f"❗ Terjadi kesalahan saat mengambil sub-bab.\n{previous['message']}"
+                        ]
+                    }
+                }, {
+                    "payload": {
+                        "richContent": [[{
+                            "type": "chips",
+                            "options": previous["chips"]
+                        }]]
+                    }
+                }]
+            }
+            if previous["context_name"]:
+                response["outputContexts"] = [{
+                    "name": previous["context_name"],
+                    "lifespanCount": 5,
+                    "parameters": previous["context_params"]
+                }]
+            return response
         return {"fulfillmentText": "Terjadi kesalahan saat mengambil sub-bab."}
