@@ -1,4 +1,4 @@
-from google.cloud import dialogflow_v2 as dialogflow
+from google.cloud import dialogflow
 from google.cloud import firestore
 from google.oauth2 import service_account
 from os import getenv
@@ -20,7 +20,7 @@ ENTITY_LESSON = "LessonName"
 INTENT_DISPLAY1 = "Pilih Topik Pelajaran"
 INTENT_DISPLAY2 = "Pilih Subbab"
 INTENT_DISPLAY3 = "Pilih Teori Subbab"
-MAX_PHRASES = 10
+MAX_PHRASES = 1000
 
 # Inisialisasi kredensial dan klien
 credentials = service_account.Credentials.from_service_account_file(
