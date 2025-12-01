@@ -12,6 +12,7 @@ from chatbot.services.redis_client import redis_client
 from chatbot.utils.dialogflow_token import get_dialogflow_token
 from send_email.send_email import send_email_to_admin, send_email_approve_to_user, send_email_unapprove_to_user
 from send_email.background_task import _enqueue_email
+from chatbot.utils.sync_dialogflow import sync_subjects_to_entity, sync_lessons_to_entity, sync_all_training_phrases
 
 # Konfigurasi logging yang lebih robust
 logging.basicConfig(
@@ -27,6 +28,29 @@ logging.basicConfig(
 logging.getLogger().setLevel(logging.INFO)
 
 app = FastAPI()
+
+@app.on_event("startup")
+async def startup_event():
+    """
+    Event handler yang dijalankan saat aplikasi FastAPI start.
+    Menjalankan sync_dialogflow untuk sinkronisasi entity dan training phrases.
+    """
+    import asyncio
+    try:
+        logging.info("🚀 Aplikasi sedang starting up...")
+        logging.info("🔄 Memulai sinkronisasi Dialogflow...")
+        
+        # Jalankan sync_dialogflow di thread pool karena fungsi-fungsi sync adalah synchronous
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(None, sync_subjects_to_entity)
+        await loop.run_in_executor(None, sync_lessons_to_entity)
+        await loop.run_in_executor(None, sync_all_training_phrases)
+        
+        logging.info("✅ Sinkronisasi Dialogflow selesai!")
+        logging.info("✅ Aplikasi siap menerima request")
+    except Exception as e:
+        logging.error(f"❌ Error saat startup sync_dialogflow: {str(e)}")
+        logging.warning("⚠️ Aplikasi tetap berjalan meskipun sync_dialogflow gagal")
 
 class DialogflowRequest(BaseModel):
     queryResult: dict
