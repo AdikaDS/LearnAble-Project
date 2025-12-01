@@ -1,4 +1,4 @@
-from chatbot.utils.context_helper import get_context_param
+from chatbot.utils.context_helper import get_context_param, get_previous_chips
 from chatbot.services.firestore_service import db
 from chatbot.services.redis_client import redis_client
 import json
@@ -91,6 +91,33 @@ async def handle_lessons_by_subject_name_level(req):
                 logging.debug(f"Ditemukan materi: {title}")
                 chips.append({"text": title})
         if not chips:
+            # Kembali ke chip sebelumnya (subject chips)
+            logging.info("⚠️ Tidak ada materi, kembali ke chip subject sebelumnya")
+            previous = await get_previous_chips(req, db)
+            if previous:
+                response = {
+                    "fulfillmentMessages": [{
+                        "text": {
+                            "text": [
+                                f"❗ Belum ada materi untuk {subject_name} jenjang {level.upper()}.\n{previous['message']}"
+                            ]
+                        }
+                    }, {
+                        "payload": {
+                            "richContent": [[{
+                                "type": "chips",
+                                "options": previous["chips"]
+                            }]]
+                        }
+                    }]
+                }
+                if previous["context_name"]:
+                    response["outputContexts"] = [{
+                        "name": previous["context_name"],
+                        "lifespanCount": 5,
+                        "parameters": previous["context_params"]
+                    }]
+                return response
             return {
                 "fulfillmentText":
                 f"Belum ada materi untuk {subject_name} jenjang {level.upper()}."
@@ -124,6 +151,33 @@ async def handle_lessons_by_subject_name_level(req):
         return response
     except Exception as e:
         logging.error(f"Firestore Error: {e}")
+        # Kembali ke chip sebelumnya (subject chips)
+        logging.info("⚠️ Error terjadi, kembali ke chip subject sebelumnya")
+        previous = await get_previous_chips(req, db)
+        if previous:
+            response = {
+                "fulfillmentMessages": [{
+                    "text": {
+                        "text": [
+                            f"❗ Terjadi kesalahan saat mengambil materi.\n{previous['message']}"
+                        ]
+                    }
+                }, {
+                    "payload": {
+                        "richContent": [[{
+                            "type": "chips",
+                            "options": previous["chips"]
+                        }]]
+                    }
+                }]
+            }
+            if previous["context_name"]:
+                response["outputContexts"] = [{
+                    "name": previous["context_name"],
+                    "lifespanCount": 5,
+                    "parameters": previous["context_params"]
+                }]
+            return response
         return {
             "fulfillmentText": "Terjadi kesalahan saat mengambil materi."
         }
