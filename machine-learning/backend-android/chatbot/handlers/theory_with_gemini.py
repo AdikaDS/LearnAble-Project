@@ -87,35 +87,11 @@ async def get_theory_from_subbab(req, background_task: BackgroundTasks):
                 return response
             return {"fulfillmentText": "Subbab tidak ditemukan."}
 
-        materi = subbab_data.get("content", "")
-        if not materi:
-            logging.warning("⚠️ Konten 'content' kosong di subbab '%s'", subbab_name)
-            # Kembali ke home (level chips)
-            logging.info("⚠️ Konten tidak tersedia, kembali ke home")
-            chips = [
-                {"text": "Jenjang SD"},
-                {"text": "Jenjang SMP"},
-                {"text": "Jenjang SMA"}
-            ]
-            return {
-                "fulfillmentMessages": [{
-                    "text": {
-                        "text": [
-                            f"❗ Konten materi untuk subbab '{subbab_name}' belum tersedia.\n👋 Silakan pilih jenjang pendidikan:"
-                        ]
-                    }
-                }, {
-                    "payload": {
-                        "richContent": [[{
-                            "type": "chips",
-                            "options": chips
-                        }]]
-                    }
-                }]
-            }
-
-        # Buat prompt Gemini
-        prompt = f"Jelaskan dengan sederhana kepada siswa {level}: {materi}. Berikan 1 contoh soal sederhana juga."
+        # Gunakan title subbab sebagai materi
+        materi = subbab_name  # Menggunakan title subbab yang sudah diambil dari queryText
+        
+        # Buat prompt Gemini menggunakan title subbab
+        prompt = f"Jelaskan dengan sederhana kepada siswa disablitas tunarungu {level} tentang '{materi}'. Berikan penjelasan yang mudah dipahami dan berikan 1 contoh soal sederhana juga."
         logging.debug("🧠 Prompt ke Gemini: %s", prompt)
         cache_key = generate_cache_key(level, materi)
 
