@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="IconEditTextView">
+        <attr name="hintText" format="string" />
+        <attr name="iconDrawable" format="reference" />
+        <attr name="enableToggle" format="boolean" />
+        <attr name="android:inputType" />
+        <attr name="isDropdown" format="boolean"/>
+        <attr name="dropdownEntries" format="reference"/>
+        <attr name="enableStrengthMeter" format="boolean" />
+        <attr name="enableFloatingHint" format="boolean"/>
+    </declare-styleable>
+</resources>
