@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8">
+    <title>Pendaftaran Tidak Disetujui - LearnAble</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body style="margin:0; padding:0; background:#F3F4F6; color:#111827; font-family: Arial, Helvetica, sans-serif;">
+    
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#F3F4F6;">
+      <tr>
+        <td align="center" style="padding:16px;">
+          
+          <table role="presentation" width="560" cellspacing="0" cellpadding="0" border="0" style="max-width:560px; width:100%; background:#ffffff; border:1px solid #F2F2F2; border-radius:16px; box-shadow:0 2px 8px rgba(0,0,0,0.06); overflow:hidden;">
+
+            <tr>
+              <td align="center" style="padding:42px 24px 30px 24px;">
+                <img src="{{ logo_cid if logo_cid else ('data:image/png;base64,' ~ logo_base64) }}"
+                    alt="Logo LearnAble"
+                    width="160"
+                    style="display:block; width:160px; height:auto; border:0; outline:none; text-decoration:none;">
+              </td>
+            </tr>
+
+             <tr>
+                <td align="left" style="padding:0 24px 16px 24px;">
+                    <div style="background:#FEF2F2; border:1px solid #FECACA; border-left:4px solid #DC2626; border-radius:10px; padding:12px 14px;">
+                        <div style="font-size:14px; font-weight:600; color:#DC2626; margin-bottom:4px;">
+                            ❌ Pendaftaran Tidak Disetujui
+                        </div>
+                        <div style="font-size:14px; color:#7F1D1D;">
+                            Mohon maaf, pendaftaran kamu tidak disetujui. Silakan hubungi admin untuk informasi lebih lanjut.
+                        </div>
+                    </div>
+                </td>
+            </tr>
+
+            <tr>
+              <td align="left" style="padding:8px 24px 8px 24px;">
+                <p style="margin:0; font-size:15px; line-height:1.6;">
+                  Halo {{ user_name }},
+                </p>
+                <p style="margin:0; font-size:15px; line-height:1.6; color:#374151;">
+                  Kami mohon maaf, pendaftaran kamu di <strong>LearnAble</strong> tidak dapat disetujui saat ini.
+                </p>
+              </td>
+            </tr>
+
+            <tr>
+              <td align="left" style="padding:8px 24px 16px 24px;">
+                
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-bottom:12px;">
+                  <tr>
+                    <td style="background:#F9FAFB; border:1px solid #E5E7EB; border-left:4px solid #048AAF; border-radius:10px; padding:12px 14px;">
+                      <div style="font-size:13px; font-weight:600; color:#048AAF; margin-bottom:4px;">👤 Nama Pendaftar</div>
+                      <div style="font-size:15px; color:#111827;">{{ user_name }}</div>
+                    </td>
+                  </tr>
+                </table>
+
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                  <tr>
+                    <td style="background:#F9FAFB; border:1px solid #E5E7EB; border-left:4px solid #048AAF; border-radius:10px; padding:12px 14px;">
+                      <div style="font-size:13px; font-weight:600; color:#048AAF; margin-bottom:4px;">📧 Email Pendaftar</div>
+                      <div style="font-size:15px; color:#111827;">{{ user_email }}</div>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+             <tr>
+              <td align="left" style="padding:0px 24px 8px 24px;">
+                <p style="margin:0; font-size:15px; line-height:1.6;">
+                  Jika kamu merasa ini adalah kesalahan atau ingin mencoba mendaftar kembali, silakan hubungi tim support kami.
+                </p>
+              </td>
+            </tr>
+
+            <tr>
+              <td align="left" style="padding:0 24px 18px 24px;">
+                <p style="margin:0; font-size:13px; line-height:1.6; color:#6B7280;">
+                  Email ini dikirim otomatis oleh sistem LearnAble. Mohon untuk tidak membalas email ini.
+                </p>
+              </td>
+            </tr>
+
+            <tr>
+              <td align="center" style="padding:0 24px 20px 24px; color:#9CA3AF; font-size:12px;">
+                © 2025 LearnAble. All rights reserved.
+              </td>
+            </tr>
+
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

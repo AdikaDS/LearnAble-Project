@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "854871060006",
+    "project_id": "learnable-22a3b",
+    "storage_bucket": "learnable-22a3b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:854871060006:android:999a453a1bc3a86b1e00e7",
+        "android_client_info": {
+          "package_name": "com.adika.learnable"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "854871060006-i4itp9gshkgvk5anitcsjvmv8h9h7ofi.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.adika.learnable",
+            "certificate_hash": "9be020f7246728c7c662616af1b1c5c627b3650b"
+          }
+        },
+        {
+          "client_id": "854871060006-vskduvae4mq6gt70qe39ur97j6ql2rqj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.adika.learnable",
+            "certificate_hash": "60014225e1d4c0c39f27e934e6c5bd8f709b2014"
+          }
+        },
+        {
+          "client_id": "854871060006-vripgl49aajbp30kmp69fjnoen3hsi25.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCjR7BIr8gw1NpTnDlR1Sm2pA8-uf5IMBM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "854871060006-vripgl49aajbp30kmp69fjnoen3hsi25.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

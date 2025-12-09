@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+httpx
+redis
+google-cloud-firestore
+python-dotenv
+google-auth
+gunicorn
+jinja2
+google-cloud-dialogflow

@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="forget_password">Forget Password?</string>
+    <string name="login_with_google">Login with Google</string>
+    <string name="dont_have_account">Don\'t have account? Please</string>
+    <string name="reset_password">A password reset link has been sent to your email address.</string>
+    <string name="reset">Reset</string>
+    <string name="logout">Logout</string>
+    <string name="name_required">Name is required</string>
+    <string name="email_required">Email cannot be empty</string>
+    <string name="email_invalid">Please enter a valid email</string>
+    <string name="password_required">Password is required</string>
+    <string name="password_min_length">Password must be at least %1$d characters</string>
+    <string name="password_have_uppercase">Password must contain at least one uppercase letter</string>
+    <string name="password_have_lowercase">Password must contain at least one lowercase letter</string>
+    <string name="password_have_number">Password must contain at least one number</string>
+    <string name="password_have_special_char">Password must contain at least one special character</string>
+    <string name="password_match">Password Doesn\'t Match</string>
+    <string name="phone_invalid">Please enter a valid phone number</string>
+    <string name="phone_required">Phone number is required</string>
+    <string name="nisn_invalid">NISN must consist of 10 digits</string>
+    <string name="nip_invalid">NIP must consist of 8–18 digits</string>
+    <string name="email_bad_format">Invalid email format</string>
+    <string name="password_invalid">Password is too weak</string>
+    <string name="email_doesnt_exist">Email is not registered</string>
+    <string name="email_exist">Email is already registered</string>
+    <string name="network_error">Network error occurred</string>
+    <string name="invalid_credential">Incorrect email or password</string>
+    <string name="too_many_attempts">Too many attempts. Please try again later</string>
+    <string name="user_disabled">This account has been disabled</string>
+    <string name="login_failed">Login failed</string>
+    <string name="verify_email">Please verify your email first</string>
+    <string name="verify_email_sent">Verification email has been sent</string>
+    <string name="verify_email_failed">Failed to send verification email</string>
+    <string name="auth_failed">Authentication failed</string>
+    <string name="signup_failed">Signup failed</string>
+    <string name="signup_success">Registration successful. Please verify your email first!</string>
+    <string name="profile_update_failed">Failed to update profile</string>
+    <string name="credential_error">Unable to retrieve user credentials</string>
+    <string name="full_name">Full Name</string>
+    <string name="password">Password</string>
+    <string name="role">Pick Role</string>
+    <string name="sign_up">Signup</string>
+    <string name="or">OR</string>
+    <string name="sign_up_with_google">Signup with Google</string>
+    <string name="already_have_account">Already have account?</string>
+    <string name="login_information2">Fill in your email address and password to log in</string>
+    <string name="signup_information2">" Please register by filling in some information correctly."</string>
+    <string name="create_new_account">Create New Account</string>
+    <string name="login">Login</string>
+    <string name="fail_load_user_data">User data has not been loaded</string>
+    <string name="unknown_error">Unknown Error</string>
+    <string name="login_credentials_error">Incorrect email or password</string>
+    <string name="password_update_success">Password update successfully</string>
+    <string name="password_update_failed">Password update failed</string>
+
+    <string-array name="roles">
+        <item>@string/student</item>
+        <item>@string/parent</item>
+        <item>@string/teacher</item>
+    </string-array>
+
+    <string-array name="school_levels">
+        <item>@string/elementarySchool</item>
+        <item>@string/juniorHighSchool</item>
+        <item>@string/seniorHighSchool</item>
+    </string-array>
+
+    <string-array name="elementarySchoolSubjects">
+        <item>@string/math</item>
+        <item>@string/indonesianLanguage</item>
+        <item>@string/naturalAndSocialScience</item>
+    </string-array>
+
+    <string-array name="juniorHighSchoolSubjects">
+        <item>@string/math</item>
+        <item>@string/indonesianLanguage</item>
+        <item>@string/naturalScience</item>
+    </string-array>
+
+    <string-array name="difficulties">
+        <item>@string/easy</item>
+        <item>@string/medium</item>
+        <item>@string/hard</item>
+    </string-array>
+
+    <string name="reset_code_expired">Reset code has expired</string>
+    <string name="pick_disability">Please select the type of disability first.</string>
+    <string name="back_to_login">Return To Login Page</string>
+    <string name="duration_learning">%1$d minutes</string>
+    <string name="progress_text">Progress: %1$d/%2$d</string>
+    <string name="default_progress_text">Progress: 0/0</string>
+    <string name="completed_lessons">%1$d/%2$d lessons</string>
+    <string name="quiz_average">Average Quiz: %.1f</string>
+    <string name="streak">%1$d days</string>
+    <string name="total_time_spent">Total time: %1$d minutes</string>
+    <string name="last_Activity">Last activities: %1$s</string>
+    <string name="total_lessons">%1$d Lessons</string>
+    <string name="total_quizzez">%1$d Quiz</string>
+    <string name="data_not_completed">Incomplete data</string>
+    <string name="add_lesson">Add Lesson</string>
+    <string name="edit_lesson">Edit Lesson</string>
+    <string name="succes_add_lesson">Lesson successfully added</string>
+    <string name="fail_add_lesson">Failed to add lesson: %1$s</string>
+    <string name="succes_update_lesson">Lesson has been successfully updated.</string>
+    <string name="fail_update_lesson">Failed to update lesson: %1$s</string>
+    <string name="succes_add_subbab">Sub-chapter successfully added</string>
+    <string name="fail_add_subbab">Failed to add Sub-chapter: %1$s</string>
+    <string name="succes_update_subbab">Sub-chapter successfully updated</string>
+    <string name="fail_update_subbab">Failed to update Sub-section: %1$s</string>
+    <string name="succes_delete_lesson">Lesson has been successfully deleted.</string>
+    <string name="fail_delete_lesson">Failed to delete lesson: %1$s</string>
+    <string name="delete_lesson">Delete Lesson</string>
+    <string name="confirm_delete_lesson">Are you sure you want to delete this lesson?</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete_subbab">Delete Sub-Chapter</string>
+    <string name="confirm_delete_subbab">Are you sure you want to delete this subchapter?</string>
+    <string name="succes_delete_subbab">Sub-chapter successfully deleted</string>
+    <string name="fail_delete_subbab">Failed to delete Sub-chapter: %1$s</string>
+    <string name="succes_save_disability">Successfully saved disability type</string>
+    <string name="type_question_here">Type your question here</string>
+    <string name="password_too_weak">The password is too weak. Use a combination of uppercase and lowercase letters, numbers, and symbols (min. 8 characters).</string>
+    <string name="exit_app">Exit Application</string>
+    <string name="confirm_exit_app">Are you sure you want to exit?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="fail_load_subbab">Failed to retrieve sub-chapter</string>
+    <string name="fail_load_audio">Fail to load audio</string>
+    <string name="title_required">Title must be filled in</string>
+    <string name="content_required">Content must be filled in</string>
+    <string name="duration_required">Duration must be filled in</string>
+    <string name="type_disability_required">The type of disability must be selected</string>
+    <string name="subject_required">Subjects must be selected</string>
+    <string name="school_level_required">The school level must be selected</string>
+    <string name="difficulty_required">Difficulties must be selected</string>
+    <string name="children_name">Children Name</string>
+    <string name="full_children_name">Child\'s Full Name</string>
+    <string name="add_child">Add Child +</string>
+    <string name="children1">Child 1</string>
+    <string name="added_child">Added: %1$s</string>
+    <string name="fail_send_email_reset">Failed to send password reset email</string>
+    <string name="invalid_role">Invalid role</string>
+    <string name="fail_get_user_data">Failed to obtain user data</string>
+    <string name="fail_update_lesson_progress">Failed to update lesson progress</string>
+    <string name="fail_find_student">Failed to find students</string>
+    <string name="fail_find_student_by_email">No student with that email address was found.</string>
+    <string name="student_have_been_conected">This student is already connected with other parents.</string>
+    <string name="sucess_connect_student">Successfully connected with students</string>
+    <string name="fail_connect_student">An error occurred while connecting the student</string>
+    <string name="load_user_data_not_completed">User data has not been loaded</string>
+    <string name="type_disability_not_yet_pick">Disability type not selected</string>
+    <string name="fail_load_subjects">Failed to load subject</string>
+    <string name="fail_load_overall_progress">Failed to load overall progress</string>
+    <string name="fail_load_subject_progress">Failed to load subject progress</string>
+    <string name="fail_load_lesson_progress">Failed to load progress lessons</string>
+    <string name="fail_save_disability_type">Failed to save disability type</string>
+    <string name="fail_load_profil">An error occurred while loading the profile.</string>
+    <string name="fail_update_profil">An error occurred while updating your profile.</string>
+    <string name="fail_up_picture">An error occurred while uploading the image.</string>
+    <string name="fail_update_password">An error occurred while updating your password.</string>
+    <string name="fail_logout">An error occurred while logging out</string>
+    <string name="fail_load_lessons">Failed to retrieve lesson</string>
+    <string name="fail_find_lessons">Failed to find lesson</string>
+    <string name="fail_update_progress">Failed to updater progress</string>
+    <string name="fail_load_video">Fail to load video</string>
+    <string name="fail_load_pdf">Fail to load PDF document</string>
+    <string name="hard">Hard</string>
+    <string name="pic_send">Image Send</string>
+    <string name="quiz_not_found">Quiz not found</string>
+    <string name="error_loading_quiz">Failed to load quiz</string>
+    <string name="error_submitting_quiz">Failed to send quiz answers</string>
+    <string name="error_loading_results">Failed to load quiz result</string>
+    <string name="answer_all_questions">Please answer all questions</string>
+    <string name="time_remaining">Time remaining: %1$s</string>
+    <string name="time_up">Time\'s up!</string>
+    <string name="quiz_passed">Congratulations! You passed with a score of %1$.1f</string>
+    <string name="quiz_failed">Sorry, you have not passed with a grade of %1$.1f</string>
+    <string name="admin_confirmation_title">Waiting for Admin Approval</string>
+    <string name="waiting_admin_approval">Your account is awaiting approval from the admin. Please wait for some time.</string>
+    <string name="login_information1">Please Login</string>
+    <string name="signup_information1">Please Register</string>
+    <string name="role_required">Select a role first</string>
+    <string name="nisn_required">NISN cannot be empty</string>
+    <string name="nip_required">NIP cannot be empty</string>
+    <string name="student">Student</string>
+    <string name="parent">Parent</string>
+    <string name="teacher">Teacher</string>
+    <string name="elementarySchool">Elementary School</string>
+    <string name="juniorHighSchool">Junior High School</string>
+    <string name="seniorHighSchool">Senior High School</string>
+    <string name="math">Math</string>
+    <string name="indonesianLanguage">Indonesian Language</string>
+    <string name="naturalAndSocialScience">Natural And Social Science</string>
+    <string name="naturalScience">Natural Science</string>
+    <string name="easy">Easy</string>
+    <string name="medium">Medium</string>
+    <string name="header_reset_password">Reset Password</string>
+    <string name="description_reset_password">Enter your email to receive a password reset link</string>
+    <string name="remember_password">" Remember your password? Please"</string>
+    <string name="send">Send</string>
+    <string name="description_new_password">" Please enter a new password for your account"</string>
+    <string name="reset_code_invalid">Invalid reset code</string>
+    <string name="email_sent">Email Sent!</string>
+    <string name="email_sent_desc">A password reset link has been sent to %1$s email address. Please check your inbox and follow the instructions!</string>
+    <string name="didnt_get_the_email">Didn\'t get the email?</string>
+    <string name="send_email_again">Resend Email</string>
+    <string name="wrong_email">Wrong Email Address?</string>
+    <string name="change_email">Change Email Address</string>
+    <string name="password_successfully_change">Password updated successfully!</string>
+    <string name="password_successfully_change_desc">Please return to the Login page</string>
+    <string name="search_student_hint">Search for the student\'s name</string>
+    <string name="pic_back">Image Back</string>
+    <string name="pic_error">Image Error</string>
+    <string name="an_error">An Error Occurred</string>
+    <string name="try_again">Try Again</string>
+    <string name="pic_timeout">Image Timeout</string>
+    <string name="timeout">Connection Timeout. Please try again.</string>
+    <string name="pic_emoji">Image Emoji</string>
+</resources>
