@@ -1,8 +1,0 @@
-torch
-numpy
-git+https://github.com/openai/whisper.git
-fastapi
-uvicorn[standard]
-python-multipart
-pydantic
-gunicorn
