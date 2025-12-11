@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="14dp"
+    app:cardCornerRadius="8dp"
+    app:strokeColor="@color/grey_bg"
+    app:strokeWidth="1dp">
+
+    <com.google.android.flexbox.FlexboxLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        app:alignItems="center"
+        app:flexDirection="row"
+        app:justifyContent="space_between">
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/materialCardView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="8dp"
+            app:cardPreventCornerOverlap="true"
+            app:cardUseCompatPadding="false">
+
+            <FrameLayout
+                android:layout_width="80dp"
+                android:layout_height="80dp">
+
+                <ImageView
+                    android:id="@+id/ivSubjectIcon"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/icon_dummy_bab" />
+
+                <View
+                    android:id="@+id/gradientOverlay"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_gravity="bottom"
+                    android:background="@drawable/bg_subject_card" />
+
+                <TextView
+                    android:id="@+id/tvGradeBadge"
+                    style="@style/TextAppearance.LearnAble.Medium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center|bottom"
+                    android:layout_marginBottom="7dp"
+                    android:textColor="@color/white"
+                    android:textSize="11sp"
+                    tools:text="SD" />
+            </FrameLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <LinearLayout
+            android:id="@+id/textContainer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:orientation="vertical"
+            app:layout_flexGrow="1"
+            app:layout_flexShrink="1">
+
+            <TextView
+                android:id="@+id/tvLessonTitle"
+                style="@style/TextAppearance.LearnAble.Regular"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/grey"
+                android:textSize="12sp"
+                tools:text="Matematika BAB 2" />
+
+            <TextView
+                android:id="@+id/tvSubBabTitle"
+                style="@style/TextAppearance.LearnAble.Medium"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                tools:text="Bangun Datar dan... - Bangun Datar" />
+
+            <TextView
+                android:id="@+id/tvProgressText"
+                style="@style/TextAppearance.LearnAble.Regular"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="@color/green"
+                android:textSize="12sp"
+                tools:text="Selesai" />
+
+            <com.google.android.material.progressindicator.LinearProgressIndicator
+                android:id="@+id/progressBar"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/btnBookmark"
+            android:layout_width="15dp"
+            android:layout_height="18dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_bookmark" />
+
+    </com.google.android.flexbox.FlexboxLayout>
+</com.google.android.material.card.MaterialCardView>

@@ -42,6 +42,7 @@ class AdminConfirmationFragment : Fragment() {
             findNavController().navigate(R.id.action_adminConfirmation_to_login)
         }
     }
+
     private fun setupObservers() {
         viewModel.approvalState.observe(viewLifecycleOwner) { state ->
             if (state is AdminConfirmationViewModel.ApprovalState.State) {
@@ -82,7 +83,6 @@ class AdminConfirmationFragment : Fragment() {
         Log.d("Approval", "cek role {${viewModel.getUserRole()}}")
         when (viewModel.getUserRole()) {
             "teacher" -> findNavController().navigate(R.id.action_adminConfirmation_to_teacher_dashboard)
-            "parent" -> findNavController().navigate(R.id.action_adminConfirmation_to_parent_dashboard)
             else -> findNavController().navigate(R.id.action_adminConfirmation_to_login)
         }
     }

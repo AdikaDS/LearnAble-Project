@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tvText"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="16dp"
-    android:textSize="16sp"
-    android:textColor="?android:attr/textColorPrimary" />
+    android:background="@drawable/bg_dropdown_item_selector"
+    android:ellipsize="none"
+    android:maxLines="3"
+    android:paddingHorizontal="16dp"
+    android:paddingVertical="12dp"
+    android:textAlignment="center"
+    android:textColor="@color/grey"
+    android:textSize="16sp" />

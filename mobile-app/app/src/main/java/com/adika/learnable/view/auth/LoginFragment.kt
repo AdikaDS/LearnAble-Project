@@ -12,13 +12,13 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialException
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.adika.learnable.R
 import com.adika.learnable.databinding.FragmentLoginBinding
 import com.adika.learnable.util.ValidationUtils
+import com.adika.learnable.view.core.BaseFragment
 import com.adika.learnable.viewmodel.auth.LoginViewModel
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
@@ -27,7 +27,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class LoginFragment : Fragment() {
+class LoginFragment : BaseFragment() {
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
     private val viewModel: LoginViewModel by viewModels()
@@ -51,6 +51,8 @@ class LoginFragment : Fragment() {
         credentialManager = CredentialManager.create(requireContext())
         setupClickListeners()
         observeViewModel()
+
+        setupTextScaling()
     }
 
     private fun setupClickListeners() {
@@ -133,18 +135,22 @@ class LoginFragment : Fragment() {
                 showLoginError(errorMessage)
                 enableButtons()
             }
+
+            is LoginViewModel.NavigationState.NavigateToAdminDashboard -> {
+                showLoading(false)
+                findNavController().navigate(R.id.action_login_to_admin_dashboard)
+            }
+
             is LoginViewModel.NavigationState.NavigateToStudentDashboard -> {
                 showLoading(false)
                 findNavController().navigate(R.id.action_login_to_student_dashboard)
             }
+
             is LoginViewModel.NavigationState.NavigateToTeacherDashboard -> {
                 showLoading(false)
                 findNavController().navigate(R.id.action_login_to_teacher_dashboard)
             }
-            is LoginViewModel.NavigationState.NavigateToParentDashboard -> {
-                showLoading(false)
-                findNavController().navigate(R.id.action_login_to_parent_dashboard)
-            }
+
             is LoginViewModel.NavigationState.NavigateToAdminConfirmation -> {
                 showLoading(false)
                 findNavController().navigate(R.id.action_login_to_admin_confirmation)
@@ -171,6 +177,7 @@ class LoginFragment : Fragment() {
     }
 
     private fun showLoginError(message: String) {
+        vibrationHelper.vibrateError()
         binding.tvLoginError.text = message
         binding.tvLoginError.visibility = View.VISIBLE
     }
@@ -219,7 +226,6 @@ class LoginFragment : Fragment() {
             btnLogin.isEnabled = !isLoading
             btnGoogleSignIn.isEnabled = !isLoading
 
-            // Nonaktifkan/aktifkan semua EditText
             etEmail.isEnabled = !isLoading
             etPassword.isEnabled = !isLoading
 

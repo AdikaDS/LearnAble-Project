@@ -14,6 +14,6 @@ interface DialogflowService {
         @Path("projectId") projectId: String,
         @Path("sessionId") sessionId: String,
         @Body body: DialogflowRequest,
-        @Header("Authorization") auth: String // "Bearer {ACCESS_TOKEN}"
+        @Header("Authorization") auth: String
     ): Response<DialogflowResponse>
 }

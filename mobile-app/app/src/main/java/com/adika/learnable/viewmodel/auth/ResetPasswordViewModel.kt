@@ -14,11 +14,9 @@ class ResetPasswordViewModel @Inject constructor(
     private val authRepository: AuthRepository
 ) : ViewModel() {
 
-    // State untuk langkah verifikasi oobCode → dapat email
     private val _verifyState = MutableLiveData<VerifyState>()
     val verifyState: LiveData<VerifyState> = _verifyState
 
-    // State untuk langkah konfirmasi password baru
     private val _confirmState = MutableLiveData<ConfirmState>()
     val confirmState: LiveData<ConfirmState> = _confirmState
 
@@ -61,5 +59,4 @@ class ResetPasswordViewModel @Inject constructor(
         data object Success : ConfirmState()
         data class Error(val message: String) : ConfirmState()
     }
-
 }

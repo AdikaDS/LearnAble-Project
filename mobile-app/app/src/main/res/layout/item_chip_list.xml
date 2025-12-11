@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="8dp"
+    flexbox:alignItems="flex_start"
     flexbox:flexDirection="row"
     flexbox:flexWrap="wrap"
-    flexbox:justifyContent="flex_start"
-    flexbox:alignItems="flex_start" />
+    flexbox:justifyContent="flex_start" />

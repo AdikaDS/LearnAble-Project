@@ -1,154 +1,92 @@
 package com.adika.learnable.adapter
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.adika.learnable.R
-import com.adika.learnable.databinding.ItemTeacherLessonBinding
+import com.adika.learnable.databinding.ItemTeacherDashboardLessonBinding
 import com.adika.learnable.model.Lesson
-import com.adika.learnable.model.SubBab
+import com.adika.learnable.util.EducationLevels
 
 class TeacherLessonAdapter(
-    private val onLessonClick: (Lesson) -> Unit,
+    private val onViewClick: (Lesson) -> Unit,
+    private val onDetailClick: (Lesson) -> Unit,
     private val onEditClick: (Lesson) -> Unit,
-    private val onDeleteClick: (Lesson) -> Unit,
-    private val onSubBabEditClick: (SubBab) -> Unit,
-    private val onSubBabDeleteClick: (SubBab) -> Unit
-) : ListAdapter<Lesson, TeacherLessonAdapter.TeacherLessonViewHolder>(LessonDiffCallback()) {
+    private val onDeleteClick: (Lesson) -> Unit
+) : ListAdapter<Lesson, TeacherLessonAdapter.ViewHolder>(DiffCallback) {
 
-    private val expandedItems = mutableSetOf<String>()
-    private val subBabMap = mutableMapOf<String, List<SubBab>>()
+    object DiffCallback : DiffUtil.ItemCallback<Lesson>() {
+        override fun areItemsTheSame(oldItem: Lesson, newItem: Lesson): Boolean =
+            oldItem.id == newItem.id
 
-    fun updateSubBabsForLesson(lessonId: String, subBabs: List<SubBab>) {
-        subBabMap[lessonId] = subBabs
-        val position = currentList.indexOfFirst { it.id == lessonId }
-        if (position != -1) {
-            notifyItemChanged(position)
-        }
+        override fun areContentsTheSame(oldItem: Lesson, newItem: Lesson): Boolean =
+            oldItem == newItem
     }
 
-    fun isLessonExpanded(lessonId: String): Boolean {
-        return expandedItems.contains(lessonId)
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TeacherLessonViewHolder {
-        val binding = ItemTeacherLessonBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent,
-            false
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val binding = ItemTeacherDashboardLessonBinding.inflate(
+            LayoutInflater.from(parent.context), parent, false
         )
-        return TeacherLessonViewHolder(binding)
+        return ViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: TeacherLessonViewHolder, position: Int) {
-        val lesson = getItem(position)
-        holder.bind(lesson, subBabMap[lesson.id] ?: emptyList())
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.bind(getItem(position))
     }
 
-    inner class TeacherLessonViewHolder(
-        private val binding: ItemTeacherLessonBinding
+    inner class ViewHolder(
+        private val binding: ItemTeacherDashboardLessonBinding
     ) : RecyclerView.ViewHolder(binding.root) {
-
-        private val teacherSubBabAdapter = TeacherSubBabAdapter(
-            onEditClick = onSubBabEditClick,
-            onDeleteClick = onSubBabDeleteClick
-        )
-
-        init {
-            binding.root.setOnClickListener {
-                val position = layoutPosition
-                if (position != RecyclerView.NO_POSITION) {
-                    val lesson = getItem(position)
-                    if (expandedItems.contains(lesson.id)) {
-                        expandedItems.remove(lesson.id)
-                        binding.subBabRecyclerView.visibility = View.GONE
-                        onLessonClick(lesson)
-                    } else {
-                        expandedItems.add(lesson.id)
-                        binding.subBabRecyclerView.visibility = View.VISIBLE
-                        onLessonClick(lesson)
-                    }
-                }
-            }
-
-            binding.editButton.setOnClickListener {
-                val position = layoutPosition
-                if (position != RecyclerView.NO_POSITION) {
-                    onEditClick(getItem(position))
-                }
-            }
-
-            binding.deleteButton.setOnClickListener {
-                val position = layoutPosition
-                if (position != RecyclerView.NO_POSITION) {
-                    onDeleteClick(getItem(position))
-                }
-            }
-
-            binding.subBabRecyclerView.apply {
-                adapter = teacherSubBabAdapter
-                layoutManager = LinearLayoutManager(context)
-            }
-        }
-
-        fun bind(lesson: Lesson, subBabs: List<SubBab>) {
+        fun bind(lesson: Lesson) {
+            val ctx = binding.root.context
             binding.apply {
-                titleText.text = lesson.title
-                contentText.text = lesson.content
-                
-                schoolLevelText.text = when(lesson.schoolLevel) {
-                    "sd" -> "SD"
-                    "smp" -> "SMP"
-                    "sma" -> "SMA"
+
+                root.setOnClickListener {
+                    onViewClick(lesson)
+                }
+
+                tvTitle.text = lesson.title
+                val levelText = when (lesson.schoolLevel) {
+                    EducationLevels.SD -> ctx.getString(R.string.elementarySchool)
+                    EducationLevels.SMP -> ctx.getString(R.string.juniorHighSchool)
+                    EducationLevels.SMA -> ctx.getString(R.string.seniorHighSchool)
                     else -> lesson.schoolLevel
                 }
 
-                subjectText.text = when (lesson.schoolLevel) {
-                    "sd" -> when (lesson.idSubject) {
-                        "mathES" -> "Matematika"
-                        "bahasaIndonesiaES" -> "Bahasa Indonesia"
-                        "naturalAndSocialScienceES" -> "IPAS"
+                val subjectName = when (lesson.schoolLevel) {
+                    EducationLevels.SD -> when (lesson.idSubject) {
+                        EducationLevels.Subjects.SD.MATH -> ctx.getString(R.string.math)
+                        EducationLevels.Subjects.SD.BAHASA_INDONESIA -> ctx.getString(R.string.indonesianLanguage)
+                        EducationLevels.Subjects.SD.NATURAL_AND_SOCIAL_SCIENCE -> ctx.getString(R.string.naturalAndSocialScience)
                         else -> lesson.idSubject
                     }
-                    "smp", "sma" -> when (lesson.idSubject) {
-                        "mathJHS" -> "Matematika"
-                        "bahasaIndonesiaJHS" -> "Bahasa Indonesia"
-                        "naturalScienceJHS" -> "IPA"
+
+                    EducationLevels.SMP -> when (lesson.idSubject) {
+                        EducationLevels.Subjects.SMP.MATH -> ctx.getString(R.string.math)
+                        EducationLevels.Subjects.SMP.BAHASA_INDONESIA -> ctx.getString(R.string.indonesianLanguage)
+                        EducationLevels.Subjects.SMP.NATURAL_SCIENCE -> ctx.getString(R.string.naturalScience)
                         else -> lesson.idSubject
                     }
+
+                    EducationLevels.SMA -> when (lesson.idSubject) {
+                        EducationLevels.Subjects.SMA.MATH -> ctx.getString(R.string.math)
+                        EducationLevels.Subjects.SMA.BAHASA_INDONESIA -> ctx.getString(R.string.indonesianLanguage)
+                        EducationLevels.Subjects.SMA.NATURAL_SCIENCE -> ctx.getString(R.string.naturalScience)
+                        else -> lesson.idSubject
+                    }
+
                     else -> lesson.idSubject
                 }
-                
-                durationText.text = itemView.context.getString(R.string.duration_learning, lesson.duration)
-                
-                difficultyText.text = when(lesson.difficulty) {
-                    "easy" -> "Mudah"
-                    "medium" -> "Sedang"
-                    "hard" -> "Sulit"
-                    else -> lesson.difficulty
-                }
 
-                if (expandedItems.contains(lesson.id)) {
-                    subBabRecyclerView.visibility = View.VISIBLE
-                    teacherSubBabAdapter.submitList(subBabs)
-                } else {
-                    subBabRecyclerView.visibility = View.GONE
-                }
+                tvSubjectLevel.text =
+                    ctx.getString(R.string.string_connected, subjectName, levelText)
+
+                btnDetail.setOnClickListener { onDetailClick(lesson) }
+                btnEdit.setOnClickListener { onEditClick(lesson) }
+                btnDelete.setOnClickListener { onDeleteClick(lesson) }
             }
-        }
-    }
-
-    private class LessonDiffCallback : DiffUtil.ItemCallback<Lesson>() {
-        override fun areItemsTheSame(oldItem: Lesson, newItem: Lesson): Boolean {
-            return oldItem.id == newItem.id
-        }
-
-        override fun areContentsTheSame(oldItem: Lesson, newItem: Lesson): Boolean {
-            return oldItem == newItem
         }
     }
 }

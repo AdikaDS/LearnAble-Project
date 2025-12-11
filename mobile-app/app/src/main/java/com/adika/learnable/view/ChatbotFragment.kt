@@ -8,23 +8,23 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.adika.learnable.R
 import com.adika.learnable.databinding.FragmentChatbotBinding
 import com.adika.learnable.model.Chip
 import com.adika.learnable.ui.ChatMessage
 import com.adika.learnable.ui.ChatbotAdapter
-import com.adika.learnable.viewmodel.ChatbotViewModel
-import com.adika.learnable.viewmodel.ChatbotViewModel.ChatBotState
+import com.adika.learnable.view.core.BaseFragment
+import com.adika.learnable.viewmodel.others.ChatbotViewModel
+import com.adika.learnable.viewmodel.others.ChatbotViewModel.ChatBotState
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class ChatbotFragment : Fragment() {
+class ChatbotFragment : BaseFragment() {
     private var _binding: FragmentChatbotBinding? = null
     private val binding get() = _binding!!
     private val viewModel: ChatbotViewModel by viewModels()
@@ -34,6 +34,7 @@ class ChatbotFragment : Fragment() {
     private var isWaitingForCustomQuestion = false
     private var lastErrorMessage = ""
     private var lastTimeoutMessage = ""
+    private var lastCacheKey: String? = null
 
     private val projectId = "learnable-22a3b"
     private val sessionId = "user-123"
@@ -53,6 +54,8 @@ class ChatbotFragment : Fragment() {
         observeViewModel()
         setInputGone(true)
         viewModel.fetchToken()
+
+        setupTextScaling()
     }
 
     private fun setupRecyclerView() {
@@ -62,14 +65,16 @@ class ChatbotFragment : Fragment() {
             val chipText = chipOption.text ?: ""
             addUserMessage(chipText)
 
-            if (chipText == "\uD83D\uDCAC Tanya Lagi ke AI") {
+            if (chipText == getString(R.string.ask_ai)) {
                 isWaitingForCustomQuestion = true
                 setInputGone(false)
+                lastCacheKey = null 
                 viewModel.sendMessage(chipText, projectId, sessionId)
                 return@ChatbotAdapter
             }
 
             userText = chipText
+            lastCacheKey = null 
             viewModel.sendMessage(chipText, projectId, sessionId)
         }
 
@@ -97,10 +102,17 @@ class ChatbotFragment : Fragment() {
 
         binding.btnRetryTimeout.setOnClickListener {
             hideTimeoutState()
-            // Retry dengan pesan terakhir
-            if (lastTimeoutMessage.isNotEmpty()) {
+
+            if (!lastCacheKey.isNullOrBlank()) {
+                viewModel.startPolling(lastCacheKey!!)
+            } else if (lastTimeoutMessage.isNotEmpty()) {
+
                 viewModel.sendMessage(lastTimeoutMessage, projectId, sessionId)
             }
+        }
+
+        binding.btnBack.setOnClickListener {
+            findNavController().navigateUp()
         }
     }
 
@@ -109,11 +121,12 @@ class ChatbotFragment : Fragment() {
         if (text.isNotEmpty()) {
             addUserMessage(text)
             binding.etMessage.text?.clear()
-            // Kirim ke backend jika ini pertanyaan custom
+
             if (isWaitingForCustomQuestion) {
                 isWaitingForCustomQuestion = false
                 userText = text
-                // Kirim dengan intent "Custom Pertanyaan"
+                lastCacheKey = null
+
                 viewModel.sendMessage(text, projectId, sessionId)
             }
         }
@@ -148,7 +161,7 @@ class ChatbotFragment : Fragment() {
             is ChatBotState.Loading -> showLoadingState()
             is ChatBotState.SuccessDialogflow -> {
                 hideAllStates()
-                // Ambil pesan bot dari fulfillmentText, fallback ke fulfillmentMessages jika perlu
+
                 val text = state.response?.queryResult?.fulfillmentText
                     ?.takeIf { it.isNotBlank() }
                     ?: state.response?.queryResult?.fulfillmentMessages
@@ -158,7 +171,6 @@ class ChatbotFragment : Fragment() {
 
                 if (text.isNotBlank()) addBotMessage(text)
 
-                // Tampilkan chips jika ada
                 state.response?.queryResult?.fulfillmentMessages?.forEach { msg ->
                     msg.payload?.richContent?.forEach { chipList ->
                         chipList.forEach { chipOption ->
@@ -173,8 +185,7 @@ class ChatbotFragment : Fragment() {
 
                 val fullfilmentText = state.response?.queryResult?.fulfillmentText ?: ""
 
-                // Ambil cache key dari backend ketika fullfilmenttext berisi 🤖 Jawaban sedang diproses... Mohon tunggu sebentar.
-                if (fullfilmentText.contains("\uD83E\uDD16 Jawaban sedang diproses... Mohon tunggu sebentar.")) {
+                if (fullfilmentText.contains(getString(R.string.processing_answer_ai))) {
                     val cacheKey = state.response?.queryResult?.outputContexts
                         ?.find { it.name.contains("waiting_custom_answer") || it.name.contains("waiting_theory_answer") }
                         ?.parameters?.get("cache_key") as? String
@@ -182,6 +193,7 @@ class ChatbotFragment : Fragment() {
                     Log.d("ChatbotFragment", "Extracted cacheKey: $cacheKey")
 
                     if (!cacheKey.isNullOrBlank()) {
+                        lastCacheKey = cacheKey
                         viewModel.startPolling(cacheKey)
                     }
                 }
@@ -191,7 +203,7 @@ class ChatbotFragment : Fragment() {
 
             is ChatBotState.SuccessGemini -> {
                 hideAllStates()
-                // Ambil pesan bot dari fulfillmentMessages
+
                 val text = state.response?.fulfillmentMessages
                     ?.firstOrNull { it.text?.text?.isNotEmpty() == true }
                     ?.text?.text?.firstOrNull()
@@ -199,7 +211,6 @@ class ChatbotFragment : Fragment() {
 
                 if (text.isNotBlank()) addBotMessage(text)
 
-                // Tampilkan chips jika ada
                 state.response?.fulfillmentMessages?.forEach { msg ->
                     msg.payload?.richContent?.forEach { chipList ->
                         chipList.forEach { chipOption ->
@@ -217,6 +228,7 @@ class ChatbotFragment : Fragment() {
                 hideAllStates()
                 showTimeoutState(state.message)
                 lastTimeoutMessage = userText
+
             }
 
             ChatBotState.Idle -> hideAllStates()
@@ -231,12 +243,12 @@ class ChatbotFragment : Fragment() {
 
     private fun handleInputVisibility(currentUserText: String) {
         when {
-            currentUserText.contains("Tanya Lagi ke AI") -> {
+            currentUserText.contains(getString(R.string.ask_ai)) -> {
                 setInputGone(false)
                 userText = ""
             }
 
-            currentUserText.contains("Menu Utama") -> {
+            currentUserText.contains(getString(R.string.main_menu)) -> {
                 setInputGone(true)
                 isWaitingForCustomQuestion = false
                 userText = ""
@@ -249,13 +261,16 @@ class ChatbotFragment : Fragment() {
         binding.btnSend.isEnabled = tokenReady
         binding.etMessage.isEnabled = tokenReady
         if (!token.isNullOrBlank() && messages.isEmpty()) {
-            viewModel.sendMessage("Mulai", projectId, sessionId)
+            viewModel.sendMessage(getString(R.string.start), projectId, sessionId)
         }
     }
 
     private fun showLoadingState() {
         hideAllStates()
         binding.loadingContainer.isVisible = true
+
+        binding.rvMessages.isEnabled = false
+        binding.rvMessages.isClickable = false
         startLoadingAnimation()
     }
 
@@ -268,7 +283,7 @@ class ChatbotFragment : Fragment() {
     private fun showTimeoutState(message: String) {
         hideAllStates()
         binding.timeoutContainer.isVisible = true
-        // Update pesan timeout jika diperlukan
+
         binding.timeoutContainer.findViewById<TextView>(R.id.tvTimeoutMessage)?.text = message
     }
 
@@ -277,6 +292,9 @@ class ChatbotFragment : Fragment() {
         binding.errorContainer.isGone = true
         binding.timeoutContainer.isGone = true
         binding.progressBar.isGone = true
+
+        binding.rvMessages.isEnabled = true
+        binding.rvMessages.isClickable = true
         stopLoadingAnimation()
     }
 
@@ -309,15 +327,11 @@ class ChatbotFragment : Fragment() {
 
     private fun getErrorMessage(error: String): String {
         return when {
-            error.contains("Token") -> "Gagal mendapatkan akses. Silakan coba lagi."
-            error.contains("server") -> "Gagal terhubung ke server. Periksa koneksi internet Anda."
-            error.contains("timeout") -> "Koneksi timeout. Silakan coba lagi."
-            else -> "Terjadi kesalahan: $error"
+            error.contains("Token") -> getString(R.string.failed_get_ai_access)
+            error.contains("server") -> getString(R.string.failed_connect_ai_server)
+            error.contains("timeout") -> getString(R.string.timeout_ai)
+            else -> getString(R.string.error_ai, error)
         }
-    }
-
-    private fun showToast(message: String) {
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 
     private fun setInputGone(gone: Boolean) {

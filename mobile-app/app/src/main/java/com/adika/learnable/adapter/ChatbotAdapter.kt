@@ -1,10 +1,15 @@
 package com.adika.learnable.ui
 
-import android.view.*
-import android.widget.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.adika.learnable.R
 import com.adika.learnable.model.Chip
+import com.adika.learnable.repository.TextScaleRepository
+import com.adika.learnable.util.TextScaleUtils
 import com.google.android.flexbox.FlexboxLayout
 
 class ChatbotAdapter(
@@ -31,16 +36,19 @@ class ChatbotAdapter(
                     .inflate(R.layout.item_user_message, parent, false)
                 UserViewHolder(view)
             }
+
             TYPE_BOT -> {
                 val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.item_bot_message, parent, false)
                 BotViewHolder(view)
             }
+
             TYPE_CHIP -> {
                 val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.item_chip_list, parent, false)
                 ChipViewHolder(view, onChipClick)
             }
+
             else -> throw IllegalArgumentException("Unknown view type")
         }
     }
@@ -63,12 +71,22 @@ class ChatbotAdapter(
     class UserViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(message: ChatMessage.UserMessage) {
             itemView.findViewById<TextView>(R.id.textUser).text = message.text
+
+            // Apply text scaling to the item view
+            val textScaleRepository = TextScaleRepository(itemView.context)
+            val scale = textScaleRepository.getScale()
+            TextScaleUtils.applyScaleToHierarchy(itemView, scale)
         }
     }
 
     class BotViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(message: ChatMessage.BotMessage) {
             itemView.findViewById<TextView>(R.id.textBot).text = message.text
+
+            // Apply text scaling to the item view
+            val textScaleRepository = TextScaleRepository(itemView.context)
+            val scale = textScaleRepository.getScale()
+            TextScaleUtils.applyScaleToHierarchy(itemView, scale)
         }
     }
 
@@ -97,6 +115,10 @@ class ChatbotAdapter(
 
                 chipContainer.addView(chip)
             }
+
+            val textScaleRepository = TextScaleRepository(itemView.context)
+            val scale = textScaleRepository.getScale()
+            TextScaleUtils.applyScaleToHierarchy(itemView, scale)
         }
     }
 }

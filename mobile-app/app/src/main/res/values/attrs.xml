@@ -10,4 +10,6 @@
         <attr name="enableStrengthMeter" format="boolean" />
         <attr name="enableFloatingHint" format="boolean"/>
     </declare-styleable>
+    <integer name="grid_span_subjects">2</integer>
+    <dimen name="grid_spacing_12">12dp</dimen>
 </resources>

@@ -19,12 +19,10 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        buildConfigField("String", "BASE_URL_IMGUR_API", "\"https://api.imgur.com/3/\"")
-        buildConfigField("String", "BASE_URL_TRANSCRIPTION_API", "\"http://192.168.0.108:8000/\"")
-        buildConfigField("String", "BASE_URL_RESEND_API", "\"https://api.resend.com/\"")
         buildConfigField("String", "BASE_URL_BACKEND", "\"https://learnable-project.onrender.com/\"")
         buildConfigField("String", "BASE_URL_DIALOGFLOW", "\"https://dialogflow.googleapis.com/\"")
-        buildConfigField("String", "IMGUR_CLIENT_ID", "\"0084c0adcd8d6f2\"")
+        buildConfigField("String", "BASE_URL_REGION", "\"https://emsifa.github.io/api-wilayah-indonesia/\"")
+        buildConfigField("String", "BASE_URL_FEEDBACK", "\"https://script.google.com/macros/s/AKfycbx2kyJp70KkiSDCF6d53I5jLVSUs085C2n-rOMbWBUCCVYgf9uJMo7DGpKMfITxG8RA/\"")
         buildConfigField("String", "AWS_ACCESS_KEY", "\"AKIAXFKVXH4LEZAU6VP7\"")
         buildConfigField("String", "AWS_SECRET_KEY", "\"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\"")
         buildConfigField("String", "S3_BUCKET_NAME", "\"learnable-lessons-bucket\"")
@@ -49,6 +47,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        isCoreLibraryDesugaringEnabled = true
     }
     kotlinOptions {
         jvmTarget = "17"
@@ -91,14 +90,23 @@ dependencies {
     implementation(libs.splash.screen)
     implementation(libs.lottie)
     implementation(libs.flex.box)
+    implementation(libs.textdrawable)
+    implementation(libs.ui.firestore)
+    implementation(libs.kizitonwose.calendar)
+    coreLibraryDesugaring(libs.desugar)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    // ExoPlayer untuk video dan audio
-    implementation(libs.exoplayer.core)
-    implementation(libs.exoplayer.ui)
+    // ExoPlayer untuk video dengan fitur lengkap
+    implementation(libs.media3.exoplayer.core)
+    implementation(libs.media3.exoplayer.ui)
+    implementation(libs.media3.exoplayer.dash)
+    implementation(libs.media3.exoplayer.hls)
+    implementation(libs.media3.exoplayer.rtsp)
+    implementation(libs.media3.datasource)
+    implementation(libs.media3.datasource.okhttp)
 
     // AWS
     implementation(libs.aws.sdk)

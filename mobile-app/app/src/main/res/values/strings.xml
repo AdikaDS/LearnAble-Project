@@ -2,7 +2,25 @@
     <string name="app_name" translatable="false">LearnAble</string>
     <string name="app_logo" translatable="false">LearnAble Logo</string>
 
+    <!-- Notifications -->
+    <string name="notifications">Notifikasi</string>
+    <string name="no_notifications">Tidak ada notifikasi</string>
+    <string name="system">Sistem</string>
+    <string name="lesson_completion_message">Kamu berhasil menyelesaikan pelajaran %1$s jenjang %2$s dengan materi %3$s - subbab %3$s</string>
+    <string name="title_daily_reminder">Waktunya Belajar! 📚</string>
+    <string name="desc_daily_reminder">Kamu belum belajar hari ini. Yuk, mulai belajar sekarang!</string>
+    <string name="title_completion_subbab">Selamat! 🎉</string>
+    <string name="content_completion_subbab">Kamu telah menyelesaikan: %1$s</string>
+    <string name="desc_completion_subbab">Kamu telah berhasil menyelesaikan subbab %1$s dari materi %2$s. Terus semangat belajar!</string>
+
     <string name="web_client_id" translatable="false">854871060006-vripgl49aajbp30kmp69fjnoen3hsi25.apps.googleusercontent.com</string>
+
+    <!-- Accessibility -->
+    <string name="accessibility">Aksesibilitas</string>
+    <string name="text_size">Ukuran Teks</string>
+    <string name="small_text">Kecil</string>
+    <string name="medium_text">Sedang</string>
+    <string name="large_text">Besar</string>
 
     <!-- Sign Up and Login Screen -->
     <string name="full_name">Nama Lengkap</string>
@@ -10,7 +28,7 @@
     <string name="password">Kata Sandi</string>
     <string name="nisn" translatable="false">NISN (10 digit)</string>
     <string name="nip" translatable="false">NIP</string>
-    <string name="role">Pilih Peran</string>
+    <string name="pick_role">Pilih Peran</string>
     <string name="sign_up">Daftar</string>
     <string name="or">ATAU</string>
     <string name="sign_up_with_google">Daftar dengan Google</string>
@@ -35,6 +53,364 @@
     <string name="reset">Mengatur Ulang</string>
     <string name="logout">Keluar</string>
 
+    <!-- Dashboard Student Screen-->
+    <string name="greeting">Hai %1$s!</string>
+    <string name="question_learn">Ingin belajar apa hari ini?</string>
+    <string name="study_calendar">Kalender Belajar</string>
+    <string name="see_progress">Yuk lihat kemajuan belajarmu!</string>
+    <string name="your_progress">Kemajuan Belajarmu</string>
+    <string name="recommend_video">Rekomendasi Video Materi</string>
+    <string name="subject">Mata Pelajaran</string>
+    <string name="choose_level">Pilih Jenjang</string>
+    <string name="fail_get_subjects">Gagal memuat pelajaran</string>
+    <string name="fail_get_progress">Gagal memuat progress</string>
+    <string name="all_bab">Semua Bab</string>
+    <string name="all_subbab">Semua Subbab</string>
+    <string name="search_hint_subject">Cari topik yang ingin dipelajari</string>
+
+    <string name="quiz">Kuis</string>
+    <string name="video" translatable="false">Video</string>
+    <string name="material">Materi</string>
+
+    <!-- Subject Screen -->
+    <string name="title_subject_screen">Mau belajar apa hari ini?</string>
+
+    <!--Quiz Screen-->
+    <string name="back">Kembali</string>
+    <string name="next">Selanjutnya</string>
+    <string name="end_quiz">Akhiri kuis</string>
+    <string name="your_grade">Nilai kamu %1$d</string>
+    <string name="rework">Kerjakan Ulang</string>
+    <string name="see_explanation">Lihat Pembahasan</string>
+    <string name="question_explanation">Pembahasan Soal:</string>
+    <string name="right_answer">Jawaban yang benar adalah %1$s</string>
+    <string name="time_answer">Waktu Pengerjaan</string>
+    <string name="time_elapsed">Waktu berjalan: %1$s</string>
+    <string name="wrong_answer">Jawaban Salah</string>
+    <string name="correct_answer">Jawaban Benar</string>
+    <string name="pending_review">Belum dikoreksi</string>
+    <string name="quiz_result">Hasil Kuis</string>
+    <string name="answer_wrong">Sayang banget, jawaban kamu salah</string>
+    <string name="answer_correct">Selamat, jawaban kamu benar!</string>
+    <string name="motivation1">Mantapp! Pertahankan prestasimu!</string>
+    <string name="motivation2">Bagus! Sedikit lagi nih, yuk semangat!</string>
+    <string name="motivation3">Jangan menyerah! Coba lagi dan tingkatkan prestasimu!</string>
+    <string name="quiz_essay_answer_hint">Tulis jawaban kamu di sini</string>
+    <string name="essay_not_graded">Essay belum dikoreksi</string>
+
+    <!-- More Screen -->
+    <string name="more_title">Lainnya</string>
+    <string name="my_account">Akun saya</string>
+    <string name="saved_material">Materi disimpan</string>
+    <string name="settings">Pengaturan</string>
+    <string name="about_us">Tentang Kami</string>
+    <string name="feedback">Kritik &amp; Saran</string>
+    <string name="logout_menu">Keluar</string>
+
+    <!--Profile Screen-->
+    <string name="change_password">Ubah kata sandi</string>
+    <string name="change_profile">Ubah profil</string>
+    <string name="address">Alamat</string>
+    <string name="city">Kota</string>
+    <string name="province">Provinsi</string>
+    <string name="school_detail">Detail Sekolah</string>
+    <string name="grade">Kelas</string>
+    <string name="contact_parent">Kontak Orangtua/Wali</string>
+    <string name="parent_name">Nama Orangtua/Wali</string>
+    <string name="parent_number">Nomor HP Orangtua/Wali</string>
+
+    <!--Ubah Profile Screen-->
+    <string name="change_profile_title">Ubah Profil</string>
+    <string name="change_photo_profile">Ubah foto profil</string>
+    <string name="detail_profil" translatable="false">Detail Profil</string>
+    <string name="gender">Jenis Kelamin</string>
+    <string name="phone_id_format" translatable="false">(+62) %1$s</string>
+    <string name="must_be_filled">Wajib diisi ya</string>
+    <!--Gender-->
+    <string name="gender_male">Laki-laki</string>
+    <string name="gender_female">Perempuan</string>
+
+    <string name="duration_video" translatable="false">%1$s/%2$s</string>
+
+    <!--Admin Dashboard Screen-->
+    <string name="admin_dashboard_title">Admin Dashboard</string>
+    <string name="application_detail">Detail Pemohon</string>
+    <string name="application_infromation">Informasi Pemohon</string>
+    <string name="application_user">Permohonan Persetujuan Akun</string>
+    <string name="search_byname">Cari bedasarkan nama</string>
+    <string name="role">Peran</string>
+    <string name="detail" translatable="false">Detail</string>
+    <string name="created_application">Permohonan dibuat</string>
+    <string name="loading">Memuat …</string>
+    <string name="not_fill_yet">Belum diisi …</string>
+    <string name="error_loading_data">Gagal memuat data</string>
+    <string name="number">Nomor HP</string>
+    <string name="confirmation_approval_title">Setujui Permohonan</string>
+    <string name="confirmation_approval_desc">Apakah kamu yakin untuk setujui permohonan ini?</string>
+    <string name="approval_success_title">Permohonan berhasil disetujui!</string>
+    <string name="approval_success_desc">Kamu telah setujui permohonan ini</string>
+    <string name="back_to_homepage">Kembali ke Halaman Utama</string>
+    <string name="all_role">Semua Peran</string>
+    <string name="all_status">Semua Status</string>
+    <string name="status" translatable="false">Status</string>
+    <string name="sort">Sortir</string>
+    <string name="approve">Setujui</string>
+    <string name="reject">Tolak</string>
+    <string name="approved">Disetujui</string>
+    <string name="rejected">Ditolak</string>
+    <string name="fail_find_user">Gagal mencari user</string>
+    <string name="filter" translatable="false">Filter</string>
+    <string name="date">Tanggal</string>
+    <string name="name">Nama</string>
+    <string name="sort_order">Urutan Sortir</string>
+    <string name="ascending">Naik</string>
+    <string name="descending">Turun</string>
+    <string name="save">Simpan</string>
+
+    <!-- Dashboard Guru-->
+    <string name="dashboard_teacher_toolbar">Dashboard Guru</string>
+    <string name="search_bylesson">Cari berdasarkan nama Bab</string>
+    <string name="search_bysubbab">Cari berdasarkan nama Subbab</string>
+
+    <!-- CRUD Guru-->
+    <string name="add_lesson">Tambah Bab</string>
+    <string name="upload_cover"><![CDATA[<font color=\'#FF0000\'>*</font> Unggah Gambar Depan]]></string>
+    <string name="upload_picture">Unggah Gambar</string>
+    <string name="name_lesson"><![CDATA[<font color=\'#FF0000\'>*</font>Nama Bab]]></string>
+    <string name="fill_name_lesson">Isi Nama Bab</string>
+    <string name="empty_lesson_title">Belum ada Bab</string>
+    <string name="empty_lesson_desc">Tambahkan Bab baru dengan menekan tombol \"Tambah Bab\" di atas</string>
+    <string name="school_level_crud"><![CDATA[<font color=\'#FF0000\'>*</font>Jenjang Pendidikan]]></string>
+    <string name="choose_school_level">Pilih Jenjang</string>
+    <string name="subject_crud"><![CDATA[<font color=\'#FF0000\'>*</font>Mata Pelajaran]]></string>
+    <string name="choose_subject">Pilih Mata Pelajaran</string>
+
+    <string name="add_subbab">Tambah Subbab</string>
+    <string name="edit_subbab">Edit Subbab</string>
+    <string name="name_subbab"><![CDATA[<font color=\'#FF0000\'>*</font>Nama Subbab]]></string>
+    <string name="fill_name_subbab">Isi Nama Subbab</string>
+    <string name="empty_subbab_title">Belum ada Subbab</string>
+    <string name="empty_subbab_desc">Tambahkan subbab baru dengan menekan tombol \"Tambah Subbab\" di atas</string>
+    <string name="choose_bab"><![CDATA[<font color=\'#FF0000\'>*</font>Pilih Bab]]></string>
+    <string name="desc_shoose_bab">Pilih Bab</string>
+    <string name="learning_material"><![CDATA[<font color=\'#FF0000\'>*</font>Materi Pembelajaran]]></string>
+    <string name="upload_material">Unggah Materi</string>
+    <string name="learning_video"><![CDATA[<font color=\'#FF0000\'>*</font>Video Pembelajaran]]></string>
+    <string name="upload_video">Unggah Video</string>
+    <string name="subtitle" translatable="false">Subtitle</string>
+    <string name="upload_subtitle">Unggah Subtitle</string>
+    <string name="quiz_crud"><![CDATA[<font color=\'#FF0000\'>*</font>Kuis]]></string>
+    <string name="add_quiz">Tambah Kuis</string>
+    <string name="edit_quiz">Edit Kuis</string>
+    
+    <string name="passing_score"><![CDATA[<font color=\'#FF0000\'>*</font>Nilai Kelulusan]]></string>
+    <string name="fill_passing_score">Isi Nilai Kelulusan</string>
+    <string name="multiple_choice">Pilihan Ganda</string>
+    <string name="essay">Esai</string>
+    <string name="fill_question">Isi pertanyaan</string>
+    <string name="choice_right_answer">Pilih Jawaban Benar</string>
+    <string name="add">Tambah</string>
+
+    <string name="option1">Opsi 1</string>
+    <string name="option2">Opsi 2</string>
+    <string name="option3">Opsi 3</string>
+    <string name="option4">Opsi 4</string>
+
+    <string name="note_correct_answer">Catatan : Pilih satu jawaban benar</string>
+    <string name="explanation_answer"><![CDATA[<font color=\'#FF0000\'>*</font>Berikan Penjelasan Soal:]]></string>
+    <string name="question"><![CDATA[<font color=\'#FF0000\'>*</font>Pertanyaan]]></string>
+    <string name="fill_explanation_answer">Isi penjelasan soal</string>
+
+    <string name="waiting_uplaod">Mohon tunggu hingga unggah selesai</string>
+    <string name="fail_read_file">Gagal membaca file</string>
+    <string name="fail_save_filecache">Gagal menyimpan file ke cache: %1$s</string>
+    <string name="fail_saving_file">File tidak tersimpan dengan benar</string>
+    <string name="fail_validate_file">Gagal validasi file</string>
+    <string name="file_ready_upload">File siap untuk diunggah</string>
+    <string name="fail_processing_file">Gagal memproses file: %1$s</string>
+    <string name="file_empty">File kosong</string>
+    <string name="file_not_found">File tidak ditemukan</string>
+    <string name="file_too_big">Ukuran file terlalu besar. Maksimal: %1$d MB</string>
+    <string name="format_file_not_supported">Format file tidak didukung. Format yang didukung: %1$s</string>
+    <string name="success_upload">Sukses Mengunggah: %1$s</string>
+    <string name="string_connected" translatable="false">%1$s - %2$s</string>
+
+    <string name="quiz_success_added">Kuis berhasil disimpan</string>
+    <string name="failed_save_subbab">Gagal menyimpan subbab</string>
+    <string name="failed_update_subbab">Gagal memperbarui subbab</string>
+    <string name="lesson_id_invalid">Lesson ID tidak valid</string>
+    <string name="fill_name_subbab_first">Nama subbab harus diisi terlebih dahulu</string>
+    <string name="processing">Memproses …</string>
+    <string name="failed_update_cover">Gagal memperbarui cover</string>
+    <string name="failed_load_subbab">Gagal memuat data subbab</string>
+    <string name="cover_uploaded">Cover sudah diunggah</string>
+    <string name="video_uploaded">Video sudah diunggah</string>
+    <string name="pdf_uploaded">PDF sudah diunggah</string>
+    <string name="subtitle_uploaded">Subtitle sudah diunggah</string>
+    <string name="format_file_pdf">Format file tidak didukung. Hanya file PDF</string>
+    <string name="format_file_video">Format file tidak didukung (%1$s). Hanya file video (mp4, avi, mov)</string>
+    <string name="format_file_subtitle">Format file tidak didukung. Hanya file SRT</string>
+    <string name="failed_read_video_file">Gagal membaca file video</string>
+    <string name="its_correct_answer">Jawaban Ini Benar?</string>
+    <string name="confirmation_correct_answer">Apa kamu yakin ingin membenarkan jawaban ini?</string>
+
+
+    <string name="subtitle_delete_lesson">Apakah kamu yakin ingin menghapus bab ini dari daftar penambahan bab kamu?</string>
+
+    <!--Ubah Password Screen-->
+    <string name="change_password_title">Ubah Kata Sandi</string>
+    <string name="previous_password">Kata Sandi Sebelumnya</string>
+    <string name="new_password">Kata Sandi Baru</string>
+    <string name="repeat_new_password">Ulangi Kata Sandi Baru</string>
+
+    <!--Feedback Screen-->
+    <string name="subject_feedback">Subject Kritik &amp; Saran</string>
+    <string name="category_feedback">Kategori</string>
+    <string name="rating_feedback">Rating Aplikasi</string>
+    <string name="choose_rating_feedback">Pilih Rating</string>
+    <string name="message_feedback">Pesan Kritik &amp; Saran</string>
+    <string name="send_feedback">Kirim Kritik &amp; Saran</string>
+    <string name="bug_feedback" translatable="false">Bug</string>
+    <string name="uiux_feedback" translatable="false">UI/UX</string>
+    <string name="content_feedback" translatable="false">Konten</string>
+    <string name="other_feedback" translatable="false">Lainnya</string>
+
+    <!-- Bookmark -->
+    <string name="title_saved_bookmark">Materi berhasil disimpan</string>
+    <string name="subtitle_saved_bookmark">Materi yang sudah disimpan dapat diakses melalui menu materi yang ada di halaman “Lainnya”</string>
+    <string name="title_delete">Hapus Ditandai?</string>
+    <string name="subtitle_delete_bookmark">Apakah kamu yakin ingin menghapus materi ini dari daftar ditandai?</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Pengaturan</string>
+    <string name="language">Bahasa</string>
+    <string name="notifitcation">Notifikasi</string>
+    <string name="vibration">Getaran</string>
+    <string name="choose_language">Pilih Bahasa</string>
+    <string name="indonesian">Indonesia</string>
+    <string name="english">Inggris</string>
+
+    <!-- About Us Screen -->
+    <string name="screen_about_us_title">Tentang Kami</string>
+    <string name="about_us_title">Aplikasi LearnAble</string>
+    <string name="about_us_desc">Aplikasi Learnable merupakan aplikasi pembelajaran yang ditujukan untuk penderita disabilitas Tunarungu. Di aplikasi tersebut, user akan dihadirkan 3 pilihan role yaitu, yaitu sebagai siswa, orangtua, dan guru. Sebagai siswa , pengguna dapat mengakses berbagai materi pembelajaran yang telah disesuaikan dengan kebutuhan mereka, seperti materi dalam bentuk visual contohnya video dengan subtitle atau deskripsi audio, ataupun hanya sebuah teks saja. Sementara itu, sebagai guru atau pengajar, pengguna dapat membuat dan mengunggah konten pembelajaran tambahan. Kemudian, sebagai orangtua, pengguna dapat memantau progress belajar siswa.</string>
+
+    <!-- Bookmark Screen-->
+    <string name="title_bookmark_screen">Materi Disimpan</string>
+    <string name="all_level">Semua Jenjang</string>
+    <string name="all_subject">Semua Pelajaran</string>
+    <string name="image_empty_bookmark" translatable="false">Empty Bookmark</string>
+    <string name="empty_bookmark_title">Belum ada materi yang di-tandai</string>
+    <string name="empty_bookmark_desc">Kamu bisa tandai materi dengan tekan ^1 pada materi</string>
+    <string name="image_empty_bookmark_desc">Empty Bookmark Description</string>
+
+    <!-- Progress Screen-->
+    <string name="title_progress_screen">Kemajuan Belajar</string>
+    <string name="image_empty_progress" translatable="false">Empty Progress</string>
+    <string name="empty_progress_title">Kamu belum belajar hari ini</string>
+    <string name="empty_progress_desc">Yuk mulai belajarmu!</string>
+    <string name="btn_progress">Belajar Sekarang</string>
+    <string name="empty_data">Belum ada data untuk ditampilkan</string>
+    <string name="empty_progress_spirit">Belum ada kemajuan nih. Yukbelajar sekarang!</string>
+    <string name="learning_history">Riwayat Belajar</string>
+    <string name="see_all">Lihat Semua</string>
+    <string name="accessibility_text_size_title">Pilih Ukuran Teks</string>
+    <string name="accessibility_text_size">Ukuran Teks</string>
+    <string name="done">Selesai</string>
+    <string name="learning">Sedang Belajar</string>
+    <string name="not_started">Belum Dimulai</string>
+    <string name="overall_progress">Kemajuan Secara Keseluruhan</string>
+    <string name="subject_progress">Kemajuan Pelajaran</string>
+    <string name="lesson_progress">Kemajuan Bab</string>
+    <string name="subbab_progress">Kemajuan Sub Bab</string>
+    <string name="just_now">Baru Saja</string>
+    <string name="minute_ago">%1$d Menit lalu</string>
+    <string name="hours_ago">%1$d Jam lalu</string>
+    <string name="days_ago">%1$d Hari lalu</string>
+    <string name="weeks_ago">%1$d Minggu lalu</string>
+    <string name="months_ago">%1$d Bulan lalu</string>
+    <string name="years_ago">%1$d Tahun lalu</string>
+    <string name="quiz_percent" translatable="false">%1$s%%</string>
+    <string name="done_material" translatable="false">%1$d/%2$d</string>
+    <string name="filter_level">Filter Jenjang</string>
+    <string name="streak">%1$d Hari</string>
+    <string name="streak_desc" translatable="false">Streak</string>
+    <string name="time_desc">Waktu</string>
+    <string name="average_quiz_desc">Rata-rata Quiz</string>
+    <string name="choose_level_first">Pilih Jenjang Dulu</string>
+
+
+    <!-- Month-->
+    <string name="month_january">Januari</string>
+    <string name="month_february">Februari</string>
+    <string name="month_march">Maret</string>
+    <string name="month_april" translatable="false">April</string>
+    <string name="month_may">Mei</string>
+    <string name="month_june">Juni</string>
+    <string name="month_july">Juli</string>
+    <string name="month_august">Agustus</string>
+    <string name="month_september" translatable="false">September</string>
+    <string name="month_october">Oktober</string>
+    <string name="month_november" translatable="false">November</string>
+    <string name="month_december">Desember</string>
+
+    <string-array name="months_id">
+        <item>@string/month_january</item>
+        <item>@string/month_february</item>
+        <item>@string/month_march</item>
+        <item>@string/month_april</item>
+        <item>@string/month_may</item>
+        <item>@string/month_june</item>
+        <item>@string/month_july</item>
+        <item>@string/month_august</item>
+        <item>@string/month_september</item>
+        <item>@string/month_october</item>
+        <item>@string/month_november</item>
+        <item>@string/month_december</item>
+    </string-array>
+
+    <!-- Format judul "BULAN TAHUN" -->
+    <string name="month_year_format" translatable="false">%1$s %2$d</string>
+
+    <!-- Day-->
+    <string name="monday">Sen</string>
+    <string name="tuesday">Sel</string>
+    <string name="wednesday">Rab</string>
+    <string name="thursday">Kam</string>
+    <string name="friday">Jum</string>
+    <string name="saturday">Sab</string>
+    <string name="sunday">Min</string>
+
+    <string-array name="days_id">
+        <item>@string/monday</item>
+        <item>@string/tuesday</item>
+        <item>@string/wednesday</item>
+        <item>@string/thursday</item>
+        <item>@string/friday</item>
+        <item>@string/saturday</item>
+        <item>@string/sunday</item>
+    </string-array>
+
+    <!--Placeholder-->
+    <string name="placeholder_name" translatable="false">Placeholder Nama</string>
+    <string name="placeholder_email" translatable="false">Placeholder Email</string>
+    <string name="placeholde_phone_number" translatable="false">Placeholder Nomor HP</string>
+    <string name="placeholder_address" translatable="false">Placeholder Alamat</string>
+    <string name="placeholder_city" translatable="false">Placeholder Kota</string>
+    <string name="placeholder_province" translatable="false">Placeholder Provinsi</string>
+    <string name="placeholder_grade" translatable="false">Placeholder Kelas</string>
+    <string name="placeholder_parent_name" translatable="false">Placeholder Nama Orangtua/Wali</string>
+    <string name="placeholder_parent_number" translatable="false">Placeholder Nomor Telepon Orangtua/Wali</string>
+    <string name="placeholder_role" translatable="false">Placeholder Peran</string>
+    <string name="placeholder_approval" translatable="false">Placeholder Approval</string>
+    <string name="placeholder_application_created" translatable="false">Placeholder Tanggal dibuat</string>
+    <string name="placeholder_application_status" translatable="false">Placeholder Status</string>
+    <string name="placeholder_idnumber" translatable="false">Placeholder NISN/NIP</string>
+
+    <!--Dialog-->
+    <string name="logout_account">Keluar Akun?</string>
+    <string name="logout_account_desc">Apakah Anda yakin ingin keluar dari akun ini?</string>
+
     <!-- Validation Messages -->
     <string name="name_required">Nama tidak boleh kosong</string>
     <string name="email_required">Email tidak boleh kosong</string>
@@ -53,7 +429,6 @@
     <string name="nisn_invalid">NISN harus terdiri dari 10 digit angka</string>
     <string name="nip_required">NIP tidak boleh kosong</string>
     <string name="nip_invalid">NIP harus terdiri dari 8–18 digit angka</string>
-
 
     <!-- Firebase Error Messages -->
     <string name="email_bad_format">Format email tidak valid</string>
@@ -94,20 +469,22 @@
     <string name="back_to_login">Kembali Ke Halaman Masuk</string>"
 
     <!--Keterangan-keterangan-->
-    <string name="duration_learning">%1$d menit</string>
-    <string name="progress_text">Kemajuan: %1$d/%2$d</string>
+    <string name="lesson">Materi</string>
+    <string name="subbab">Sub Bab</string>
+    <string name="time_spent">%1$d menit %2$d detik</string>
+    <string name="duration_learning_minutes">%1$d menit</string>
+    <string name="progress_text">Selesai %1$d dari %2$d</string>
     <string name="default_progress_text">Kemajuan: 0/0</string>
     <string name="progress_percentage" translatable="false">%1$d%%</string>
     <string name="completed_lessons">%1$d/%2$d bab</string>
     <string name="quiz_average">Rata-rata Quiz: %.1f</string>
-    <string name="streak">%1$d hari</string>
     <string name="total_time_spent">Waktu keseluruhan: %1$d menit</string>
     <string name="last_Activity">Aktivitas terakhir: %1$s</string>
     <string name="total_lessons">%1$d Materi</string>
+    <string name="total_bab" translatable="false">%1$s Bab</string>
+    <string name="total_subbab" translatable="false">%1$s Subbab</string>
     <string name="total_quizzez">%1$d Kuis</string>
-    <string name="data_not_completed">Data tidak lengkap</string>\
-    <string name="add_lesson">Tambah Materi</string>
-    <string name="edit_lesson">Edit Materi</string>
+    <string name="data_not_completed">Data tidak lengkap</string>
     <string name="invalid_role">Peran pengguna tidak valid</string>
     <string name="succes_add_lesson">Materi berhasil ditambahkan</string>
     <string name="fail_add_lesson">Gagal menambahkan materi: %1$s</string>
@@ -122,6 +499,7 @@
     <string name="delete_lesson">Hapus materi</string>
     <string name="confirm_delete_lesson">Apakah Anda yakin ingin menghapus materi ini?</string>
     <string name="delete">Hapus</string>
+    <string name="edit">Ubah</string>
     <string name="cancel">Batal</string>
     <string name="delete_subbab">Hapus Sub Bab</string>
     <string name="confirm_delete_subbab">Apakah Anda yakin ingin menghapus sub bab ini?</string>
@@ -134,7 +512,12 @@
     <string name="exit_app">Keluar Aplikasi</string>
     <string name="confirm_exit_app">Apakah Anda yakin ingin keluar?</string>
     <string name="yes">Ya</string>
-    <string name="no">No</string>
+    <string name="no">Tidak</string>
+    <string name="jawaban_ini_benar">Jawaban Ini Benar?</string>
+    <string name="jawaban_ini_salah">Jawaban Ini Salah?</string>
+    <string name="confirm_correct_answer">Apa kamu yakin ingin membenarkan jawaban ini?</string>
+    <string name="confirm_wrong_answer">Apa kamu yakin ingin menyatakan jawaban ini salah?</string>
+    <string name="yakin">Yakin</string>
 
     <!--Text View-->
     <string name="children_name">Nama Anak</string>
@@ -179,18 +562,22 @@
     <string name="duration_required">Durasi harus diisi</string>
     <string name="type_disability_required">Jenis Disabilitas harus dipilih</string>
     <string name="subject_required">Mata pelajaran harus dipilih</string>
-    <string name="school_level_required">Level sekolah harus dipilih</string>
+    <string name="school_level_required">Tingkat sekolah harus dipilih</string>
     <string name="difficulty_required">Tingkat kesulitan harus dipilih</string>
     <string name="fail_update_progress">Gagal memperbarui kemajuan</string>
 
+    <string-array name="genders">
+        <item>@string/gender_male</item>
+        <item>@string/gender_female</item>
+    </string-array>
+
+
     <string-array name="roles">
         <item>@string/student</item>
-        <item>@string/parent</item>
         <item>@string/teacher</item>
     </string-array>
 
     <string name="student">Siswa</string>
-    <string name="parent">Orangtua</string>
     <string name="teacher">Guru</string>
 
     <string-array name="school_levels">
@@ -199,9 +586,9 @@
         <item>@string/seniorHighSchool</item>
     </string-array>
 
-    <string name="elementarySchool">SD</string>
-    <string name="juniorHighSchool">SMP</string>
-    <string name="seniorHighSchool">SMA</string>
+    <string name="elementarySchool">Sekolah Dasar</string>
+    <string name="juniorHighSchool">Sekolah Menengah Pertama</string>
+    <string name="seniorHighSchool">Sekolah Menengah Atas</string>
 
     <string-array name="elementarySchoolSubjects">
         <item>@string/math</item>
@@ -215,6 +602,12 @@
     <string name="naturalScience">Ilmu Pengetahuan Alam</string>
 
     <string-array name="juniorHighSchoolSubjects">
+        <item>@string/math</item>
+        <item>@string/indonesianLanguage</item>
+        <item>@string/naturalScience</item>
+    </string-array>
+
+    <string-array name="seniorHighSchoolSubjects">
         <item>@string/math</item>
         <item>@string/indonesianLanguage</item>
         <item>@string/naturalScience</item>
@@ -241,11 +634,18 @@
     <string name="pic_emoji">Gambar Emoji</string>
     <string name="pic_send">Gambar Kirim</string>
 
+    <!--Bottom Navbar-->
+    <string name="nav_home">Beranda</string>
+    <string name="nav_learn">Belajar</string>
+    <string name="nav_progress">Kemajuan</string>
+    <string name="nav_more">Lainnya</string>
+
     <!-- Quiz -->
     <string name="quiz_not_found">Quiz tidak ditemukan</string>
     <string name="error_loading_quiz">Gagal memuat quiz</string>
     <string name="error_submitting_quiz">Gagal mengirim jawaban quiz</string>
     <string name="error_loading_results">Gagal memuat hasil quiz</string>
+    <string name="error_grading_essay">Gagal menilai jawaban essay</string>
     <string name="answer_all_questions">Silakan jawab semua pertanyaan</string>
     <string name="time_remaining">Sisa Waktu: %1$s</string>
     <string name="time_up">Waktu Habis!</string>
@@ -255,5 +655,47 @@
     <string name="admin_confirmation_title">Menunggu Persetujuan Admin</string>
     <string name="waiting_admin_approval">Akun Anda sedang menunggu persetujuan dari admin. Mohon tunggu beberapa saat.</string>
     <string name="lorem_ipsum" translatable="false">loremipsum</string>
+    <string name="duration_learning_seconds">%1$d detik</string>
+    <string name="edit_lesson">Edit Bab</string>
+    <string name="detail_bab">Detail Bab</string>
+    <string name="tingkat_pendidikan">Tingkat Pendidikan</string>
+    <string name="lihat_subbab">Lihat Subbab</string>
+    <string name="detail_subbab">Detail Subbab</string>
+    <string name="materi_pembelajaran">Materi Pembelajaran</string>
+    <string name="video_materi">Video Materi</string>
+    <string name="lihat_materi">Lihat Materi</string>
+    <string name="lihat_video">Lihat Video</string>
+    <string name="detail_kuis">Detail Kuis</string>
+    <string name="pertanyaan">Pertanyaan</string>
+    <string name="respon">Respon</string>
+
+    <string name="failed_process_pict">Gagal memproses gambar</string>
+    <string name="passed_score_must_be_fill">Skor kelulusan harus diisi</string>
+    <string name="passed_score_inbetween">Skor kelulusan harus antara 0–100</string>
+    <string name="minimun_question">Minimal harus ada 1 pertanyaan</string>
+    <string name="question_must_be_fill">Pertanyaan %1$d harus diisi</string>
+    <string name="question_more_then1">Pertanyaan %1$d harus memiliki minimal 2 opsi</string>
+    <string name="question_must_be_have_answer">Pertanyaan %1$d harus memiliki jawaban yang benar</string>
+    <string name="explanation_must_be_filled">Penjelasan pertanyaan %1$d harus diisi</string>
+    <string name="subbab_id_not_valid">SubBab ID tidak valid</string>
+    <string name="failed_load_quiz">Gagal memuat kuis</string>
+    <string name="failed_update_quiz">Gagal update kuis</string>
+
+    <string name="weak">Lemah</string>
+    <string name="strong">Kuat</string>
+
+    <string name="ask_ai">💬 Tanya Lagi ke AI</string>
+    <string name="processing_answer_ai">🤖 Jawaban sedang diproses… Mohon tunggu sebentar.</string>
+    <string name="main_menu">Menu Utama</string>
+    <string name="start">Mulai</string>
+    <string name="failed_get_ai_access">Gagal mendapatkan akses. Silakan coba lagi.</string>
+    <string name="failed_connect_ai_server">Gagal terhubung ke server. Periksa koneksi internet Anda.</string>
+    <string name="timeout_ai">Koneksi timeout. Silakan coba lagi.</string>
+    <string name="error_ai">Terjadi kesalahan: %1$s</string>
+
+    <string name="failed_get_token">Gagal mendapatkan token: %1$s</string>
+    <string name="token_not_ready">Token belum tersedia. Silakan coba lagi.</string>
+    <string name="answer_ai_not_reay_until">Jawaban belum tersedia setelah %1$d detik. Silakan coba lagi.</string>
+    <string name="answer_ai_not_ready">Jawaban belum tersedia. Silakan coba lagi.</string>
 
 </resources>

@@ -12,20 +12,15 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialException
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.adika.learnable.R
-import com.adika.learnable.adapter.ChildRowAdapter
-import com.adika.learnable.adapter.StudentSearchAdapter
 import com.adika.learnable.customview.IconEditTextView
 import com.adika.learnable.databinding.FragmentSignupBinding
-import com.adika.learnable.databinding.ItemChildRowBinding
-import com.adika.learnable.model.User
 import com.adika.learnable.util.NormalizeFirestore
 import com.adika.learnable.util.ValidationUtils
+import com.adika.learnable.view.core.BaseFragment
 import com.adika.learnable.viewmodel.auth.SignupViewModel
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
@@ -34,15 +29,11 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class SignupFragment : Fragment() {
+class SignupFragment : BaseFragment() {
     private var _binding: FragmentSignupBinding? = null
     private val binding get() = _binding!!
     private val viewModel: SignupViewModel by viewModels()
     private lateinit var credentialManager: CredentialManager
-
-    private lateinit var childRowAdapter: ChildRowAdapter
-    private val selectedStudents = mutableListOf<User>()
-    private var activeSuggestionsAdapter: StudentSearchAdapter? = null
 
     private companion object {
         private const val TAG = "SignUpFragment"
@@ -63,9 +54,9 @@ class SignupFragment : Fragment() {
 
         setupDropdownRole()
         setupClickListeners()
-        setupDynamicChildRows()
         observeViewModel()
-        addChildRow()
+
+        setupTextScaling()
     }
 
     private fun setupClickListeners() {
@@ -98,11 +89,9 @@ class SignupFragment : Fragment() {
                 getString(R.string.student) -> {
                     viewModel.signUpWithEmail(name, email, password, normalizeRole, nisn)
                 }
+
                 getString(R.string.teacher) -> {
                     viewModel.signUpWithEmail(name, email, password, normalizeRole, nip)
-                }
-                getString(R.string.parent) -> {
-                    viewModel.signUpWithEmail(name, email, password, normalizeRole)
                 }
             }
         }
@@ -116,50 +105,6 @@ class SignupFragment : Fragment() {
         binding.tvSignIn.setOnClickListener {
             findNavController().navigate(R.id.action_signup_to_login)
         }
-
-        binding.tvAddChild.setOnClickListener { addChildRow() }
-    }
-
-    private fun setupDynamicChildRows() {
-        childRowAdapter = ChildRowAdapter(
-            onQueryChanged = { _, q -> if (q.isNotBlank()) viewModel.searchStudents(q) },
-            onSelectStudent = { _, user ->
-                if (selectedStudents.none { it.id == user.id }) {
-                    selectedStudents.add(user)
-                    showToast(getString(R.string.added_child, user.name))
-                }
-            },
-            onRemoveRow = { pos -> childRowAdapter.removeRow(pos) },
-            provideAdapter = { _, onClick -> StudentSearchAdapter(onClick) }
-        )
-    }
-
-    private fun addChildRow() {
-        val inflater = LayoutInflater.from(requireContext())
-        val rowBinding = ItemChildRowBinding.inflate(inflater)
-        val adapter = StudentSearchAdapter { user ->
-            val textEt = "${user.name} | ${user.nomorInduk}"
-            rowBinding.etChildName.setText(textEt)
-            if (selectedStudents.none { it.id == user.id }) {
-                selectedStudents.add(user)
-                showToast(getString(R.string.added_child, user.name))
-            }
-            rowBinding.rvChildSuggestions.visibility = View.GONE
-        }
-        rowBinding.rvChildSuggestions.layoutManager = LinearLayoutManager(requireContext())
-        rowBinding.rvChildSuggestions.adapter = adapter
-        rowBinding.etChildName.addTextChangedListener { text ->
-            val q = text?.toString() ?: ""
-            rowBinding.rvChildSuggestions.visibility = if (q.isBlank()) View.GONE else View.VISIBLE
-            if (q.isNotBlank()) {
-                activeSuggestionsAdapter = adapter
-                viewModel.searchStudents(q)
-            }
-        }
-        rowBinding.btnRemoveRow.setOnClickListener {
-            binding.llChildRows.removeView(rowBinding.root)
-        }
-        binding.llChildRows.addView(rowBinding.root)
     }
 
     private fun setupDropdownRole() {
@@ -171,12 +116,10 @@ class SignupFragment : Fragment() {
                 setIcon(roleIconFor(value))
                 when (value) {
                     getString(R.string.student) -> showStudentForm()
-                    getString(R.string.parent)-> showParentForm()
                     getString(R.string.teacher) -> showTeacherForm()
                 }
             }
 
-            // Jika ada nilai awal (mis. dari state restore), sinkronkan ikon
             val current = getText().trim()
             if (current.isNotEmpty()) {
                 setIcon(roleIconFor(current))
@@ -228,33 +171,19 @@ class SignupFragment : Fragment() {
         viewModel.googleSignUpState.observe(viewLifecycleOwner) { state ->
             handleState(state)
         }
-
-        viewModel.studentSearchState.observe(viewLifecycleOwner) { state ->
-            handleState(state)
-        }
     }
 
     private fun handleState(state: Any) {
         when (state) {
             is SignupViewModel.SignupState.Loading,
-            is SignupViewModel.GoogleSignUpState.Loading -> showLoading(true)
+            is SignupViewModel.GoogleSignUpState.Loading
+                -> showLoading(true)
 
             is SignupViewModel.SignupState.Success -> {
                 showLoading(false)
-                val role = binding.etPickRole.getText().trim()
-                val normalized = NormalizeFirestore.normalizeRole(requireContext(), role).lowercase()
-                if (normalized == "parent" && selectedStudents.isNotEmpty()) {
-                    val parentId = state.user.id
-                    val studentIds = selectedStudents.map { it.id }
-                    viewModel.connectStudentsToParent(parentId, studentIds) { ok, err ->
-                        if (!ok) showToast(err ?: getString(R.string.fail_connect_student))
-                        showToast(getString(R.string.signup_success))
-                        findNavController().navigate(R.id.action_signup_to_login)
-                    }
-                } else {
-                    showToast(getString(R.string.signup_success))
-                    findNavController().navigate(R.id.action_signup_to_login)
-                }
+                showToast(getString(R.string.signup_success))
+                findNavController().navigate(R.id.action_signup_to_login)
+
             }
 
             is SignupViewModel.GoogleSignUpState.Success -> {
@@ -278,11 +207,6 @@ class SignupFragment : Fragment() {
                 findNavController().navigate(R.id.action_signup_to_student_dashboard)
             }
 
-            is SignupViewModel.GoogleSignUpState.NavigateToParentDashboard -> {
-                showLoading(false)
-                findNavController().navigate(R.id.action_signup_to_parent_dashboard)
-            }
-
             is SignupViewModel.GoogleSignUpState.NavigateToTeacherDashboard -> {
                 showLoading(false)
                 findNavController().navigate(R.id.action_signup_to_teacher_dashboard)
@@ -294,7 +218,8 @@ class SignupFragment : Fragment() {
             }
 
             is SignupViewModel.SignupState.Error,
-            is SignupViewModel.GoogleSignUpState.Error -> {
+            is SignupViewModel.GoogleSignUpState.Error,
+                -> {
                 showLoading(false)
                 showToast(
                     (state as? SignupViewModel.SignupState.Error)?.message
@@ -302,16 +227,6 @@ class SignupFragment : Fragment() {
                         ?: getString(R.string.unknown_error)
                 )
                 enableButtons()
-            }
-
-            is SignupViewModel.StudentSearchState.Loading -> {
-                // You can show a small loading indicator if needed
-            }
-            is SignupViewModel.StudentSearchState.Success -> {
-                activeSuggestionsAdapter?.submitList(state.students)
-            }
-            is SignupViewModel.StudentSearchState.Error -> {
-                showToast(state.message)
             }
         }
     }
@@ -353,9 +268,8 @@ class SignupFragment : Fragment() {
 
     private fun roleIconFor(value: String): Int {
         return when (value) {
-            getString(R.string.student)-> R.drawable.ic_student
-            getString(R.string.parent)-> R.drawable.ic_parent
-            getString(R.string.teacher)-> R.drawable.ic_teacher
+            getString(R.string.student) -> R.drawable.ic_student
+            getString(R.string.teacher) -> R.drawable.ic_teacher
             else -> R.drawable.ic_role
         }
     }
@@ -376,19 +290,6 @@ class SignupFragment : Fragment() {
         binding.etConfirmPassword.visibility = View.VISIBLE
 
         binding.etNisn.visibility = View.VISIBLE
-        binding.parentSection.visibility = View.GONE
-        binding.etNip.visibility = View.GONE
-        resetValue()
-    }
-
-    private fun showParentForm() {
-        binding.etFullName.visibility = View.VISIBLE
-        binding.etEmail.visibility = View.VISIBLE
-        binding.etPassword.visibility = View.VISIBLE
-        binding.etConfirmPassword.visibility = View.VISIBLE
-
-        binding.etNisn.visibility = View.GONE
-        binding.parentSection.visibility = View.VISIBLE
         binding.etNip.visibility = View.GONE
         resetValue()
     }
@@ -400,7 +301,6 @@ class SignupFragment : Fragment() {
         binding.etConfirmPassword.visibility = View.VISIBLE
 
         binding.etNisn.visibility = View.GONE
-        binding.parentSection.visibility = View.GONE
         binding.etNip.visibility = View.VISIBLE
         resetValue()
     }
