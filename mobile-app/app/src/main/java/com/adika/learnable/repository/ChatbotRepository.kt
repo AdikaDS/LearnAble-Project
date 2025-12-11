@@ -29,7 +29,7 @@ class ChatbotRepository @Inject constructor(
                 queryInput = QueryInput(
                     text = TextInput(
                         text = message,
-                        languageCode = "id" // ganti jika perlu
+                        languageCode = "id"
                     )
                 )
             )

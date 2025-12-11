@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_marginBottom="8dp"
         android:gravity="center_vertical"
-        android:layout_marginBottom="8dp">
+        android:orientation="horizontal">
 
         <com.adika.learnable.customview.IconEditTextView
             android:id="@+id/etChildName"
@@ -18,18 +18,18 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             app:enableFloatingHint="false"
-            app:iconDrawable="@drawable/ic_role_children"
-            app:hintText="@string/search_student_hint"/>
+            app:hintText="@string/search_student_hint"
+            app:iconDrawable="@drawable/ic_role_children" />
 
         <TextView
             android:id="@+id/btnRemoveRow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="✕"
-            android:padding="8dp"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
-            android:focusable="true"/>
+            android:focusable="true"
+            android:padding="8dp"
+            android:text="✕" />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -37,6 +37,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:nestedScrollingEnabled="false"
-        android:overScrollMode="never"/>
+        android:overScrollMode="never" />
 
 </LinearLayout>

@@ -4,41 +4,32 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.adika.learnable.R
 import com.adika.learnable.databinding.ItemLessonBinding
 import com.adika.learnable.model.Lesson
-import com.adika.learnable.model.SubBab
 import com.adika.learnable.model.StudentLessonProgress
+import com.adika.learnable.repository.TextScaleRepository
+import com.adika.learnable.util.TextScaleUtils
+import com.bumptech.glide.Glide
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.roundToInt
 
 class StudentLessonAdapter(
-    private val onLessonClick: (Lesson) -> Unit,
-    private val onSubBabClick: (SubBab) -> Unit
+    private val onLessonClick: (Lesson) -> Unit
 ) : ListAdapter<Lesson, StudentLessonAdapter.StudentLessonViewHolder>(LessonDiffCallback()) {
 
-    private val expandedItems = mutableSetOf<String>()
-    private val subBabMap = mutableMapOf<String, List<SubBab>>()
     private val progressMap = mutableMapOf<String, StudentLessonProgress>()
-
-    fun updateSubBabsForLesson(lessonId: String, subBabs: List<SubBab>) {
-        try {
-            subBabMap[lessonId] = subBabs
-            // Update expanded state
-            if (subBabs.isNotEmpty()) {
-                expandedItems.add(lessonId)
-            }
-            notifyItemChanged(currentList.indexOfFirst { it.id == lessonId })
-        } catch (e: Exception) {
-            Log.e("StudentLessonAdapter", "Error updating sub-babs: ${e.message}")
-        }
-    }
 
     fun updateProgress(lessonId: String, progress: StudentLessonProgress) {
         try {
             progressMap[lessonId] = progress
-            notifyItemChanged(currentList.indexOfFirst { it.id == lessonId })
+            val index = currentList.indexOfFirst { it.id == lessonId }
+            if (index != -1) {
+                notifyItemChanged(index)
+            }
         } catch (e: Exception) {
             Log.e("StudentLessonAdapter", "Error updating progress: ${e.message}")
         }
@@ -56,9 +47,8 @@ class StudentLessonAdapter(
     override fun onBindViewHolder(holder: StudentLessonViewHolder, position: Int) {
         try {
             val lesson = getItem(position)
-            val subBabs = subBabMap[lesson.id] ?: emptyList()
             val progress = progressMap[lesson.id]
-            holder.bind(lesson, subBabs, progress)
+            holder.bind(lesson, progress)
         } catch (e: Exception) {
             Log.e("StudentLessonAdapter", "Error binding view holder: ${e.message}")
         }
@@ -67,70 +57,51 @@ class StudentLessonAdapter(
     inner class StudentLessonViewHolder(
         private val binding: ItemLessonBinding
     ) : RecyclerView.ViewHolder(binding.root) {
-        private val studentSubBabAdapter = StudentSubBabAdapter { subBab ->
-            onSubBabClick(subBab)
-        }
 
         init {
-            binding.subBabRecyclerView.apply {
-                adapter = studentSubBabAdapter
-                layoutManager = LinearLayoutManager(context)
-            }
-
             binding.root.setOnClickListener {
                 val position = bindingAdapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     val lesson = getItem(position)
-                    val isExpanded = expandedItems.contains(lesson.id)
-                    
-                    if (isExpanded) {
-                        // Jika sudah expand, collapse
-                        expandedItems.remove(lesson.id)
-                        notifyItemChanged(position)
-                    } else {
-                        // Jika belum expand, expand dan load sub-babs
-                        expandedItems.add(lesson.id)
-                        notifyItemChanged(position)
-                        onLessonClick(lesson)
-                    }
+                    onLessonClick(lesson)
                 }
             }
         }
 
-        fun bind(lesson: Lesson, subBabs: List<SubBab>, progress: StudentLessonProgress?) {
+        fun bind(lesson: Lesson, progress: StudentLessonProgress?) {
             try {
                 binding.apply {
+                    val ctx = itemView.context
+
                     titleText.text = lesson.title
-                    contentText.text = lesson.content
-                    durationText.text = itemView.context.getString(R.string.duration_learning, lesson.duration)
-                    difficultyText.text = when (lesson.difficulty) {
-                        "easy" -> "Mudah"
-                        "medium" -> "Sedang"
-                        "hard" -> "Sulit"
-                        else -> lesson.difficulty
+
+                    val completed = progress?.completedSubBabs ?: 0
+                    val total = lesson.totalSubBab
+                    val percentage: Int = if (total > 0) {
+                        val raw = ((completed.toFloat() * 100f) / total.toFloat()).roundToInt()
+                        min(100, max(0, raw))
+                    } else 0
+                    progressBar.progress = percentage
+                    progressText.text =
+                        ctx.getString(R.string.progress_text, completed, total)
+
+                    val colorRes = if (completed == total && total > 0) {
+                        R.color.green
+                    } else {
+                        R.color.blue_primary
                     }
+                    progressBar.setIndicatorColor(ctx.getColor(colorRes))
 
-                    // Update progress
-                    progress?.let {
-                        val completedSubabs = it.completedSubBabs
-                        val totalSubBabs = it.totalSubBabs
-                        val percentage = if (it.totalSubBabs > 0) {
-                            (completedSubabs * 100) / totalSubBabs
-                        } else 0
-                        progressBar.progress = percentage
-                        progressText.text = itemView.context.getString(R.string.progress_text, completedSubabs, totalSubBabs)
+                    lesson.coverImage.let { url ->
+                        Glide.with(root.context)
+                            .load(url)
+                            .placeholder(R.drawable.icon_dummy_bab)
+                            .error(R.drawable.icon_dummy_bab)
+                            .into(imageView)
                     }
-
-                    // Update sub-babs visibility
-                    val isExpanded = expandedItems.contains(lesson.id)
-                    subBabRecyclerView.visibility = if (isExpanded) ViewGroup.VISIBLE else ViewGroup.GONE
-                    expandButton.setImageResource(
-                        if (isExpanded) R.drawable.ic_expand_less
-                        else R.drawable.ic_expand_more
-                    )
-
-                    // Update sub-babs list
-                    studentSubBabAdapter.submitList(subBabs)
+                    val textScaleRepository = TextScaleRepository(binding.root.context)
+                    val scale = textScaleRepository.getScale()
+                    TextScaleUtils.applyScaleToHierarchy(binding.root, scale)
                 }
             } catch (e: Exception) {
                 Log.e("StudentLessonAdapter", "Error in bind: ${e.message}")
@@ -139,8 +110,6 @@ class StudentLessonAdapter(
     }
 
     fun cleanup() {
-        expandedItems.clear()
-        subBabMap.clear()
         progressMap.clear()
     }
 
