@@ -2,7 +2,9 @@
 
 <div align="center">
 
-![LearnAble Logo](https://img.shields.io/badge/LearnAble-Education-blue?style=for-the-badge&logo=graduation-cap)
+<br><br>
+<img width="400" height="320" alt="logo_learnable" src="https://github.com/user-attachments/assets/755cd701-59b1-44b8-8d79-0ccadb989752" />
+<br><br>
 
 **Platform pembelajaran digital yang menggabungkan chatbot AI, materi pembelajaran interaktif, dan sistem manajemen untuk siswa, guru, dan admin.**
 
