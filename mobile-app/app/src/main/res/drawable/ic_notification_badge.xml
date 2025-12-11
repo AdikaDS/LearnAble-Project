@@ -1,0 +1,16 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Base bell icon -->
+    <item android:drawable="@drawable/ic_notification" />
+
+    <!-- Red badge dot in the top-right corner -->
+    <item
+        android:width="10dp"
+        android:height="10dp"
+        android:gravity="top|end"
+        android:end="2dp"
+        android:top="2dp">
+        <shape android:shape="oval">
+            <solid android:color="@color/red" />
+        </shape>
+    </item>
+</layer-list>

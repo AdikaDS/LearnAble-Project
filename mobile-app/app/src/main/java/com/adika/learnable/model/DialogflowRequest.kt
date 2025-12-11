@@ -10,5 +10,5 @@ data class QueryInput(
 
 data class TextInput(
     val text: String,
-    val languageCode: String = "id" // ganti jika kamu pakai en-US
+    val languageCode: String = "id"
 )

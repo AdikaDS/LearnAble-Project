@@ -8,14 +8,44 @@
     <color name="white">#FFFFFFFF</color>
     <color name="grey_300">#737373</color>
     <color name="grey">#595959</color>
-    <color name="grey_light">#CCCCCC</color>
     <color name="grey_bg">#E6E6E6</color>
+    <color name="grey_disabled">#D9D9D9</color>
+    <color name="grey_focused">#CCCCCC</color>
     <color name="green">#138C63</color>
+    <color name="green_pressed">#0F704F</color>
+    <color name="grey_light">#CCCCCC</color>
+    <color name="soft_yellow">#FCF7EB</color>
     <color name="soft_green">#ECFDF5</color>
+    <color name="soft_red">#FFE6E6</color>
     <color name="blue">#3674B5</color>
     <color name="success">#22bb33</color>
-    <color name="error">#bb2124</color>
+    <color name="error">#FF0000</color>
     <color name="strength_weak">#F4471F</color>
     <color name="strength_medium">#F7CF20</color>
     <color name="strength_strong">#3DB724</color>
+    <color name="button_blue">#1877F2</color>
+    <color name="green_light">#DCEEE8</color>
+    <color name="green_light2">#E7F4EF</color>
+
+    <color name="teal_primary">#008080</color>
+    <color name="teal_light">#20B2AA</color>
+    <color name="blue_primary">#048AAF</color>
+    <color name="blue_secondary">#0961F5</color>
+    <color name="text_primary">#595959</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_hint">#999999</color>
+    <color name="stroke_card_quiz">#BFBFBF</color>
+    <color name="card_background">#FFFFFF</color>
+    <color name="progress_bar_bg">#E0E0E0</color>
+    <color name="progress_bar_fill">#2196F3</color>
+
+    <color name="blue_light">#E3F2FD</color>
+
+    <color name="red">#FF4444</color>
+    <color name="gray">#999999</color>
+
+    <color name="player_played_color">#1877F2</color>
+    <color name="player_buffered_color">#80FFFFFF</color>
+    <color name="player_scrubber_color">#FFFFFFFF</color>
+    <color name="player_unplayed_color">#FFFFFFFF</color>
 </resources>

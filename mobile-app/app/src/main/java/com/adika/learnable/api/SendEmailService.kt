@@ -11,4 +11,15 @@ interface SendEmailService {
     suspend fun sendEmailToAdmin(
         @Body body: UserRegistrationRequest
     ): Response<RegisterResponse>
+
+    @POST("email-approve-user")
+    suspend fun sendEmailApproveUser(
+        @Body body: UserRegistrationRequest
+    ): Response<RegisterResponse>
+
+    @POST("email-unapprove-user")
+    suspend fun sendEmailRejectUser(
+        @Body body: UserRegistrationRequest
+    ): Response<RegisterResponse>
+
 }

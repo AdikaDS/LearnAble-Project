@@ -3,6 +3,7 @@ package com.adika.learnable.repository
 import android.util.Log
 import com.adika.learnable.model.SubBab
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -13,7 +14,28 @@ class SubBabRepository @Inject constructor(
 ) {
     private val collection = firestore.collection("sub_bab")
 
-    suspend fun getSubBab (subBabId: String) : SubBab {
+    suspend fun searchSubbab(
+        query: String,
+        idLesson: String
+    ): List<SubBab> {
+        try {
+            var subbabQuery: Query = collection
+
+            subbabQuery = subbabQuery.whereEqualTo("lessonId", idLesson)
+
+            val subbabSnapshot = subbabQuery.get().await()
+            val subbab = subbabSnapshot.toObjects(SubBab::class.java)
+
+            return subbab.filter { subbabs ->
+                subbabs.title.contains(query, ignoreCase = true)
+            }
+        } catch (e: Exception) {
+            Log.e("SubBabRepository", "Error searching subbab", e)
+            throw e
+        }
+    }
+
+    suspend fun getSubBab(subBabId: String): SubBab {
         try {
             val document = collection
                 .document(subBabId)
@@ -35,7 +57,7 @@ class SubBabRepository @Inject constructor(
                 .whereEqualTo("lessonId", lessonId)
                 .get()
                 .await()
-            
+
             val subBab = subBabSnapshot.toObjects(SubBab::class.java)
 
             return subBab
@@ -45,7 +67,20 @@ class SubBabRepository @Inject constructor(
         }
     }
 
-    suspend fun addSubBab(subBab: SubBab) : SubBab {
+    suspend fun getSubBabCountByLesson(lessonId: String): Int {
+        try {
+            val snapshot = collection
+                .whereEqualTo("lessonId", lessonId)
+                .get()
+                .await()
+            return snapshot.size()
+        } catch (e: Exception) {
+            Log.e("SubBabRepository", "Error counting sub-babs for lesson $lessonId", e)
+            throw e
+        }
+    }
+
+    suspend fun addSubBab(subBab: SubBab): SubBab {
         try {
             val docRef = collection.document()
             val subBabWithId = subBab.copy(id = docRef.id)
@@ -60,7 +95,6 @@ class SubBabRepository @Inject constructor(
 
     suspend fun updateSubBab(subBab: SubBab) {
         try {
-            // Ensure lessonId is preserved
             collection.document(subBab.id).set(subBab).await()
             Log.d("SubBabRepository", "Successfully updated sub-bab ${subBab.id}")
         } catch (e: Exception) {
@@ -93,6 +127,17 @@ class SubBabRepository @Inject constructor(
             Log.d("SubBabRepository", "Successfully deleted all sub-babs for lesson $lessonId")
         } catch (e: Exception) {
             Log.e("SubBabRepository", "Error deleting all sub-babs for lesson $lessonId", e)
+            throw e
+        }
+    }
+
+    suspend fun syncTotalSubBabForLesson(lessonId: String): Int {
+        try {
+            val totalSubBabs = getSubBabCountByLesson(lessonId)
+            Log.d("SubBabRepository", "Synced totalSubBab for lesson $lessonId: $totalSubBabs")
+            return totalSubBabs
+        } catch (e: Exception) {
+            Log.e("SubBabRepository", "Error syncing totalSubBab for lesson $lessonId", e)
             throw e
         }
     }

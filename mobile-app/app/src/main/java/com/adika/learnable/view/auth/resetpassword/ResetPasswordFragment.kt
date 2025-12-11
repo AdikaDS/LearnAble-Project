@@ -13,6 +13,7 @@ import com.adika.learnable.R
 import com.adika.learnable.customview.IconEditTextView
 import com.adika.learnable.databinding.FragmentResetPasswordBinding
 import com.adika.learnable.util.ValidationUtils
+import com.adika.learnable.view.auth.resetpassword.dialog.ResetPasswordSuccessDialogFragment
 import com.adika.learnable.viewmodel.auth.ResetPasswordViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -39,14 +40,13 @@ class ResetPasswordFragment : Fragment() {
             ResetPasswordSuccessDialogFragment.REQ, viewLifecycleOwner
         ) { _, bundle ->
             when (bundle.getString(ResetPasswordSuccessDialogFragment.ACTION)) {
-                "back_to_login", "close" -> {
-                    // navigate ke login dari PARENT
+                ResetPasswordSuccessDialogFragment.ACTION_BACK_TO_LOGIN, ResetPasswordSuccessDialogFragment.ACTION_CLOSE -> {
+
                     findNavController().navigate(R.id.action_reset_password_to_login)
                 }
             }
         }
     }
-
 
     private fun setupClickListeners() {
         val oob = args.oobCode

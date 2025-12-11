@@ -21,6 +21,7 @@ import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import com.adika.learnable.R
 import com.adika.learnable.util.ValidationResult
+import com.adika.learnable.util.VibrationHelper
 
 class IconEditTextView @JvmOverloads constructor(
     context: Context,
@@ -34,9 +35,8 @@ class IconEditTextView @JvmOverloads constructor(
     private val inputContainer: LinearLayout
     private val tvError: TextView
     private val floatingHint: TextView
+    private val vibrationHelper by lazy { VibrationHelper(context) }
 
-
-    // Strength meter views
     private val strengthGroup: LinearLayout
     private val bar1: View
     private val bar2: View
@@ -48,12 +48,10 @@ class IconEditTextView @JvmOverloads constructor(
     private var isPasswordField = false
     private var enableFloatingHint: Boolean = true
 
-    // Dropdown State
     private var dropdownItems: List<String> = emptyList()
     private var onItemSelected: ((String, Int) -> Unit)? = null
     private var selectedIndex: Int = -1
 
-    // Strength meter config
     private var enableStrengthMeter = false
     private var minAcceptableStrength = PasswordStrength.MEDIUM
     private var attachedSubmitButton: View? = null
@@ -69,8 +67,6 @@ class IconEditTextView @JvmOverloads constructor(
         tvError = findViewById(R.id.tvErrorInput)
         floatingHint = findViewById(R.id.floatingHint)
 
-
-        // Strength views
         strengthGroup = findViewById(R.id.strengthGroup)
         bar1 = findViewById(R.id.bar1)
         bar2 = findViewById(R.id.bar2)
@@ -87,14 +83,12 @@ class IconEditTextView @JvmOverloads constructor(
             val showToggle = getBoolean(R.styleable.IconEditTextView_enableToggle, false)
             enableFloatingHint = getBoolean(R.styleable.IconEditTextView_enableFloatingHint, true)
 
-            // strength meter flag
             enableStrengthMeter = getBoolean(R.styleable.IconEditTextView_enableStrengthMeter, false)
 
             icon?.let { iconImageView.setImageDrawable(it) }
             floatingHint.text = hint
             editText.hint = hint
 
-            // Dropdown Config
             isDropdown = getBoolean(R.styleable.IconEditTextView_isDropdown, false)
             val entriesRes = getResourceId(R.styleable.IconEditTextView_dropdownEntries, 0)
             if (entriesRes != 0) dropdownItems = resources.getStringArray(entriesRes).toList()
@@ -120,12 +114,10 @@ class IconEditTextView @JvmOverloads constructor(
             }
         }
 
-        // Floating hint + clear error while typing/focus
         editText.addTextChangedListener { text ->
             if (!text.isNullOrEmpty()) showFloatingHint() else hideFloatingHint()
             if (!text.isNullOrEmpty()) setError(null)
 
-            // Update strength meter & policy in real time
             if (isPasswordField && enableStrengthMeter) {
                 val strength = calculateStrength(text?.toString().orEmpty())
                 updateStrengthUI(strength)
@@ -133,12 +125,10 @@ class IconEditTextView @JvmOverloads constructor(
             }
         }
 
-        // Auto clear error saat focus
         editText.setOnFocusChangeListener { _, hasFocus ->
             val colorNormal = ContextCompat.getColor(context, R.color.grey)
             val colorError = ContextCompat.getColor(context, R.color.error)
 
-            // jika sedang error, pertahankan warna merah
             if (tvError.isVisible) {
                 floatingHint.setTextColor(colorError)
             } else {
@@ -148,7 +138,6 @@ class IconEditTextView @JvmOverloads constructor(
             if (hasFocus || !editText.text.isNullOrEmpty()) showFloatingHint() else hideFloatingHint()
         }
 
-        // Jika sudah ada text dari luar sebelum init selesai
         if (!editText.text.isNullOrEmpty()) {
             showFloatingHint(immediate = true)
         }
@@ -160,9 +149,6 @@ class IconEditTextView @JvmOverloads constructor(
 
     }
 
-    /*Public*/
-
-    // Untuk validasi pakai lambda + ValidationResult
     fun validateWith(validator: () -> ValidationResult): Boolean {
         return when (val result = validator()) {
             is ValidationResult.Valid -> {
@@ -198,6 +184,7 @@ class IconEditTextView @JvmOverloads constructor(
         val colorNormal = ContextCompat.getColor(context, R.color.grey)
 
         if (message != null) {
+            vibrationHelper.vibrateError()
             inputContainer.setBackgroundResource(R.drawable.bg_rounded_border_error)
             tvError.text = message
             tvError.visibility = VISIBLE
@@ -215,7 +202,7 @@ class IconEditTextView @JvmOverloads constructor(
 
     fun setDropdownItems(items: List<String>) {
         dropdownItems = items
-        // sync selectedIndex dengan text saat ini
+
         val current = editText.text?.toString()
         val norm = { s: String? -> s?.trim()?.lowercase()?.replace(" ", "") ?: "" }
         selectedIndex = dropdownItems.indexOfFirst { norm(it) == norm(current) }
@@ -223,7 +210,6 @@ class IconEditTextView @JvmOverloads constructor(
 
     fun setOnItemSelectedListener(listener: (String, Int) -> Unit) { onItemSelected = listener }
 
-    // Strength Meter Policy API
     fun setMinAcceptableStrength(min: PasswordStrength) {
         minAcceptableStrength = min
         val strength = calculateStrength(editText.text?.toString().orEmpty())
@@ -273,7 +259,7 @@ class IconEditTextView @JvmOverloads constructor(
     }
 
     private fun setupAsDropdown() {
-        // Non-editable, tampilkan caret di kanan (pakai toggleIcon yang sudah ada atau drawable lain)
+
         editText.isFocusable = false
         editText.isFocusableInTouchMode = false
         editText.isCursorVisible = false
@@ -284,7 +270,6 @@ class IconEditTextView @JvmOverloads constructor(
         toggleIcon.visibility = VISIBLE
         toggleIcon.setImageResource(R.drawable.ic_caret_down) // siapkan drawable panah bawah
 
-        // Buka dropdown saat klik di mana saja pada container
         val open = { showDropdown() }
         editText.setOnClickListener { open() }
         toggleIcon.setOnClickListener { open() }
@@ -293,22 +278,20 @@ class IconEditTextView @JvmOverloads constructor(
     }
 
     private fun showDropdown() {
-        // ListPopupWindow biar nempel ke field & lebarnya sama
+
         val popup = androidx.appcompat.widget.ListPopupWindow(context)
 
         val adapter = object : ArrayAdapter<String>(context, 0, dropdownItems) {
             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
                 val view = convertView ?: LayoutInflater.from(context)
-                    .inflate(R.layout.item_dropdown_role, parent, false)
+                    .inflate(R.layout.item_dropdown, parent, false)
 
                 val textView = view.findViewById<TextView>(R.id.tvText)
 
-                // state selected untuk background hijau
                 val activated = position == selectedIndex
                 textView.isActivated = activated
                 textView.text = getItem(position)
 
-                // ganti warna teks saat selected (putih), selain itu abu-abu
                 textView.setTextColor(
                     if (activated) Color.WHITE
                     else ContextCompat.getColor(context, R.color.grey)
@@ -322,7 +305,6 @@ class IconEditTextView @JvmOverloads constructor(
         popup.isModal = true
         popup.setBackgroundDrawable(ContextCompat.getDrawable(context, R.drawable.bg_dropdown_panel))
 
-        // Lebar = lebar field; posisikan tepat di bawah
         inputContainer.post {
             popup.width = inputContainer.width
             popup.verticalOffset = 8
@@ -341,10 +323,9 @@ class IconEditTextView @JvmOverloads constructor(
         }
     }
 
-    // ===== Floating hint animation =====
 
     private fun showFloatingHint(immediate: Boolean = false) {
-        // kosongkan placeholder di EditText biar tidak dobel
+
         if (!editText.hint.isNullOrEmpty()) editText.hint = ""
 
         if (immediate) {
@@ -365,7 +346,7 @@ class IconEditTextView @JvmOverloads constructor(
     }
 
     private fun hideFloatingHint() {
-        // kembalikan hint ke dalam EditText jika kosong & tidak dropdown (untuk dropdown tetap floating)
+
         if (!isDropdown && editText.text.isNullOrEmpty()) {
             editText.hint = floatingHint.text
         }
@@ -398,17 +379,14 @@ class IconEditTextView @JvmOverloads constructor(
         val hasDigit = pw.any { it.isDigit() }
         val hasSymbol = pw.any { !it.isLetterOrDigit() }
 
-        // Panjang
         if (length >= 8) score++
         if (length >= 12) score++
 
-        // Variasi
         if (hasLower) score++
         if (hasUpper) score++
         if (hasDigit) score++
         if (hasSymbol) score++
 
-        // Penalti pola lemah
         val allSame = pw.toSet().size == 1
         val onlyLetters = pw.all { it.isLetter() }
         val onlyDigits = pw.all { it.isDigit() }
@@ -445,7 +423,7 @@ class IconEditTextView @JvmOverloads constructor(
 
     private fun applyPolicy(strength: PasswordStrength) {
         if (strength == PasswordStrength.EMPTY) {
-            // kosong: tidak munculin error otomatis
+
             attachedSubmitButton?.isEnabled = false
             return
         }

@@ -3,10 +3,11 @@ package com.adika.learnable.di
 import android.content.Context
 import com.adika.learnable.BuildConfig
 import com.adika.learnable.api.DialogflowService
+import com.adika.learnable.api.FeedbackService
 import com.adika.learnable.api.GeminiApiService
+import com.adika.learnable.api.RegionService
 import com.adika.learnable.api.SendEmailService
 import com.adika.learnable.api.TokenDialogflowService
-import com.adika.learnable.api.TranscriptionService
 import com.adika.learnable.util.ResourceProvider
 import com.adika.learnable.util.ResourceProviderImp
 import com.amazonaws.auth.BasicAWSCredentials
@@ -30,7 +31,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
-    // Network Configuration
+
     @Provides
     @Singleton
     fun provideOkHttpClient(): OkHttpClient {
@@ -41,7 +42,6 @@ object AppModule {
             .build()
     }
 
-    // Firebase Services
     @Provides
     @Singleton
     fun provideFirebaseAuth(): FirebaseAuth = FirebaseAuth.getInstance()
@@ -49,23 +49,6 @@ object AppModule {
     @Provides
     @Singleton
     fun provideFirebaseFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
-
-    @Provides
-    @Singleton
-    @Named("transcribe")
-    fun provideTranscribeRetrofit(okHttpClient: OkHttpClient): Retrofit {
-        return Retrofit.Builder()
-            .baseUrl(BuildConfig.BASE_URL_TRANSCRIPTION_API)
-            .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-    }
-
-    @Provides
-    @Singleton
-    fun provideTranscribeService(@Named("transcribe") transcribeRetrofit: Retrofit): TranscriptionService {
-        return transcribeRetrofit.create(TranscriptionService::class.java)
-    }
 
     @Provides
     @Singleton
@@ -113,14 +96,46 @@ object AppModule {
         return backendRetrofit.create(SendEmailService::class.java)
     }
 
-    // Resource Provider
+    @Provides
+    @Singleton
+    @Named("region")
+    fun provideRegionRetrofit(okHttpClient: OkHttpClient): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(BuildConfig.BASE_URL_REGION)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideRegionService(@Named("region") regionRetrofit: Retrofit): RegionService {
+        return regionRetrofit.create(RegionService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    @Named("feedback")
+    fun provideFeedbackRetrofit(okHttpClient: OkHttpClient): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(BuildConfig.BASE_URL_FEEDBACK)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideFeedbackService(@Named("feedback") feedbackRetrofit: Retrofit): FeedbackService {
+        return feedbackRetrofit.create(FeedbackService::class.java)
+    }
+
     @Provides
     @Singleton
     fun provideResourceProvider(
         @ApplicationContext context: Context
     ): ResourceProvider = ResourceProviderImp(context)
 
-    // AWS Credentials
     @Provides
     @Singleton
     fun provideAwsCredentials(): BasicAWSCredentials {
@@ -130,7 +145,6 @@ object AppModule {
         )
     }
 
-    // S3 Client
     @Provides
     @Singleton
     fun provideS3Client(credentials: BasicAWSCredentials): AmazonS3Client {
