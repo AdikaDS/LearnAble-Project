@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/rootScroll"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootScroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true">
@@ -28,8 +28,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:text="@string/signup_information1"
-            android:textSize="20sp"
             android:textColor="@color/grey"
+            android:textSize="20sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/ivLogo" />
@@ -38,10 +38,10 @@
             android:id="@+id/tvSubTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/signup_information2"
-            android:textColor="@color/grey"
             android:layout_marginTop="4dp"
             android:gravity="center"
+            android:text="@string/signup_information2"
+            android:textColor="@color/grey"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -52,8 +52,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="22dp"
-            android:src="@drawable/icon_login"
             android:contentDescription="Ilustrasi Login"
+            android:src="@drawable/icon_login"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvSubTitle" />
@@ -62,139 +62,98 @@
             android:id="@+id/studentSection"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:layout_marginTop="15dp"
+            android:orientation="vertical"
             app:layout_constraintTop_toBottomOf="@+id/ivLogin">
 
             <com.adika.learnable.customview.IconEditTextView
                 android:id="@+id/etPickRole"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:isDropdown="true"
                 app:dropdownEntries="@array/roles"
-                app:hintText="@string/role"
-                app:iconDrawable="@drawable/ic_role" />
+                app:hintText="@string/pick_role"
+                app:iconDrawable="@drawable/ic_role"
+                app:isDropdown="true" />
 
             <com.adika.learnable.customview.IconEditTextView
                 android:id="@+id/etNisn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:hintText="@string/nisn"
+                android:layout_marginTop="8dp"
+                android:inputType="number"
                 android:visibility="gone"
-                app:iconDrawable="@drawable/ic_identity"
-                android:layout_marginTop="8dp" />
+                app:hintText="@string/nisn"
+                app:iconDrawable="@drawable/ic_identity" />
 
             <com.adika.learnable.customview.IconEditTextView
                 android:id="@+id/etNip"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:inputType="number"
                 android:visibility="gone"
                 app:hintText="@string/nip"
-                app:iconDrawable="@drawable/ic_identity"
-                android:layout_marginTop="8dp" />
+                app:iconDrawable="@drawable/ic_identity" />
 
             <com.adika.learnable.customview.IconEditTextView
                 android:id="@+id/etFullName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:hintText="@string/full_name"
+                android:layout_marginTop="8dp"
                 android:visibility="gone"
-                app:iconDrawable="@drawable/ic_user"
-                android:layout_marginTop="8dp" />
+                app:hintText="@string/full_name"
+                app:iconDrawable="@drawable/ic_user" />
 
             <com.adika.learnable.customview.IconEditTextView
                 android:id="@+id/etEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:inputType="textEmailAddress"
-                app:hintText="@string/email"
                 android:visibility="gone"
-                app:iconDrawable="@drawable/ic_email"
-                android:layout_marginTop="8dp" />
+                app:hintText="@string/email"
+                app:iconDrawable="@drawable/ic_email" />
 
             <com.adika.learnable.customview.IconEditTextView
                 android:id="@+id/etPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:inputType="textPassword"
-                app:hintText="@string/password"
-                app:iconDrawable="@drawable/ic_password"
-                app:enableToggle="true"
                 android:visibility="gone"
                 app:enableStrengthMeter="true"
-                android:layout_marginTop="8dp"
+                app:enableToggle="true"
+                app:hintText="@string/password"
+                app:iconDrawable="@drawable/ic_password"
                 tools:ignore="PrivateResource" />
 
             <com.adika.learnable.customview.IconEditTextView
                 android:id="@+id/etConfirmPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:inputType="textPassword"
+                android:visibility="gone"
+                app:enableToggle="true"
                 app:hintText="@string/confirm_password"
                 app:iconDrawable="@drawable/ic_password"
-                android:layout_marginTop="8dp"
-                app:enableToggle="true"
-                android:visibility="gone"
                 tools:ignore="PrivateResource" />
 
-            <!-- Error message TextView -->
             <TextView
                 android:id="@+id/tvSignUpError"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:gravity="center"
                 android:text="@string/login_credentials_error"
                 android:textColor="@color/error"
                 android:textSize="12sp"
-                android:gravity="center"
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/etConfirmPassword" />
 
-            <!-- Section untuk data anak-anak (hanya muncul jika role = parent) -->
-            <LinearLayout
-                android:id="@+id/parentSection"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginTop="16dp"
-                android:visibility="gone">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="12dp">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/children_name"
-                        android:textSize="13sp"
-                        android:textColor="@color/grey" />
-
-                    <TextView
-                        android:id="@+id/tvAddChild"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/add_child"
-                        android:textColor="@color/blue"
-                        android:textSize="13sp"
-                        android:padding="8dp"
-                        android:background="?attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/llChildRows"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical" />
-            </LinearLayout>
         </LinearLayout>
 
         <androidx.appcompat.widget.AppCompatButton
@@ -202,15 +161,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
+            android:background="@drawable/bg_button_green"
             android:padding="12dp"
             android:text="@string/sign_up"
             android:textAllCaps="false"
             android:textColor="@color/white"
             android:textSize="13sp"
-            android:background="@drawable/bg_button_green"
             app:layout_constraintTop_toBottomOf="@id/studentSection" />
 
-        <!-- Garis Pembatas -->
         <LinearLayout
             android:id="@+id/linearLayout3"
             android:layout_width="match_parent"
@@ -247,10 +205,10 @@
             android:id="@+id/btnGoogleSignUp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
             android:background="@drawable/bg_google_button"
             android:drawableStart="@drawable/ic_google"
             android:gravity="center_horizontal"
-            android:layout_marginTop="24dp"
             android:padding="12dp"
             android:paddingStart="41dp"
             android:paddingEnd="41dp"

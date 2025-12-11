@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_rounded_corner"
+    android:backgroundTint="@color/white"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+
+    <LinearLayout
+        style="@style/GlobalPadding"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/btnBackArrow"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/back"
+            android:padding="8dp"
+            android:src="@drawable/ic_arrow_back" />
+
+        <TextView
+            android:id="@+id/tvTitle"
+            style="@style/ToolbarTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/detail_subbab"
+            tools:text="Detail Subbab" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginHorizontal="24dp"
+        android:background="@color/grey" />
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:paddingBottom="16dp">
+
+        <LinearLayout
+            style="@style/GlobalPadding"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="@android:color/white"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <ImageView
+                        android:id="@+id/ivIllustration"
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:layout_gravity="center_horizontal"
+                        android:contentDescription="@string/subbab"
+                        android:scaleType="fitCenter"
+                        tools:src="@drawable/icon_dummy_subject" />
+
+                    <TextView
+                        android:id="@+id/tvSubbabTitle"
+                        style="@style/TextAppearance.LearnAble.SemiBold"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:gravity="center"
+                        android:textColor="@color/text_primary"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        tools:text="Bangun Datar" />
+
+                    <TextView
+                        android:id="@+id/tvLessonTitle"
+                        style="@style/TextAppearance.LearnAble.Regular"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center"
+                        android:textColor="@color/grey"
+                        android:textSize="16sp"
+                        tools:text="Bangun Datar dan Bangun Ruang" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:id="@+id/layoutMateri"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:visibility="visible">
+
+                            <TextView
+                                style="@style/TextAppearance.LearnAble.Regular"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/materi_pembelajaran"
+                                android:textColor="@color/text_primary"
+                                android:textSize="14sp"
+                                tools:text="Materi Pembelajaran" />
+
+                            <androidx.appcompat.widget.AppCompatButton
+                                android:id="@+id/btnViewMateri"
+                                style="@style/TextAppearance.LearnAble.Regular"
+                                android:layout_width="wrap_content"
+                                android:layout_height="36dp"
+                                android:layout_marginTop="8dp"
+                                android:background="@drawable/bg_button_blue"
+                                android:minWidth="0dp"
+                                android:minHeight="0dp"
+                                android:paddingHorizontal="16dp"
+                                android:text="@string/lihat_materi"
+                                android:textAllCaps="false"
+                                android:textColor="@color/white"
+                                tools:text="Lihat MateriBangunDatar.pdf" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:layout_marginTop="12dp"
+                                android:background="@color/grey" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/layoutVideo"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:orientation="vertical"
+                            android:visibility="visible">
+
+                            <TextView
+                                style="@style/TextAppearance.LearnAble.Regular"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/video_materi"
+                                android:textColor="@color/text_primary"
+                                android:textSize="14sp"
+                                tools:text="Video Materi" />
+
+                            <androidx.appcompat.widget.AppCompatButton
+                                android:id="@+id/btnViewVideo"
+                                style="@style/TextAppearance.LearnAble.Regular"
+                                android:layout_width="wrap_content"
+                                android:layout_height="36dp"
+                                android:layout_marginTop="8dp"
+                                android:background="@drawable/bg_button_blue"
+                                android:minWidth="0dp"
+                                android:minHeight="0dp"
+                                android:paddingHorizontal="16dp"
+                                android:text="@string/lihat_video"
+                                android:textAllCaps="false"
+                                android:textColor="@color/white"
+                                tools:text="Lihat VideoBangunDatar.mp4" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:layout_marginTop="12dp"
+                                android:background="@color/grey" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                style="@style/TextAppearance.LearnAble.Regular"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/quiz"
+                                android:textColor="@color/text_primary"
+                                android:textSize="14sp"
+                                tools:text="Kuis" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnDetailKuis"
+                                style="@style/TextAppearance.LearnAble.Regular"
+                                android:layout_width="wrap_content"
+                                android:layout_height="40dp"
+                                android:layout_marginTop="8dp"
+                                android:background="@drawable/bg_button_blue"
+                                android:text="@string/detail_kuis"
+                                android:textAllCaps="false"
+                                android:textColor="@color/white" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <LinearLayout
+        style="@style/GlobalPadding"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnBack"
+            style="@style/TextAppearance.LearnAble.Regular"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_button_blue"
+            android:text="@string/back"
+            android:textAllCaps="false"
+            android:textColor="@color/white" />
+    </LinearLayout>
+
+</LinearLayout>
+
+
+
+
+
+
+
+
+
+
+

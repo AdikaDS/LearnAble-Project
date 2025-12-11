@@ -37,7 +37,7 @@ class AuthRepository @Inject constructor(
 
     suspend fun checkAndNotifyAfterEmailVerification() {
         val firebaseUser = auth.currentUser ?: throw Exception(ErrorMessages.getAuthFailed(context))
-        firebaseUser.reload().await() // penting: refresh status
+        firebaseUser.reload().await()
         val isVerified = firebaseUser.isEmailVerified
         val uid = firebaseUser.uid
 
@@ -50,11 +50,10 @@ class AuthRepository @Inject constructor(
         val email = snap.getString("email") ?: (firebaseUser.email ?: "")
         val adminNotified = snap.getBoolean("adminNotified") ?: false
 
-        // Simpan mirror status (opsional, berguna untuk UI)
         docRef.update("emailVerified", isVerified).await()
 
-        if (isVerified && !adminNotified && (role == "parent" || role == "teacher")) {
-            // Kirim hanya sekali
+        if (isVerified && !adminNotified &&  role == "teacher") {
+
             sendAdminNotificationIfNeeded(name, email, role)
             docRef.update(
                 mapOf(
@@ -100,10 +99,6 @@ class AuthRepository @Inject constructor(
         }
     }
 
-    /**
-     * Verifikasi oobCode dari link email reset.
-     * Return: email milik akun yang akan di-reset.
-     */
     suspend fun verifyResetCode(oobCode: String): String {
         return try {
             auth.verifyPasswordResetCode(oobCode).await()
@@ -112,9 +107,6 @@ class AuthRepository @Inject constructor(
         }
     }
 
-    /**
-     * Konfirmasi password baru dengan oobCode yang valid.
-     */
     suspend fun confirmPasswordReset(oobCode: String, newPassword: String) {
         try {
             auth.confirmPasswordReset(oobCode, newPassword).await()
@@ -125,23 +117,21 @@ class AuthRepository @Inject constructor(
 
     private suspend fun sendAdminNotificationIfNeeded(name: String, email: String, role: String) {
         val normalizedRole = role.trim().lowercase()
-        if (normalizedRole != "parent" && normalizedRole != "teacher") {
+        if (normalizedRole != "teacher") {
             Log.d(TAG, "Role '$role' tidak perlu notifikasi admin, skip.")
             return
         }
 
-        // Retry ringan 3x dengan exponential backoff
         var delayMs = 400L
         repeat(3) { attempt ->
             try {
-                // Panggil endpoint backend (POST /email-admin-verification)
+
                 val body = UserRegistrationRequest(
                     name = name,
                     email = email,
                     role = normalizedRole
                 )
 
-                // Jalankan di IO dispatcher
                 val resp = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
                     emailService.sendEmailToAdmin(body)
                 }
@@ -149,7 +139,7 @@ class AuthRepository @Inject constructor(
                 if (resp.isSuccessful) {
                     val data = resp.body()
                     Log.i(TAG, "Notifikasi admin OK: status=${data?.status}, msg=${data?.message}")
-                    return // sukses, hentikan retry
+                    return
                 } else {
                     val err = resp.errorBody()?.string()
                     Log.w(TAG, "Gagal kirim notifikasi (HTTP ${resp.code()}): $err")
@@ -158,14 +148,12 @@ class AuthRepository @Inject constructor(
                 Log.e(TAG, "Exception kirim notifikasi admin (attempt ${attempt + 1})", e)
             }
 
-            // Kalau belum sukses dan masih ada jatah retry, tunda dulu
             if (attempt < 2) {
                 kotlinx.coroutines.delay(delayMs)
                 delayMs *= 2
             }
         }
 
-        // Jangan lempar error—biarkan proses pendaftaran tetap lanjut
         Log.w(TAG, "Notifikasi admin gagal setelah retry, lanjutkan proses tanpa blokir.")
     }
 
@@ -174,7 +162,7 @@ class AuthRepository @Inject constructor(
         email: String,
         password: String,
         role: String,
-        nomorInduk: String? = null
+        idNumber: String? = null
     ): User {
         try {
             Log.d(TAG, "Starting sign up process for user: $email with role: $role")
@@ -191,7 +179,7 @@ class AuthRepository @Inject constructor(
                 email = email,
                 name = name,
                 role = role,
-                nomorInduk = nomorInduk,
+                idNumber = idNumber,
                 profileCompleted = true
             )
 
@@ -244,7 +232,7 @@ class AuthRepository @Inject constructor(
                 )
             )
         } catch (e: Exception) {
-            // Re-throw exception dengan message asli dari Firebase
+
             throw e
         }
     }
@@ -262,7 +250,7 @@ class AuthRepository @Inject constructor(
             val userDoc = docRef.get().await()
 
             if (!userDoc.exists()) {
-                // Ini adalah pendaftaran baru
+
                 Log.d(TAG, "Creating new user document for Google sign in")
                 val newUser = User(
                     id = user.uid,
@@ -270,7 +258,7 @@ class AuthRepository @Inject constructor(
                     name = user.displayName ?: "",
                     role = null,
                     profilePicture = user.photoUrl.toString(),
-                    nomorInduk = null,
+                    idNumber = null,
                     profileCompleted = false
                 )
                 docRef.set(newUser).await()
@@ -285,31 +273,29 @@ class AuthRepository @Inject constructor(
                 return GoogleSignInResult.NeedsMoreData(newUser, listOf("role"))
 
             } else {
-                // user sudah ada
+
                 val existing = userDoc.toObject(User::class.java)
                     ?: throw Exception(context.getString(R.string.fail_load_user_data))
 
-
-                // cek kelengkapan
                 val required = mutableListOf<String>()
                 if (existing.role.isNullOrBlank()) {
                     required += "role"
                 } else {
                     when (existing.role.lowercase()) {
-                        "student" -> if (existing.nomorInduk.isNullOrBlank()) required += "nomorInduk"
-                        "teacher" -> if (existing.nomorInduk.isNullOrBlank())  required += "nomorInduk"
+                        "student" -> if (existing.idNumber.isNullOrBlank()) required += "idNumber"
+                        "teacher" -> if (existing.idNumber.isNullOrBlank())  required += "idNumber"
                     }
                 }
 
                 return if (required.isEmpty()) {
-                    // Lengkap → tandai completed jika belum
+
                     if (!existing.profileCompleted) {
                         docRef.update("profileCompleted", true).await()
                         Log.d(TAG, "Profile marked as completed for user: ${existing.email}")
                     }
                     GoogleSignInResult.Success(existing.copy(profileCompleted = true))
                 } else {
-                    // Masih butuh data tambahan
+
                     if (existing.profileCompleted) {
                         docRef.update("profileCompleted", false).await()
                         Log.d(TAG, "Profile marked as incomplete for user: ${existing.email}, required: $required")
@@ -326,7 +312,7 @@ class AuthRepository @Inject constructor(
     suspend fun completeAdditionalData(
         uid: String,
         role: String,
-        nomorInduk: String? = null
+        idNumber: String? = null
     ): User {
         val docRef = usersCollection.document(uid)
         val updates = mutableMapOf<String, Any>(
@@ -336,22 +322,18 @@ class AuthRepository @Inject constructor(
 
         when (role.lowercase()) {
             "student" -> {
-                require(!nomorInduk.isNullOrBlank()) { context.getString(R.string.nisn_required) }
-                updates["nomorInduk"] = nomorInduk
+                require(!idNumber.isNullOrBlank()) { context.getString(R.string.nisn_required) }
+                updates["idNumber"] = idNumber
             }
             "teacher" -> {
-                require(!nomorInduk.isNullOrBlank()) { context.getString(R.string.nip_required) }
-                updates["nomorInduk"] = nomorInduk
-            }
-            "parent" -> {
-                // Parent tidak memerlukan nomor induk
+                require(!idNumber.isNullOrBlank()) { context.getString(R.string.nip_required) }
+                updates["idNumber"] = idNumber
             }
         }
 
         docRef.update(updates).await()
 
-        // Notify admin setelah role diketahui (parent/teacher)
-        if (role.equals("parent", true) || role.equals("teacher", true)) {
+        if (role.equals("teacher", true)) {
             val latest = docRef.get().await().toObject(User::class.java)
             if (latest != null) {
                 sendAdminNotificationIfNeeded(latest.name, latest.email, role)
@@ -363,8 +345,7 @@ class AuthRepository @Inject constructor(
                 ).await()
             }
         }
-        
-        // Ambil data user yang sudah di-update
+
         val updatedUser = docRef.get().await().toObject(User::class.java)
             ?: throw Exception(context.getString(R.string.fail_load_user_data))
             
@@ -412,17 +393,14 @@ class AuthRepository @Inject constructor(
 
     private suspend fun clearAllUserData() {
         try {
-            // Clear any stored credentials
+
             val clearRequest = ClearCredentialStateRequest()
             val credentialManager = CredentialManager.create(context)
             credentialManager.clearCredentialState(clearRequest)
 
-            // Clear all shared preferences
             context.getSharedPreferences("student_dashboard", Context.MODE_PRIVATE).edit { clear() }
             context.getSharedPreferences("teacher_dashboard", Context.MODE_PRIVATE).edit { clear() }
             context.getSharedPreferences("parent_dashboard", Context.MODE_PRIVATE).edit { clear() }
-//            context.getSharedPreferences("user_preferences", Context.MODE_PRIVATE).edit { clear() }
-//            context.getSharedPreferences("auth_preferences", Context.MODE_PRIVATE).edit { clear() }
 
         } catch (e: Exception) {
             Log.e("AuthRepository", "Error clearing user data", e)

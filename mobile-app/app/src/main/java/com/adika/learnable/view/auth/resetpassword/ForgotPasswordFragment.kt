@@ -11,6 +11,7 @@ import androidx.navigation.fragment.findNavController
 import com.adika.learnable.R
 import com.adika.learnable.databinding.FragmentForgotPasswordBinding
 import com.adika.learnable.util.ValidationUtils
+import com.adika.learnable.view.auth.resetpassword.dialog.EmailSentDialogFragment
 import com.adika.learnable.viewmodel.auth.ForgotPasswordViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -73,9 +74,11 @@ class ForgotPasswordFragment : Fragment() {
             EmailSentDialogFragment.REQ, viewLifecycleOwner
         ) { _, bundle ->
             when (bundle.getString(EmailSentDialogFragment.ACTION)) {
-                "resend" -> viewModel.resendResetEmail()              // panggil ulang
-                "change" -> binding.etEmail.requestFocus()            // arahkan ke form email
-                "close" -> { findNavController().navigate(R.id.action_forgot_password_to_login) }
+                "resend" -> viewModel.resendResetEmail()
+                "change" -> binding.etEmail.requestFocus()
+                "close" -> {
+                    findNavController().navigate(R.id.action_forgot_password_to_login)
+                }
             }
         }
 

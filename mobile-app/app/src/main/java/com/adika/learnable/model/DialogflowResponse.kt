@@ -43,4 +43,3 @@ data class ChipOption(
 data class Chip(
     val text: String?
 )
-

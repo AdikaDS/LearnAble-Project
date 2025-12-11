@@ -71,7 +71,7 @@ class LoginViewModel @Inject constructor(
 
                     is GoogleSignInResult.Success -> {
                         _googleSignInState.value = GoogleSignInState.Success(result.user)
-                        // Data lengkap -> langsung arahkan ke dashboard sesuai role
+
                         checkUserRole()
                     }
                 }
@@ -91,6 +91,10 @@ class LoginViewModel @Inject constructor(
             try {
                 val user = authRepository.getUserData(authRepository.getCurrentUserId())
                 when (user.role) {
+                    "admin" -> {
+                        _navigationState.value = NavigationState.NavigateToAdminDashboard
+                    }
+
                     "student" -> {
                         _navigationState.value = NavigationState.NavigateToStudentDashboard
                     }
@@ -98,14 +102,6 @@ class LoginViewModel @Inject constructor(
                     "teacher" -> {
                         if (user.isApproved) {
                             _navigationState.value = NavigationState.NavigateToTeacherDashboard
-                        } else {
-                            _navigationState.value = NavigationState.NavigateToAdminConfirmation
-                        }
-                    }
-
-                    "parent" -> {
-                        if (user.isApproved) {
-                            _navigationState.value = NavigationState.NavigateToParentDashboard
                         } else {
                             _navigationState.value = NavigationState.NavigateToAdminConfirmation
                         }
@@ -138,10 +134,9 @@ class LoginViewModel @Inject constructor(
     }
 
     sealed class NavigationState {
+        data object NavigateToAdminDashboard : NavigationState()
         data object NavigateToStudentDashboard : NavigationState()
         data object NavigateToTeacherDashboard : NavigationState()
-        data object NavigateToParentDashboard : NavigationState()
         data object NavigateToAdminConfirmation : NavigationState()
     }
-
 } 

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvTitle"
+                style="@style/TextAppearance.LearnAble.Regular"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:layout_weight="1"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                tools:text="Bangun Datar dan Bangun Ruang" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnDetail"
+                style="@style/TextAppearance.LearnAble.Regular"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:background="@drawable/bg_button_blue"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:paddingHorizontal="16dp"
+                android:text="@string/detail"
+                android:textAllCaps="false"
+                android:textColor="@color/white" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="12dp"
+            android:background="@color/grey" />
+
+        <TextView
+            android:id="@+id/tvSubjectLevel"
+            style="@style/TextAppearance.LearnAble.Regular"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp"
+            tools:text="Matematika - Sekolah Dasar" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:gravity="end"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEdit"
+                style="@style/TextAppearance.LearnAble.Regular"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:background="@drawable/bg_outline_button"
+                android:text="@string/edit"
+                android:textAllCaps="false"
+                android:textColor="@color/button_blue"
+                app:backgroundTint="@color/button_blue"
+                app:icon="@drawable/ic_edit"
+                app:iconTint="@color/button_blue" />
+
+            <Space
+                android:layout_width="12dp"
+                android:layout_height="wrap_content" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDelete"
+                style="@style/TextAppearance.LearnAble.Regular"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:background="@drawable/bg_outline_button"
+                android:backgroundTint="@color/error"
+                android:text="@string/delete"
+                android:textAllCaps="false"
+                android:textColor="@color/error"
+                app:backgroundTint="@color/error"
+                app:icon="@drawable/ic_delete"
+                app:iconTint="@color/error" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

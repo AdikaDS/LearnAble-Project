@@ -1,187 +1,193 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/grey_bg">
 
-    <!-- Header Custom -->
     <LinearLayout
         android:id="@+id/headerLayout"
+        style="@style/GlobalPadding"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:gravity="center"
-        style="@style/GlobalMargin"
-        app:layout_constraintTop_toTopOf="parent"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageButton
             android:id="@+id/btnBack"
             android:layout_width="28dp"
             android:layout_height="28dp"
-            android:src="@drawable/ic_arrow_back"
+            android:background="@android:color/transparent"
             android:contentDescription="@string/pic_back"
             android:padding="8dp"
-            android:background="@android:color/transparent"/>
+            android:src="@drawable/ic_arrow_back" />
 
         <TextView
             android:id="@+id/tvTitle"
+            style="@style/ToolbarTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/chatbot_title"
-            style="@style/ToolbarTitle"/>
+            android:text="@string/chatbot_title" />
     </LinearLayout>
 
-    <!-- Garis horizontal -->
     <View
         android:id="@+id/divider"
+        style="@style/GlobalPadding"
         android:layout_width="0dp"
         android:layout_height="2dp"
-        style="@style/GlobalMargin"
         android:background="@color/grey"
-        app:layout_constraintTop_toBottomOf="@id/headerLayout"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/headerLayout" />
 
-    <!-- Loading state overlay -->
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/loadingContainer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#80000000"
+        android:clickable="true"
+        android:elevation="10dp"
+        android:focusable="true"
         android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toTopOf="parent">
 
-        <View
-            android:id="@+id/dot1"
-            android:layout_width="12dp"
-            android:layout_height="12dp"
-            android:background="@drawable/bg_loading_dot"
-            android:layout_margin="6dp"/>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="horizontal"
+            tools:ignore="UselessParent">
 
-        <View
-            android:id="@+id/dot2"
-            android:layout_width="12dp"
-            android:layout_height="12dp"
-            android:background="@drawable/bg_loading_dot"
-            android:layout_margin="6dp"/>
+            <View
+                android:id="@+id/dot1"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_margin="6dp"
+                android:background="@drawable/bg_loading_dot" />
 
-        <View
-            android:id="@+id/dot3"
-            android:layout_width="12dp"
-            android:layout_height="12dp"
-            android:background="@drawable/bg_loading_dot"
-            android:layout_margin="6dp"/>
-    </LinearLayout>
+            <View
+                android:id="@+id/dot2"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_margin="6dp"
+                android:background="@drawable/bg_loading_dot" />
 
-    <!-- Error state overlay -->
+            <View
+                android:id="@+id/dot3"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_margin="6dp"
+                android:background="@drawable/bg_loading_dot" />
+        </LinearLayout>
+    </FrameLayout>
+
     <LinearLayout
         android:id="@+id/errorContainer"
+        style="@style/GlobalPadding"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:elevation="10dp"
         android:gravity="center"
+        android:orientation="vertical"
         android:padding="16dp"
         android:visibility="gone"
-        style="@style/GlobalMargin"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:src="@drawable/ic_error"
-            android:contentDescription="@string/pic_error"/>
+            android:contentDescription="@string/pic_error"
+            android:src="@drawable/ic_error" />
 
         <TextView
             android:id="@+id/tvErrorMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/black"
-            android:textSize="14sp"
             android:layout_marginTop="12dp"
-            android:text="@string/an_error"/>
+            android:text="@string/an_error"
+            android:textColor="@color/black"
+            android:textSize="14sp" />
 
         <Button
             android:id="@+id/btnRetry"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="@string/try_again"/>
+            android:text="@string/try_again" />
     </LinearLayout>
 
-    <!-- Timeout state overlay -->
     <LinearLayout
         android:id="@+id/timeoutContainer"
+        style="@style/GlobalPadding"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:elevation="10dp"
         android:gravity="center"
+        android:orientation="vertical"
         android:padding="16dp"
         android:visibility="gone"
-        style="@style/GlobalMargin"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:src="@drawable/ic_timeout"
-            android:contentDescription="@string/pic_timeout"/>
+            android:contentDescription="@string/pic_timeout"
+            android:src="@drawable/ic_timeout" />
 
         <TextView
             android:id="@+id/tvTimeoutMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/black"
-            android:textSize="14sp"
             android:layout_marginTop="12dp"
-            android:text="@string/timeout"/>
+            android:text="@string/timeout"
+            android:textColor="@color/black"
+            android:textSize="14sp" />
 
         <Button
             android:id="@+id/btnRetryTimeout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="@string/try_again"/>
+            android:text="@string/try_again" />
     </LinearLayout>
 
-    <!-- Optional progress bar (kept hidden; used by fragment bindings) -->
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- RecyclerView untuk chat -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvMessages"
+        style="@style/GlobalPadding"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        style="@style/GlobalMargin"
         android:layout_marginTop="0dp"
         android:clipToPadding="false"
-        app:layout_constraintTop_toBottomOf="@id/divider"
         app:layout_constraintBottom_toTopOf="@id/messageInputLayout"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/divider" />
 
-    <!-- Input chat modern -->
     <LinearLayout
         android:id="@+id/messageInputLayout"
         android:layout_width="0dp"

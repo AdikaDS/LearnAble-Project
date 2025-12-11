@@ -2,9 +2,8 @@ package com.adika.learnable.util
 
 import android.content.Context
 import android.content.res.Configuration
-import android.os.Build
-import java.util.Locale
 import androidx.core.content.edit
+import java.util.Locale
 
 object LanguageUtils {
 
@@ -13,29 +12,28 @@ object LanguageUtils {
     private val SUPPORTED_LANGUAGES = setOf("id", "en")
 
     fun changeLanguage(context: Context, languageCode: String): Context {
-        if (!SUPPORTED_LANGUAGES.contains(languageCode)) {
+        try {
+            if (!SUPPORTED_LANGUAGES.contains(languageCode)) {
+                return context
+            }
+
+            val locale = Locale(languageCode)
+            Locale.setDefault(locale)
+
+            val config = Configuration(context.resources.configuration).apply {
+                setLocale(locale)
+            }
+
+            val newContext = context.createConfigurationContext(config)
+
+            saveLanguagePreference(context, languageCode)
+
+            return newContext
+        } catch (e: Exception) {
+
+            android.util.Log.e("LanguageUtils", "Error changing language: ${e.message}")
             return context
         }
-
-        val locale = Locale(languageCode)
-        Locale.setDefault(locale)
-
-        val config = Configuration(context.resources.configuration).apply {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                setLocale(locale)
-            } else {
-                @Suppress("DEPRECATION")
-                context.resources.updateConfiguration(this, context.resources.displayMetrics)
-            }
-        }
-
-        // Create new context with updated configuration
-        val newContext = context.createConfigurationContext(config)
-
-        // Save language preference first
-        saveLanguagePreference(context, languageCode)
-
-        return newContext
     }
 
     fun getLanguagePreference(context: Context): String {

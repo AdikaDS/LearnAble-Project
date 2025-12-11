@@ -6,12 +6,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.adika.learnable.R
 import com.adika.learnable.databinding.FragmentPdfViewerBinding
+import com.adika.learnable.view.core.BaseFragment
 import com.rajat.pdfviewer.PdfRendererView
 import com.rajat.pdfviewer.util.CacheStrategy
 import dagger.hilt.android.AndroidEntryPoint
@@ -21,9 +22,10 @@ import kotlinx.coroutines.withContext
 import java.io.File
 
 @AndroidEntryPoint
-class PdfViewerFragment : Fragment() {
+class PdfViewerFragment : BaseFragment() {
     private var _binding: FragmentPdfViewerBinding? = null
     private val binding get() = _binding!!
+    private val args: PdfViewerFragmentArgs by navArgs()
 
     private var pdfUrl: String? = null
     private var currentPage: Int = 1
@@ -32,19 +34,15 @@ class PdfViewerFragment : Fragment() {
     private var isRetrying: Boolean = false
     private var cachedPdfFile: File? = null
 
-    // Metode untuk set listener
     fun setOnPdfCompletedListener(listener: () -> Unit) {
         onPdfCompletedListener = listener
     }
 
-    // Listener untuk status dan events PDF
     private val pdfStatusListener = object : PdfRendererView.StatusCallBack {
         override fun onPageChanged(currentPage: Int, totalPage: Int) {
             this@PdfViewerFragment.currentPage = currentPage + 1
             this@PdfViewerFragment.totalPages = totalPage
-            updatePageIndicator()
 
-            // Notifikasi halaman terakhir
             if (currentPage + 1 == totalPage) {
                 onPdfCompletedListener?.invoke()
             }
@@ -64,7 +62,7 @@ class PdfViewerFragment : Fragment() {
             showErrorState(false)
             cachedPdfFile = File(absolutePath)
             Log.d(TAG, "PDF loaded successfully: $absolutePath")
-            setupNavigationControls()
+
             setupScrollListener()
         }
 
@@ -74,11 +72,10 @@ class PdfViewerFragment : Fragment() {
         }
     }
 
-    // Zoom listener untuk tracking zoom state
     private val zoomListener = object : PdfRendererView.ZoomListener {
         override fun onZoomChanged(isZoomedIn: Boolean, scale: Float) {
             Log.d(TAG, "Zoom changed - Zoomed: $isZoomedIn, Scale: $scale")
-            updateZoomControls(isZoomedIn)
+
         }
     }
 
@@ -95,7 +92,12 @@ class PdfViewerFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupPdfViewer()
         setupErrorHandling()
+        setupTitle()
+
+        pdfUrl = args.pdfUrl
         pdfUrl?.let { loadPdf(it) }
+
+        setupTextScaling()
     }
 
     private fun setupPdfViewer() {
@@ -105,15 +107,22 @@ class PdfViewerFragment : Fragment() {
         }
     }
 
+    private fun setupTitle() {
+        binding.btnBack.setOnClickListener {
+            findNavController().navigateUp()
+        }
+    }
+
     private fun setupScrollListener() {
         try {
-            binding.pdfViewer.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            binding.pdfViewer.recyclerView.addOnScrollListener(object :
+                RecyclerView.OnScrollListener() {
                 override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                     val layoutManager = recyclerView.layoutManager as? LinearLayoutManager
                     layoutManager?.let {
                         val firstVisiblePosition = it.findFirstVisibleItemPosition()
                         currentPage = firstVisiblePosition + 1
-                        updatePageIndicator()
+
                     }
                 }
             })
@@ -131,27 +140,11 @@ class PdfViewerFragment : Fragment() {
         }
     }
 
-    private fun setupNavigationControls() {
-        binding.navigationLayout.apply {
-            prevPageButton.setOnClickListener {
-                if (currentPage > 1) {
-                    jumpToPage(currentPage - 1)
-                }
-            }
-            
-            nextPageButton.setOnClickListener {
-                if (currentPage < totalPages) {
-                    jumpToPage(currentPage + 1)
-                }
-            }
-        }
-    }
-
-    fun loadPdf(url: String) {
+    private fun loadPdf(url: String) {
         pdfUrl = url
         showLoading(true)
         showErrorState(false)
-        
+
         binding.pdfViewer.initWithUrl(
             url = url,
             lifecycleCoroutineScope = lifecycleScope,
@@ -160,42 +153,27 @@ class PdfViewerFragment : Fragment() {
         )
     }
 
-    // Metode untuk mendapatkan halaman saat ini
     fun getCurrentPage(): Int = currentPage
 
-    // Metode untuk mendapatkan total halaman
     fun getTotalPages(): Int = totalPages
 
-    // Lompat ke halaman tertentu
     fun jumpToPage(pageNumber: Int) {
         if (pageNumber in 1..totalPages) {
             binding.pdfViewer.jumpToPage(pageNumber - 1)
-            updatePageIndicator()
+
         } else {
             showError("Halaman tidak valid")
         }
     }
 
-    // Cek apakah sedang di-zoom
     fun isZoomedIn(): Boolean = binding.pdfViewer.isZoomedIn()
 
-    private fun updatePageIndicator() {
-        binding.navigationLayout.pageIndicator.text = "$currentPage / $totalPages"
-    }
 
-    private fun updateZoomControls(isZoomedIn: Boolean) {
-        binding.navigationLayout.zoomButton.setImageResource(
-            if (isZoomedIn) R.drawable.ic_zoom_out else R.drawable.ic_zoom_in
-        )
-    }
-
-    // Metode utilitas untuk menampilkan loading
     private fun showLoading(isLoading: Boolean) {
         binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-        binding.navigationLayout.root.visibility = if (isLoading) View.GONE else View.VISIBLE
+
     }
 
-    // Metode untuk update progress download
     private fun updateDownloadProgress(progress: Int, downloaded: Long, total: Long?) {
         binding.progressBar.progress = progress
         binding.progressText.text = when {
@@ -204,11 +182,11 @@ class PdfViewerFragment : Fragment() {
                 val totalMB = total / (1024 * 1024)
                 "$downloadedMB MB / $totalMB MB"
             }
+
             else -> "$progress%"
         }
     }
 
-    // Metode untuk menangani error load PDF
     private fun handlePdfLoadError(error: Throwable) {
         lifecycleScope.launch {
             withContext(Dispatchers.Main) {
@@ -228,7 +206,6 @@ class PdfViewerFragment : Fragment() {
         binding.pdfViewer.visibility = if (show) View.GONE else View.VISIBLE
     }
 
-    // Metode untuk menampilkan pesan error
     private fun showError(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }

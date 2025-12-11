@@ -37,7 +37,7 @@ class AdminConfirmationViewModel @Inject constructor(
 
                     when (user.role) {
                         "student" -> ApprovalState.State(ApprovalState.Status.APPROVED)
-                        "teacher", "parent" -> {
+                        "teacher" -> {
                             if (user.isApproved) ApprovalState.State(ApprovalState.Status.APPROVED)
                             else ApprovalState.State(ApprovalState.Status.NOT_APPROVED)
                         }
@@ -86,5 +86,4 @@ class AdminConfirmationViewModel @Inject constructor(
             ERROR
         }
     }
-
 }
