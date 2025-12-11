@@ -57,12 +57,10 @@
   - Manajemen materi pembelajaran
   - Upload konten (video, PDF)
   - Buat dan kelola quiz
-  - Monitoring progress siswa
+  - Koreksi Esai Siswa
   
 - **👨‍💼 Dashboard Admin**:
   - Manajemen user (approval/rejection)
-  - Monitoring sistem
-  - Manajemen konten global
 
 ### 📧 Sistem Notifikasi Email
 - **Email Otomatis**: 3 jenis email notifikasi (Admin, Approval, Rejection)
@@ -298,14 +296,12 @@ gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
 2. **Upload Materi**: Upload video, PDF, atau konten pembelajaran
 3. **Buat Quiz**: Buat quiz dengan pertanyaan dan jawaban
 4. **Kelola Subbab**: Organisir materi per subbab
-5. **Monitor Siswa**: Lihat progress dan aktivitas siswa
+5. **Koreksi Esai Siswa**: Mengkoreksi Kuis Esai yang siswa kerjakan
 
 ### Untuk Admin 👨‍💼
 
 1. **Login sebagai Admin**: Login dengan akun admin
 2. **Approve/Reject Users**: Kelola pendaftaran user baru
-3. **Monitor Sistem**: Pantau aktivitas sistem
-4. **Kelola Konten**: Manajemen konten global
 
 ---
 
@@ -415,27 +411,9 @@ GET /clear-all-cache
 
 ---
 
-## 🤝 Kontribusi
-
-Kontribusi sangat diterima! Untuk berkontribusi:
-
-1. Fork repository
-2. Buat feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit perubahan (`git commit -m 'Add some AmazingFeature'`)
-4. Push ke branch (`git push origin feature/AmazingFeature`)
-5. Buka Pull Request
-
-### Guidelines
-- Ikuti coding style yang sudah ada
-- Tambahkan komentar untuk kode kompleks
-- Update dokumentasi jika diperlukan
-- Test perubahan sebelum submit PR
-
----
-
 ## 📄 Lisensi
 
-Proyek ini dibuat untuk Tugas Akhir Sistem. Semua hak cipta dilindungi.
+Proyek ini dibuat untuk Tugas Akhir. Semua hak cipta dilindungi.
 
 ---
 
@@ -448,7 +426,7 @@ Dikembangkan dengan ❤️ untuk kemajuan pendidikan Indonesia.
 ## 📞 Kontak & Support
 
 - **Issues**: Gunakan GitHub Issues untuk melaporkan bug atau request fitur
-- **Email**: support@learnable.com (contoh)
+- **Email**: adikads17@gmail.com
 
 ---
 
@@ -459,4 +437,3 @@ Dikembangkan dengan ❤️ untuk kemajuan pendidikan Indonesia.
 ⭐ Star repository ini jika project ini membantu!
 
 </div>
-
