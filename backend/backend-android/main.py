@@ -82,19 +82,31 @@ async def webhook(req: DialogflowRequest, background_task: BackgroundTasks):
         intent = req.queryResult.get("intent", {}).get("displayName", "")
         query_text = req.queryResult.get("queryText", "").strip()
         output_contexts = req.queryResult.get("outputContexts", [])
+        input_contexts = req.queryResult.get("inputContexts", [])
         
         logging.info(f"🎯 Intent yang diterima: '{intent}'")
         logging.info(f"💬 Query text: '{query_text}'")
         
-        # Cek apakah ada context waiting_custom_answer
+        # Cek apakah ada context waiting_custom_answer di inputContexts ATAU outputContexts
+        # Context yang dibuat di response sebelumnya akan muncul sebagai inputContexts di request berikutnya
+        all_contexts = input_contexts + output_contexts
         has_waiting_context = any(
             "waiting_custom_answer" in context.get("name", "")
-            for context in output_contexts
+            for context in all_contexts
         )
+        
+        if has_waiting_context:
+            logging.info(f"✅ Context waiting_custom_answer ditemukan (inputContexts: {len(input_contexts)}, outputContexts: {len(output_contexts)})")
         
         # Handle Default Fallback Intent dengan context waiting_custom_answer
         if intent == "Default Fallback Intent" and has_waiting_context and query_text:
             logging.info("💭 Fallback intent dengan context waiting_custom_answer - treat as Custom Pertanyaan")
+            return await handle_custom_question(req, background_task)
+        
+        # PRIORITAS: Jika ada context waiting_custom_answer aktif, semua input diarahkan ke custom question
+        # Kecuali intent khusus yang harus diabaikan (Welcome, Menu Utama, Tanya Lagi ke AI)
+        if has_waiting_context and query_text and intent not in ["Welcome", "Mulai", "Menu Utama", "Tanya Lagi ke AI"]:
+            logging.info(f"💬 Context waiting_custom_answer aktif - mengarahkan intent '{intent}' ke Custom Pertanyaan")
             return await handle_custom_question(req, background_task)
         
         if not intent:

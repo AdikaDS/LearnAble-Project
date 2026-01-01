@@ -45,13 +45,17 @@ async def handle_custom_question(req, background_task: BackgroundTasks):
     session = req.session
     intent = req.queryResult.get("intent", {}).get("displayName", "")
     output_contexts = req.queryResult.get("outputContexts", [])
-
+    input_contexts = req.queryResult.get("inputContexts", [])
+    
     logging.info(f"🎯 Intent: {intent}, User Question: '{user_question}'")
     logging.info(f"📝 Session: {session}")
-
+    
+    # Cek context di inputContexts ATAU outputContexts
+    # Context yang dibuat di response sebelumnya akan muncul sebagai inputContexts di request berikutnya
+    all_contexts = input_contexts + output_contexts
     has_waiting_context = any(
         "waiting_custom_answer" in context.get("name", "")
-        for context in output_contexts
+        for context in all_contexts
     )
 
     if intent == "Tanya Lagi ke AI":
