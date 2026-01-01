@@ -116,7 +116,7 @@ async def handle_custom_question(req, background_task: BackgroundTasks):
             background_task.add_task(generate_and_cache_gemini_answer, user_question, cache_key)
             
             return {
-                "fulfillmentText": "🤖 Jawaban sedang diproses... Mohon tunggu sebentar.",
+                "fulfillmentText": "🤖 Jawaban sedang diproses… Mohon tunggu sebentar.",
                 "outputContexts": [
                     {
                         "name": f"{req.session}/contexts/waiting_custom_answer",
