@@ -27,18 +27,23 @@ def make_response(jawaban: str):
 
 async def generate_and_cache_gemini_answer(prompt: str, cache_key: str):
     try:
+        logging.info(f"🔄 Generating Gemini answer for prompt: {prompt[:100]}...")
+        logging.info(f"🔑 Using cache_key: {cache_key}")
         jawaban = await chat_with_gemini_api(prompt)
         if jawaban:  # hanya simpan jika jawaban valid
             await redis_client.set(cache_key, jawaban, ex=60) # Simpan ke Redis dengan expire 1 menit
+            logging.info(f"✅ Jawaban Gemini disimpan ke Redis untuk key: {cache_key}")
+            logging.info(f"📝 Jawaban length: {len(jawaban)} characters")
+            logging.info("✅ Respons dari Gemini berhasil didapat.")
         else:
             logging.warning("❌ Jawaban dari Gemini gagal. Tidak disimpan ke Redis.")
             return {
                 "fulfillmentText": "🤖 Maaf, saya belum bisa memberikan jawaban saat ini. Silakan coba lagi nanti."
             }
-        logging.info(f"✅ Jawaban Gemini disimpan ke Redis untuk key: {cache_key}")
-        logging.info("✅ Respons dari Gemini berhasil didapat.")
     except Exception as e:
         logging.error(f"❌ Gagal generate jawaban Gemini: {str(e)}")
+        import traceback
+        logging.error(f"❌ Traceback: {traceback.format_exc()}")
 
 async def handle_custom_question(req, background_task: BackgroundTasks):
     user_question = req.queryResult.get("queryText", "").strip()

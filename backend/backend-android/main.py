@@ -149,13 +149,16 @@ async def webhook(req: DialogflowRequest, background_task: BackgroundTasks):
 
 @app.get("/check-gemini-result", tags=["Chatbot"])
 async def check_gemini_result(cache_key: str):
+    logging.info(f"🔍 Checking Gemini result for cache_key: {cache_key}")
     cached = await redis_client.get(cache_key)
     if cached:
+        logging.info(f"✅ Cache found for key: {cache_key}")
+        logging.info(f"📝 Cached answer length: {len(cached)} characters")
         chips = [
             {"text": "💬 Tanya Lagi ke AI"},
             {"text": "🏠 Menu Utama"}
         ]
-        return {
+        response = {
             "status": "ready",
             "fulfillmentMessages": [
                 {"text": {"text": [f"🤖 Gemini Bot:\n{cached}"]}},
@@ -163,6 +166,9 @@ async def check_gemini_result(cache_key: str):
                 {"payload": {"richContent": [[{"type": "chips", "options": chips}]]}}
             ]
         }
+        logging.info(f"📤 Returning response with {len(response['fulfillmentMessages'])} messages")
+        return response
+    logging.info(f"⏳ Cache not found for key: {cache_key} - returning pending status")
     return {"status": "pending"}
 
 @app.get("/clear-all-cache", tags=["Reddis"])
