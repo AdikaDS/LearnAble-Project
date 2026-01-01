@@ -104,8 +104,9 @@ async def webhook(req: DialogflowRequest, background_task: BackgroundTasks):
             return await handle_custom_question(req, background_task)
         
         # PRIORITAS: Jika ada context waiting_custom_answer aktif, semua input diarahkan ke custom question
-        # Kecuali intent khusus yang harus diabaikan (Welcome, Menu Utama, Tanya Lagi ke AI)
-        if has_waiting_context and query_text and intent not in ["Welcome", "Mulai", "Menu Utama", "Tanya Lagi ke AI"]:
+        # Kecuali intent khusus yang harus diabaikan (Welcome, Mulai, Menu Utama)
+        # Catatan: "Tanya Lagi ke AI" tetap diizinkan untuk memperpanjang context
+        if has_waiting_context and query_text and intent not in ["Welcome", "Mulai", "Menu Utama"]:
             logging.info(f"💬 Context waiting_custom_answer aktif - mengarahkan intent '{intent}' ke Custom Pertanyaan")
             return await handle_custom_question(req, background_task)
         

@@ -8,7 +8,7 @@ def generate_cache_key(session: str, message: str) -> str:
     key_string = f"{session}:{message}"
     return hashlib.sha256(key_string.encode()).hexdigest()
 
-def make_response(jawaban: str):
+def make_response(jawaban: str, session: str):
     logging.info("📤 Membuat respons untuk Dialogflow")
     # Kirim respons ke user
     chips = [
@@ -20,9 +20,16 @@ def make_response(jawaban: str):
             {"text": {"text": [f"🤖 Gemini Bot:\n{jawaban}"]}},
             {"text": {"text": ["🤖 Chatbot:\nIngin bertanya lagi atau kembali ke menu?:"]}},
             {"payload": {"richContent": [[{"type": "chips", "options": chips}] ]}}
+        ],
+        # Pertahankan context agar user bisa langsung bertanya lagi tanpa klik chip
+        "outputContexts": [
+            {
+                "name": f"{session}/contexts/waiting_custom_answer",
+                "lifespanCount": 20  # Tingkatkan lifespan agar bisa bertanya beberapa kali
+            }
         ]
     }
-    logging.info("📤 Mengirim respons teori subbab + chips ke user.")
+    logging.info("📤 Mengirim respons teori subbab + chips ke user dengan context yang diperpanjang.")
     return response
 
 async def generate_and_cache_gemini_answer(prompt: str, cache_key: str):
@@ -77,7 +84,7 @@ async def handle_custom_question(req, background_task: BackgroundTasks):
             "outputContexts": [
                 {
                     "name": f"{req.session}/contexts/waiting_custom_answer",
-                    "lifespanCount": 5
+                    "lifespanCount": 20  # Tingkatkan lifespan agar bisa bertanya beberapa kali
                 }
             ]
         }
@@ -99,7 +106,7 @@ async def handle_custom_question(req, background_task: BackgroundTasks):
                 cached = await redis_client.get(cache_key)
                 if cached:
                     logging.info("📦 Jawaban diambil dari Redis cache.")
-                    return make_response(cached)
+                    return make_response(cached, session)
                 else:
                     logging.info("🔄 Cache tidak ditemukan, akan generate jawaban baru")
             else:
@@ -113,7 +120,7 @@ async def handle_custom_question(req, background_task: BackgroundTasks):
                 "outputContexts": [
                     {
                         "name": f"{req.session}/contexts/waiting_custom_answer",
-                        "lifespanCount": 5,
+                        "lifespanCount": 20,  # Tingkatkan lifespan agar bisa bertanya beberapa kali
                         "parameters": {
                             "cache_key": cache_key
                         }
