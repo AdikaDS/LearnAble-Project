@@ -55,9 +55,16 @@ async def handle_custom_question(req, background_task: BackgroundTasks):
     )
 
     if intent == "Tanya Lagi ke AI":
-        logging.info("💬 User klik chip 'Tanya Lagi ke AI'")
+        logging.info("💬 User klik chip 'Tanya Lagi ke AI' - Langsung masuk ke custom question")
         return {
-            "fulfillmentText": "Silakan ketik pertanyaan yang ingin kamu tanyakan 😊",
+            "fulfillmentText": "💬 Silakan ketik pertanyaan yang ingin kamu tanyakan ke AI 😊",
+            "fulfillmentMessages": [
+                {
+                    "text": {
+                        "text": ["💬 Silakan ketik pertanyaan yang ingin kamu tanyakan ke AI 😊"]
+                    }
+                }
+            ],
             "outputContexts": [
                 {
                     "name": f"{req.session}/contexts/waiting_custom_answer",
